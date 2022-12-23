@@ -1,0 +1,28 @@
+Package: AllelicSeries
+Title: Allelic Series Test
+Version: 0.0.2
+Authors@R:
+    person(given = "Zachary",
+           family = "McCaw",
+           email = "zmccaw@insitro.com",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2006-9828"))
+Description: Implementation of gene-level rare coding-variant association tests targeting allelic series: cases where increasingly deleterious mutations have increasingly large phenotypic effects. TODO: Add citation to paper on bioRxiv.
+License: file LICENSE
+Encoding: UTF-8
+Imports:
+    Rcpp,
+    RNOmni,
+    SKAT
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    withr
+Config/testthat/edition: 3
+VignetteBuilder: knitr
