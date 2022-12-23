@@ -7,7 +7,7 @@ have increasingly large phenotypic effects.
 # Installation
 
 ``` r
-install.packages("AllelicSeries")
+devtools::install_github("insitro/AllelicSeries")
 ```
 
 ``` r
