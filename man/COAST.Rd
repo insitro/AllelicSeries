@@ -48,3 +48,17 @@ Numeric p-value.
 Main allelic series test. Performs both Burden and SKAT type tests, then
 combines the results to calculate an omnibus p-value.
 }
+\examples{
+# Generate data.
+data <- DGP(n = 1e3, snps = 1e2)
+
+# Run the COding-variant Allelic Series Test.
+results <- COAST(
+  anno = data$anno,
+  geno = data$geno,
+  pheno = data$pheno,
+  covar = data$covar
+)
+show(results)
+
+}

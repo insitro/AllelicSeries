@@ -97,6 +97,19 @@ Aggregator <- function(
 #'   {"none", "max", "sum"}. Default: "none".
 #' @param weights (3 x 1) annotation category weights.
 #' @return Numeric p-value.
+#' @examples 
+#' # Generate data.
+#' data <- DGP(n = 1e3, snps = 1e2)
+#' 
+#' # Run the Allelic Series Burden Test.
+#' # Note: the output is a scalar p-value.
+#' results <- ASBT(
+#'   anno = data$anno,
+#'   geno = data$geno,
+#'   pheno = data$pheno,
+#'   covar = data$covar
+#' )
+#' 
 #' @export
 ASBT <- function(
   anno,
@@ -190,6 +203,18 @@ ASBT <- function(
 #' @param weights (3 x 1) annotation category weights.
 #' @return If `return_null_model`, a list containing the p-value and the
 #'   SKAT null model. Otherwise, a numeric p-value.
+#' @examples
+#' # Generate data.
+#' data <- DGP(n = 1e3, snps = 1e2)
+#' 
+#' # Run the Allelic Series SKAT Test.
+#' # Note: the output is a scalar p-value.
+#' results <- ASKAT(
+#'   anno = data$anno,
+#'   geno = data$geno,
+#'   pheno = data$pheno,
+#'   covar = data$covar
+#' )
 #' @export
 ASKAT <- function(
   anno,
@@ -305,6 +330,19 @@ ASKAT <- function(
 #' @param return_omni_only Return only the omnibus p-value? Default: FALSE.
 #' @param weights (3 x 1) annotation category weights.
 #' @return Numeric p-value.
+#' @examples 
+#' # Generate data.
+#' data <- DGP(n = 1e3, snps = 1e2)
+#' 
+#' # Run the COding-variant Allelic Series Test.
+#' results <- COAST(
+#'   anno = data$anno,
+#'   geno = data$geno,
+#'   pheno = data$pheno,
+#'   covar = data$covar
+#' )
+#' show(results)
+#' 
 #' @export
 COAST <- function(
   anno,

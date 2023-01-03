@@ -41,3 +41,16 @@ SKAT null model. Otherwise, a numeric p-value.
 \description{
 Sequence kernel association test (SKAT) with allelic series weights.
 }
+\examples{
+# Generate data.
+data <- DGP(n = 1e3, snps = 1e2)
+
+# Run the Allelic Series SKAT Test.
+# Note: the output is a scalar p-value.
+results <- ASKAT(
+  anno = data$anno,
+  geno = data$geno,
+  pheno = data$pheno,
+  covar = data$covar
+)
+}

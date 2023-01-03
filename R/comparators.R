@@ -13,6 +13,16 @@
 #'   Default: TRUE. Ignored if phenotype is binary.
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
 #' @return Numeric vector of p-values.
+#' @examples 
+#' # Generate data.
+#' data <- DGP(n = 1e3, snps = 1e2)
+#' 
+#' # Run the comparators.
+#' results <- Comparator(
+#'   geno = data$geno,
+#'   pheno = data$pheno,
+#'   covar = data$covar
+#' )
 #' @export
 Comparator <- function(
     covar,
