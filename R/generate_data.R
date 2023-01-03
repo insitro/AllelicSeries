@@ -251,6 +251,13 @@ GenPheno <- function(
 
 
 #' Data Generating Process
+#' 
+#' Generate a data set consisting of: \itemize{
+#' \item{"anno"}{A SNP-length annotation vector.}
+#' \item{"covar"}{A subject by 6 covariate matrix.}
+#' \item{"geno"}{A subject by SNP genotype matrix.}
+#' \item{"pheno"}{A subject-length phenotype vector.}
+#' }
 #'
 #' @param n Sample size.
 #' @param snps Number of SNP in the gene.
@@ -266,6 +273,15 @@ GenPheno <- function(
 #'   architecture, TRUE for SKAT-type.
 #' @param weights Aggregation weights.
 #' @return List containing: genotypes, annotations, covariates, phenotypes.
+#' @examples 
+#' # Generate data.
+#' data <- DGP(n = 100, snps = 20)
+#' 
+#' # View components.
+#' table(data$anno)
+#' head(data$covar)
+#' head(data$geno[, 1:5])
+#' hist(data$pheno)
 #' @export
 DGP <- function(
   n,

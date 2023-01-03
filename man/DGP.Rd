@@ -45,5 +45,20 @@ architecture, TRUE for SKAT-type.}
 List containing: genotypes, annotations, covariates, phenotypes.
 }
 \description{
-Data Generating Process
+Generate a data set consisting of: \itemize{
+\item{"anno"}{A SNP-length annotation vector.}
+\item{"covar"}{A subject by 6 covariate matrix.}
+\item{"geno"}{A subject by SNP genotype matrix.}
+\item{"pheno"}{A subject-length phenotype vector.}
+}
+}
+\examples{
+# Generate data.
+data <- DGP(n = 100, snps = 20)
+
+# View components.
+table(data$anno)
+head(data$covar)
+head(data$geno[, 1:5])
+hist(data$pheno)
 }

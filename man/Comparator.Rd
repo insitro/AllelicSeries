@@ -24,3 +24,14 @@ Numeric vector of p-values.
 \description{
 Runs burden, SKAT, and SKAT-O, using default settings.
 }
+\examples{
+# Generate data.
+data <- DGP(n = 1e3, snps = 1e2)
+
+# Run the comparators.
+results <- Comparator(
+  geno = data$geno,
+  pheno = data$pheno,
+  covar = data$covar
+)
+}

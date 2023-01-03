@@ -43,3 +43,17 @@ Numeric p-value.
 \description{
 Burden test with allelic series weights.
 }
+\examples{
+# Generate data.
+data <- DGP(n = 1e3, snps = 1e2)
+
+# Run the Allelic Series Burden Test.
+# Note: the output is a scalar p-value.
+results <- ASBT(
+  anno = data$anno,
+  geno = data$geno,
+  pheno = data$pheno,
+  covar = data$covar
+)
+
+}
