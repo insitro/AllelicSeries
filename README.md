@@ -67,8 +67,8 @@ genotype matrix, and the phenotype vector.
   included manually, if desired.
 
 - `weights` encodes the relative importance of BMVs, DMVs, and PTVs. The
-  example weights of `c(1, 2, 3)` target a genetic architecture where
-  BMVs have no effect and PTVs have twice the effect of DMVs. Weights of
+  example weights of `c(1, 2, 3)` target a genetic architecture where effect sizes increase with increasing deleteriousness:
+  BMVs have an effect of 1, DMVs have an effect of 2, and PTVs have an effect of 3. Weights of
   `c(1, 1, 1)` target instead a genetic architecture where all variant
   types have equivalent expected magnitudes.
 
