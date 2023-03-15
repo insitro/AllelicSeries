@@ -4,10 +4,10 @@
 \alias{GenAnno}
 \title{Generate Genotype Annotations}
 \usage{
-GenAnno(mat, p_dmv = 0.33, p_ptv = 0.33)
+GenAnno(snps, p_dmv = 0.33, p_ptv = 0.33)
 }
 \arguments{
-\item{mat}{Genotype matrix.}
+\item{snps}{Number of SNPs in the gene.}
 
 \item{p_dmv}{Frequency of deleterious missense variants.}
 

@@ -1,5 +1,5 @@
 # Purpose: Data generation for allelic series.
-# Updated: 2022-08-02
+# Updated: 2023-03-15
 
 
 #' Generate Genotype Matrix
@@ -37,20 +37,18 @@ GenGenoMat <- function(
 #' matrix. Each SNP is classified as a benign missense variant (0), a
 #' deleterious missense variant (1), or a protein truncating variant (2).
 #'
-#' @param mat Genotype matrix.
+#' @param snps Number of SNPs in the gene.
 #' @param p_dmv Frequency of deleterious missense variants.
 #' @param p_ptv Frequency of protein truncating variants.
 #' @return (snps x 1) integer vector.
 GenAnno <- function(
-  mat,
+  snps,
   p_dmv = 0.33,
   p_ptv = 0.33
 ) {
   p_bmv <- 1 - sum(c(p_dmv, p_ptv))
   p <- c(p_bmv, p_dmv, p_ptv)
-  n_snps <- ncol(mat)
-
-  anno <- stats::rmultinom(n_snps, size = 1, prob = p)
+  anno <- stats::rmultinom(snps, size = 1, prob = p)
   anno <- apply(anno, 2, which.max) - 1
   return(anno)
 }
@@ -73,10 +71,10 @@ GenGeno <- function(
   p_ptv = 0.33
 ) {
   geno <- GenGenoMat(n = n, snps = snps, maf_range = maf_range)
-  anno <- GenAnno(geno, p_dmv, p_ptv)
+  anno <- GenAnno(snps, p_dmv, p_ptv)
   out <- list(
-    geno = geno,
-    anno = anno
+    anno = anno,
+    geno = geno
   )
   return(out)
 }
@@ -100,14 +98,15 @@ GenCovar <- function(n) {
   sex <- stats::rbinom(n, size = 1, prob = 0.5)
 
   # 3 covariates representing PCs.
-  pcs <- lapply(seq_len(3), function(i) {stats::rnorm(n)})
+  N_PC <- 3
+  pcs <- lapply(seq_len(N_PC), function(i) {stats::rnorm(n)})
   pcs <- do.call(cbind, pcs)
 
   # Output.
-  out <- cbind(age, sex, pcs)
+  out <- cbind(age, pcs)
   out <- scale(out)
-  out <- cbind(1, out)
-  colnames(out) <- c("int", "age", "sex", "pc1", "pc2", "pc3")
+  out <- cbind(1, out[, 1], sex, out[, 2:ncol(out)])
+  colnames(out) <- c("int", "age", "sex", paste0("pc", seq_len(N_PC)))
   return(out)
 }
 
@@ -259,23 +258,28 @@ GenPheno <- function(
 #' \item{"pheno"}{A subject-length phenotype vector.}
 #' }
 #'
-#' @param n Sample size.
-#' @param snps Number of SNP in the gene.
+#' @param anno Annotation vector, if providing genotypes. Should match the
+#'   number of columns in geno.
 #' @param beta If method = "none", a (3 x 1) coefficient vector for bmvs, dmvs,
 #'   and ptvs respectively. If method != "none", a scalar effect size.
 #' @param binary Generate binary phenotype? Default: FALSE.
+#' @param geno Genotype matrix, if providing genotypes. 
 #' @param include_residual Include residual? If FALSE, returns the expected
 #'   value. Intended for testing.
 #' @param indicator Convert raw counts to indicators? Default: FALSE.
 #' @param maf_range Range of minor allele frequencies: c(MIN, MAX).
 #' @param method Genotype aggregation method. Default: "none".
+#' @param n Sample size.
+#' @param p_dmv Frequency of deleterious missense variants.
+#' @param p_ptv Frequency of protein truncating variants.
 #' @param random_signs Randomize signs? FALSE for burden-type genetic
 #'   architecture, TRUE for SKAT-type.
+#' @param snps Number of SNP in the gene. Default: 100.
 #' @param weights Aggregation weights.
 #' @return List containing: genotypes, annotations, covariates, phenotypes.
 #' @examples 
 #' # Generate data.
-#' data <- DGP(n = 100, snps = 20)
+#' data <- DGP(n = 100)
 #' 
 #' # View components.
 #' table(data$anno)
@@ -284,20 +288,74 @@ GenPheno <- function(
 #' hist(data$pheno)
 #' @export
 DGP <- function(
-  n,
-  snps,
+  anno = NULL,
   beta = c(0, 1, 2),
   binary = FALSE,
+  geno = NULL,
   include_residual = TRUE,
   indicator = FALSE,
   maf_range = c(0.005, 0.010),
   method = "none",
+  n = 100,
+  p_dmv = 0.33,
+  p_ptv = 0.33,
   random_signs = FALSE,
-  weights = c(0, 1, 2)
+  snps = 100,
+  weights = c(1, 2, 3)
 ) {
 
-  # Generate genotypes.
-  anno_geno <- GenGeno(n = n, snps = snps, maf_range = maf_range)
+  # Generate genotypes and annotations.
+  if (is.null(anno) & is.null(geno)) {
+    
+    # Neither annotations nor genotypes provided.
+    anno_geno <- GenGeno(
+      n = n,
+      snps = snps,
+      maf_range = maf_range,
+      p_dmv = p_dmv,
+      p_ptv = p_ptv
+    )
+    
+  } else if(is.null(anno) & !is.null(geno)) {
+    
+    # Only genotypes provided.
+    geno <- as.matrix(geno)
+    n <- nrow(geno)
+    snps <- ncol(geno)
+    anno <- GenAnno(snps)
+    anno_geno <- list(
+      anno = anno,
+      geno = geno
+    )
+    
+  } else if(!is.null(anno) & is.null(geno)) {
+    
+    # Only annotations provided.
+    snps <- length(anno)
+    geno <- GenGenoMat(
+      n = n,
+      snps = snps,
+      maf_range = maf_range
+    )
+    anno_geno <- list(
+      anno = anno,
+      geno = geno
+    )
+    
+  } else {
+    
+    # Annotations and genotypes provided.
+    geno <- as.matrix(geno)
+    stopifnot(length(anno) == ncol(geno))
+    snps <- ncol(geno)
+    n <- nrow(geno)
+    
+    anno_geno <- list(
+      anno = anno,
+      geno = geno
+    )
+    
+  }
 
   # Generate covariates.
   covar <- GenCovar(n)

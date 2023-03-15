@@ -1,6 +1,6 @@
 Package: AllelicSeries
 Title: Allelic Series Test
-Version: 0.0.2.2
+Version: 0.0.2.3
 Authors@R:
     c(person(given = "Zachary",
            family = "McCaw",

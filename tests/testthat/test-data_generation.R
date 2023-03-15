@@ -11,7 +11,7 @@ test_that("Check annotation generation.", {
 
   withr::local_seed(101)
   g <- GenGenoMat(n = 10, snps = 10)
-  anno <- GenAnno(g)
+  anno <- GenAnno(ncol(g))
   expect_true(all(anno %in% c(0, 1, 2)))
 
 })
@@ -152,4 +152,33 @@ test_that("Check phenotype generation.", {
     )
   )
 
+})
+
+
+test_that("Check data generation with manual phenotypes.", {
+  
+  # Annotations and genotypes both provided.
+  anno <- c(0, 1, 2)
+  geno <- rbind(
+    c(0, 0, 0),
+    c(1, 1, 1),
+    c(0, 2, 0),
+    c(1, 0, 2)
+  )
+  
+  data <- DGP(anno = anno, geno = geno)
+  expect_true(all(data$anno == anno))
+  expect_true(all(data$geno == geno))
+  
+  # Only annotations provided.
+  data <- DGP(anno = anno, n = 10, snps = 10)
+  expect_true(all(data$anno == anno))
+  expect_true(ncol(data$geno) == length(anno))  # snps replaced by length(anno).
+  
+  # Only genotypes provided.
+  data <- DGP(geno = geno, n = 10, snps = 10)
+  expect_true(all(data$geno == geno))
+  expect_true(length(data$pheno) == nrow(geno))  # n is replaced by nrow(geno)
+  expect_true(length(data$anno) == ncol(geno))  # snps is replaced by ncol(geno)
+  
 })
