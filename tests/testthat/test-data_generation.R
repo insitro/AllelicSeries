@@ -178,7 +178,7 @@ test_that("Check data generation with manual phenotypes.", {
   # Only genotypes provided.
   data <- DGP(geno = geno, n = 10, snps = 10)
   expect_true(all(data$geno == geno))
-  expect_true(length(data$pheno) == nrow(geno))  # n is replaced by nrow(geno)
-  expect_true(length(data$anno) == ncol(geno))  # snps is replaced by ncol(geno)
+  expect_true(length(data$pheno) == nrow(geno))  # n replaced by nrow(geno).
+  expect_true(length(data$anno) == ncol(geno))  # snps replaced by ncol(geno).
   
 })

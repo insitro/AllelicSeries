@@ -322,7 +322,7 @@ DGP <- function(
     geno <- as.matrix(geno)
     n <- nrow(geno)
     snps <- ncol(geno)
-    anno <- GenAnno(snps)
+    anno <- GenAnno(snps, p_dmv = p_dmv, p_ptv = p_ptv)
     anno_geno <- list(
       anno = anno,
       geno = geno
