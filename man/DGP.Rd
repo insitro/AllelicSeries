@@ -5,27 +5,32 @@
 \title{Data Generating Process}
 \usage{
 DGP(
-  n,
-  snps,
+  anno = NULL,
   beta = c(0, 1, 2),
   binary = FALSE,
+  geno = NULL,
   include_residual = TRUE,
   indicator = FALSE,
   maf_range = c(0.005, 0.01),
   method = "none",
+  n = 100,
+  p_dmv = 0.33,
+  p_ptv = 0.33,
   random_signs = FALSE,
-  weights = c(0, 1, 2)
+  snps = 100,
+  weights = c(1, 2, 3)
 )
 }
 \arguments{
-\item{n}{Sample size.}
-
-\item{snps}{Number of SNP in the gene.}
+\item{anno}{Annotation vector, if providing genotypes. Should match the
+number of columns in geno.}
 
 \item{beta}{If method = "none", a (3 x 1) coefficient vector for bmvs, dmvs,
 and ptvs respectively. If method != "none", a scalar effect size.}
 
 \item{binary}{Generate binary phenotype? Default: FALSE.}
+
+\item{geno}{Genotype matrix, if providing genotypes.}
 
 \item{include_residual}{Include residual? If FALSE, returns the expected
 value. Intended for testing.}
@@ -36,8 +41,16 @@ value. Intended for testing.}
 
 \item{method}{Genotype aggregation method. Default: "none".}
 
+\item{n}{Sample size.}
+
+\item{p_dmv}{Frequency of deleterious missense variants.}
+
+\item{p_ptv}{Frequency of protein truncating variants.}
+
 \item{random_signs}{Randomize signs? FALSE for burden-type genetic
 architecture, TRUE for SKAT-type.}
+
+\item{snps}{Number of SNP in the gene. Default: 100.}
 
 \item{weights}{Aggregation weights.}
 }
@@ -54,7 +67,7 @@ Generate a data set consisting of: \itemize{
 }
 \examples{
 # Generate data.
-data <- DGP(n = 100, snps = 20)
+data <- DGP(n = 100)
 
 # View components.
 table(data$anno)
