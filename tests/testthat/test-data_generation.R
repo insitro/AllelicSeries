@@ -226,7 +226,7 @@ test_that("Check ability to vary the proportion of causal variants.", {
   )
   
   withr::local_seed(1010)
-  internal_pheno <- external_pheno <- GenPheno(
+  internal_pheno <- GenPheno(
     anno = anno,
     beta = beta,
     geno = geno,
