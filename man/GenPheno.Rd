@@ -14,6 +14,7 @@ GenPheno(
   include_residual = TRUE,
   indicator = FALSE,
   method = "none",
+  prop_causal = 1,
   random_signs = FALSE,
   weights = c(0, 1, 2)
 )
@@ -37,6 +38,8 @@ value. Intended for testing.}
 \item{indicator}{Convert raw counts to indicators? Default: FALSE.}
 
 \item{method}{Genotype aggregation method. Default: "none".}
+
+\item{prop_causal}{Proportion of variants which are causal.}
 
 \item{random_signs}{Randomize signs? FALSE for burden-type genetic
 architecture, TRUE for SKAT-type.}
