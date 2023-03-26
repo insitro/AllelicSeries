@@ -421,6 +421,7 @@ DGP <- function(
     include_residual = include_residual,
     indicator = indicator,
     method = method,
+    prop_causal = prop_causal,
     random_signs = random_signs,
     weights = weights
   )
