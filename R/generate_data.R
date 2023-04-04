@@ -95,11 +95,13 @@ FilterGenos <- function(
   prop_causal = 1.0
 ) {
   
+  n_snp <- length(anno)
   p_noncausal <- 1.0 - prop_causal
-  which_drop <- stats::rbinom(length(anno), size = 1, prob = p_noncausal)
+  n_noncausal <- round(n_snp * p_noncausal)
+  which_drop <- sample(x = n_snp, size = n_noncausal, replace = FALSE)
   
   # Code non-causal variants as "-1". 
-  anno[which_drop == 1] <- -1
+  anno[which_drop] <- -1
   geno_filtered <- geno[, anno != -1, drop = FALSE]
   anno_filtered <- anno[anno != -1]
   
@@ -315,8 +317,12 @@ GenPheno <- function(
 #' @param maf_range Range of minor allele frequencies: c(MIN, MAX).
 #' @param method Genotype aggregation method. Default: "none".
 #' @param n Sample size.
-#' @param p_dmv Frequency of deleterious missense variants.
-#' @param p_ptv Frequency of protein truncating variants.
+#' @param p_dmv Frequency of deleterious missense variants. Default of 40% is
+#'   based on the frequency of DMVs among rare coding variants in the UK
+#'   Biobank.
+#' @param p_ptv Frequency of protein truncating variants. Default of 10% is
+#'   based on the frequency of PTVs among rare coding variants in the UK
+#'   Biobank.
 #' @param prop_causal Proportion of variants which are causal. Default: 1.0. 
 #' @param random_signs Randomize signs? FALSE for burden-type genetic
 #'   architecture, TRUE for SKAT-type.

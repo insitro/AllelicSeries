@@ -44,9 +44,13 @@ value. Intended for testing.}
 
 \item{n}{Sample size.}
 
-\item{p_dmv}{Frequency of deleterious missense variants.}
+\item{p_dmv}{Frequency of deleterious missense variants. Default of 40\% is
+based on the frequency of DMVs among rare coding variants in the UK
+Biobank.}
 
-\item{p_ptv}{Frequency of protein truncating variants.}
+\item{p_ptv}{Frequency of protein truncating variants. Default of 10\% is
+based on the frequency of PTVs among rare coding variants in the UK
+Biobank.}
 
 \item{prop_causal}{Proportion of variants which are causal. Default: 1.0.}
 
