@@ -14,8 +14,9 @@ DGP(
   maf_range = c(0.005, 0.01),
   method = "none",
   n = 100,
-  p_dmv = 0.33,
-  p_ptv = 0.33,
+  p_dmv = 0.4,
+  p_ptv = 0.1,
+  prop_causal = 1,
   random_signs = FALSE,
   snps = 100,
   weights = c(1, 2, 3)
@@ -43,9 +44,15 @@ value. Intended for testing.}
 
 \item{n}{Sample size.}
 
-\item{p_dmv}{Frequency of deleterious missense variants.}
+\item{p_dmv}{Frequency of deleterious missense variants. Default of 40\% is
+based on the frequency of DMVs among rare coding variants in the UK
+Biobank.}
 
-\item{p_ptv}{Frequency of protein truncating variants.}
+\item{p_ptv}{Frequency of protein truncating variants. Default of 10\% is
+based on the frequency of PTVs among rare coding variants in the UK
+Biobank.}
+
+\item{prop_causal}{Proportion of variants which are causal. Default: 1.0.}
 
 \item{random_signs}{Randomize signs? FALSE for burden-type genetic
 architecture, TRUE for SKAT-type.}

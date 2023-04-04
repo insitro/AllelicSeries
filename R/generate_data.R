@@ -80,6 +80,40 @@ GenGeno <- function(
 }
 
 
+#' Filter Noncausal Variants
+#' 
+#' Remove a random fraction of variants, which are designated non-causal. 
+#' 
+#' @param anno (snps x 1) annotation vector.
+#' @param geno (n x snps) genotype matrix.
+#' @param prop_causal Proportion of variants which are causal.
+#' @return List containing the (n x snps) genotype matrix "geno" and the
+#' (snps x 1) annotation vector "anno".
+FilterGenos <- function(
+  anno,
+  geno,
+  prop_causal = 1.0
+) {
+  
+  n_snp <- length(anno)
+  p_noncausal <- 1.0 - prop_causal
+  n_noncausal <- round(n_snp * p_noncausal)
+  which_drop <- sample(x = n_snp, size = n_noncausal, replace = FALSE)
+  
+  # Code non-causal variants as "-1". 
+  anno[which_drop] <- -1
+  geno_filtered <- geno[, anno != -1, drop = FALSE]
+  anno_filtered <- anno[anno != -1]
+  
+  # Output.
+  out <- list(
+    anno = anno_filtered,
+    geno = geno_filtered
+  )
+  return(out)
+}
+
+
 #' Generate Covariates
 #'
 #' Generate an (n x 6) covariate matrix with columns representing an intercept,
@@ -161,6 +195,7 @@ CalcRegParam <- function(
 #'   value. Intended for testing.
 #' @param indicator Convert raw counts to indicators? Default: FALSE.
 #' @param method Genotype aggregation method. Default: "none".
+#' @param prop_causal Proportion of variants which are causal.
 #' @param random_signs Randomize signs? FALSE for burden-type genetic
 #'   architecture, TRUE for SKAT-type.
 #' @param weights Aggregation weights.
@@ -175,6 +210,7 @@ GenPheno <- function(
   include_residual = TRUE,
   indicator = FALSE,
   method = "none",
+  prop_causal = 1.0,
   random_signs = FALSE,
   weights = c(0, 1, 2)
 ) {
@@ -186,6 +222,15 @@ GenPheno <- function(
   if ((method != "none") & random_signs) {
     stop("Random signs are incompatible with aggregated genotypes.")
   }
+  
+  # Filter genotypes.
+  anno_geno <- FilterGenos(
+    anno = anno,
+    geno = geno,
+    prop_causal = prop_causal
+  )
+  anno <- anno_geno$anno
+  geno <- anno_geno$geno
 
   # Calculate genetic effect.
   # Null phenotype.
@@ -232,12 +277,14 @@ GenPheno <- function(
   # Linear predictor.
   eta <- eta_g + eta_x
 
-  # Final phenotype.
+  # Add residual, if required.
   if (include_residual) {
     y <- eta + stats::rnorm(length(eta), sd = reg_param$sd)
   } else {
     y <- eta
   }
+  
+  # Convert to binary, if required.
   if (binary) {
     y <- 1 * (y >= 0)
   }
@@ -270,8 +317,13 @@ GenPheno <- function(
 #' @param maf_range Range of minor allele frequencies: c(MIN, MAX).
 #' @param method Genotype aggregation method. Default: "none".
 #' @param n Sample size.
-#' @param p_dmv Frequency of deleterious missense variants.
-#' @param p_ptv Frequency of protein truncating variants.
+#' @param p_dmv Frequency of deleterious missense variants. Default of 40% is
+#'   based on the frequency of DMVs among rare coding variants in the UK
+#'   Biobank.
+#' @param p_ptv Frequency of protein truncating variants. Default of 10% is
+#'   based on the frequency of PTVs among rare coding variants in the UK
+#'   Biobank.
+#' @param prop_causal Proportion of variants which are causal. Default: 1.0. 
 #' @param random_signs Randomize signs? FALSE for burden-type genetic
 #'   architecture, TRUE for SKAT-type.
 #' @param snps Number of SNP in the gene. Default: 100.
@@ -297,8 +349,9 @@ DGP <- function(
   maf_range = c(0.005, 0.010),
   method = "none",
   n = 100,
-  p_dmv = 0.33,
-  p_ptv = 0.33,
+  p_dmv = 0.40,
+  p_ptv = 0.10,
+  prop_causal = 1.0,
   random_signs = FALSE,
   snps = 100,
   weights = c(1, 2, 3)
@@ -374,6 +427,7 @@ DGP <- function(
     include_residual = include_residual,
     indicator = indicator,
     method = method,
+    prop_causal = prop_causal,
     random_signs = random_signs,
     weights = weights
   )
