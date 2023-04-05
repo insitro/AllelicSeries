@@ -198,6 +198,7 @@ CalcRegParam <- function(
 #' @param prop_causal Proportion of variants which are causal.
 #' @param random_signs Randomize signs? FALSE for burden-type genetic
 #'   architecture, TRUE for SKAT-type.
+#' @param random_var Frailty variance in the case of random signs. Default: 0.
 #' @param weights Aggregation weights.
 #' @return (n x 1) numeric vector.
 GenPheno <- function(
@@ -212,6 +213,7 @@ GenPheno <- function(
   method = "none",
   prop_causal = 1.0,
   random_signs = FALSE,
+  random_var = 0.0, 
   weights = c(0, 1, 2)
 ) {
 
@@ -241,14 +243,30 @@ GenPheno <- function(
   # SKAT-type phenotype.
   } else if(random_signs) {
 
-    long_beta <- rep(0, length(anno))
+    n_snps <- length(anno)
+    long_beta <- rep(0, n_snps)
+    
+    # Generate an effect size vector of length == the annotation vector.
     for (i in 0:2) {long_beta[anno == i] <- beta[i + 1]}
 
-    signs <- sample(c(-1, 1), length(anno), TRUE)
-    long_beta <- long_beta * signs
+    # Sample the sign. 
+    signs <- sample(x = c(-1, 1), size = n_snps, replace = TRUE)
+    
+    # Sample the frailty (positive random effect with expectation 1.0).  
+    if (random_var == 0) {
+      gamma <- 1
+    } else {
+      shape <- 1 / random_var
+      gamma <- stats::rgamma(n = n_snps, shape = shape, rate = shape)
+    }
+    
+    # Overall genetic effect sizes.
+    long_beta <- signs * gamma * long_beta 
 
+    # Convert to indicator genotypes, if required.
     if (indicator) {geno <- 1 * (geno > 0)}
-
+    
+    # Overall genetic contribution to the phenotype.
     eta_g <- as.numeric(geno %*% long_beta)
 
   # Burden-type phenotypes.
@@ -263,6 +281,8 @@ GenPheno <- function(
       weights = weights
     )
 
+    # Overall genetic contribution to the phenotype.
+    # If method is not none, beta is a scalar, else a vector.
     if (method != "none") {
       eta_g <- as.numeric(agg_geno * beta)
     } else {
@@ -326,6 +346,7 @@ GenPheno <- function(
 #' @param prop_causal Proportion of variants which are causal. Default: 1.0. 
 #' @param random_signs Randomize signs? FALSE for burden-type genetic
 #'   architecture, TRUE for SKAT-type.
+#' @param random_var Frailty variance in the case of random signs. Default: 0.
 #' @param snps Number of SNP in the gene. Default: 100.
 #' @param weights Aggregation weights.
 #' @return List containing: genotypes, annotations, covariates, phenotypes.
@@ -353,6 +374,7 @@ DGP <- function(
   p_ptv = 0.10,
   prop_causal = 1.0,
   random_signs = FALSE,
+  random_var = 0.0, 
   snps = 100,
   weights = c(1, 2, 3)
 ) {
@@ -429,6 +451,7 @@ DGP <- function(
     method = method,
     prop_causal = prop_causal,
     random_signs = random_signs,
+    random_var = random_var, 
     weights = weights
   )
 

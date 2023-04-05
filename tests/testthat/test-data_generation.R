@@ -238,3 +238,47 @@ test_that("Check ability to vary the proportion of causal variants.", {
   expect_equal(external_pheno, internal_pheno)
   
 })
+
+
+test_that("Checking ability to generate phenotypes with random genetic effects.", {
+  
+  anno <- c(0, 1, 2)
+  geno <- rbind(
+    c(0, 0, 0),
+    c(1, 1, 1),
+    c(0, 2, 0),
+    c(1, 0, 2)
+  )
+  covar <- c(rep(1, 4))
+  beta <- c(1, 2, 3)
+  reg_param <- list(coef = as.matrix(0))
+  weights <- c(1, 1, 1)
+  
+  withr::local_seed(123)
+  y_nonrandom <- GenPheno(
+    anno = anno,
+    beta = beta,
+    covar = covar,
+    geno = geno,
+    reg_param = reg_param,
+    include_residual = FALSE,
+    random_signs = TRUE,
+    random_var = 0.0
+  )
+  
+  withr::local_seed(123)
+  y_random <- GenPheno(
+    anno = anno,
+    beta = beta,
+    covar = covar,
+    geno = geno,
+    reg_param = reg_param,
+    include_residual = FALSE,
+    random_signs = TRUE,
+    random_var = 1.0
+  )
+  
+  expect_gt(stats::var(y_random), stats::var(y_nonrandom))
+  
+})
+
