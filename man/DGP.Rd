@@ -18,6 +18,7 @@ DGP(
   p_ptv = 0.1,
   prop_causal = 1,
   random_signs = FALSE,
+  random_var = 0,
   snps = 100,
   weights = c(1, 2, 3)
 )
@@ -56,6 +57,8 @@ Biobank.}
 
 \item{random_signs}{Randomize signs? FALSE for burden-type genetic
 architecture, TRUE for SKAT-type.}
+
+\item{random_var}{Frailty variance in the case of random signs. Default: 0.}
 
 \item{snps}{Number of SNP in the gene. Default: 100.}
 
