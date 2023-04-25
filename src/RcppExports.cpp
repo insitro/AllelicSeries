@@ -23,9 +23,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ResidVar
+SEXP ResidVar(const arma::colvec y, const arma::mat X);
+RcppExport SEXP _AllelicSeries_ResidVar(SEXP ySEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(ResidVar(y, X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Score
+SEXP Score(const arma::colvec y, const arma::mat G, const arma::mat X, const double v);
+RcppExport SEXP _AllelicSeries_Score(SEXP ySEXP, SEXP GSEXP, SEXP XSEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type G(GSEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const double >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(Score(y, G, X, v));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_AllelicSeries_OLS", (DL_FUNC) &_AllelicSeries_OLS, 2},
+    {"_AllelicSeries_ResidVar", (DL_FUNC) &_AllelicSeries_ResidVar, 2},
+    {"_AllelicSeries_Score", (DL_FUNC) &_AllelicSeries_Score, 4},
     {NULL, NULL, 0}
 };
 

@@ -47,5 +47,11 @@ SEXP OLS(const arma::colvec y, const arma::mat X){
   // Z-scores.
   const arma::vec z = b / se;
 
-  return Rcpp::List::create(Rcpp::Named("beta") = b, Rcpp::Named("v") = v, Rcpp::Named("se") = se, Rcpp::Named("z") = z);
+  return Rcpp::List::create(
+    Rcpp::Named("beta") = b,
+    Rcpp::Named("v") = v,
+    Rcpp::Named("se") = se,
+    Rcpp::Named("z") = z,
+    Rcpp::Named("resid") = eps
+  );
 }

@@ -20,3 +20,25 @@ OLS <- function(y, X) {
     .Call(`_AllelicSeries_OLS`, y, X)
 }
 
+#' Calculate Residual Variance
+#'
+#' @param y (n x 1) Numeric phenotype vector.
+#' @param X (n x q) Numeric covariate matrix.
+#'
+#' @return Scalar residual variance.
+ResidVar <- function(y, X) {
+    .Call(`_AllelicSeries_ResidVar`, y, X)
+}
+
+#' Calculate Score Statistic
+#'
+#' @param y (n x 1) Numeric phenotype vector.
+#' @param G (n x p) Numeric genotype matrix.
+#' @param X (n x q) Numeric covariate matrix.
+#' @param v Scalar residual variance.
+#'
+#' @return Scalar score statistic.
+Score <- function(y, G, X, v) {
+    .Call(`_AllelicSeries_Score`, y, G, X, v)
+}
+
