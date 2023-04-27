@@ -14,6 +14,7 @@ COAST(
   include_orig_skato_ptv = FALSE,
   is_pheno_binary = FALSE,
   return_omni_only = FALSE,
+  score_test = FALSE,
   weights = DEFAULT_WEIGHTS
 )
 }
@@ -38,6 +39,9 @@ to PTV variants only in the omnibus test? Default: FALSE.}
 \item{is_pheno_binary}{Is the phenotype binary? Default: FALSE.}
 
 \item{return_omni_only}{Return only the omnibus p-value? Default: FALSE.}
+
+\item{score_test}{Use a score test for burden analysis? If FALSE, uses a
+Wald test.}
 
 \item{weights}{(3 x 1) annotation category weights.}
 }

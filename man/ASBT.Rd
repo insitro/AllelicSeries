@@ -13,6 +13,7 @@ ASBT(
   indicator = FALSE,
   is_pheno_binary = FALSE,
   method = "none",
+  score_test = FALSE,
   weights = DEFAULT_WEIGHTS
 )
 }
@@ -32,8 +33,10 @@ Default: TRUE. Ignored if phenotype is binary.}
 
 \item{is_pheno_binary}{Is the phenotype binary? Default: FALSE.}
 
-\item{method}{Method for aggregating across categories:
-{"none", "max", "sum"}. Default: "none".}
+\item{method}{Method for aggregating across categories: {"none", "max",
+"sum"}. Default: "none".}
+
+\item{score_test}{Run a score test? If FALSE, performs a Wald test.}
 
 \item{weights}{(3 x 1) annotation category weights.}
 }
@@ -55,5 +58,4 @@ results <- ASBT(
   pheno = data$pheno,
   covar = data$covar
 )
-
 }

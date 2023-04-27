@@ -1,5 +1,5 @@
 # Purpose: Allelic series test.
-# Updated: 2022-09-22
+# Updated: 2023-04-25
 
 # Default weights.
 DEFAULT_WEIGHTS <- c(1, 2, 3)
@@ -74,7 +74,7 @@ Aggregator <- function(
     out <- out
   }
 
-  return(out)
+  return(as.matrix(out))
 }
 
 
@@ -93,8 +93,9 @@ Aggregator <- function(
 #' @param covar (n x p) covariate matrix. Defaults to an (n x 1) intercept.
 #' @param indicator Convert raw counts to indicators?
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
-#' @param method Method for aggregating across categories:
-#'   {"none", "max", "sum"}. Default: "none".
+#' @param method Method for aggregating across categories: {"none", "max",
+#'   "sum"}. Default: "none".
+#' @param score_test Run a score test? If FALSE, performs a Wald test.
 #' @param weights (3 x 1) annotation category weights.
 #' @return Numeric p-value.
 #' @examples 
@@ -109,7 +110,6 @@ Aggregator <- function(
 #'   pheno = data$pheno,
 #'   covar = data$covar
 #' )
-#' 
 #' @export
 ASBT <- function(
   anno,
@@ -120,6 +120,7 @@ ASBT <- function(
   indicator = FALSE,
   is_pheno_binary = FALSE,
   method = "none",
+  score_test = FALSE,
   weights = DEFAULT_WEIGHTS
 ) {
 
@@ -159,13 +160,6 @@ ASBT <- function(
     return(NA)
   }
 
-  # Degrees of freedom.
-  if (is.vector(agg_geno)) {
-    df <- 1
-  } else {
-    df <- ncol(agg_geno)
-  }
-
   # Rank-normal phenotype.
   if (!is_pheno_binary & apply_int) {
     y <- RNOmni::RankNorm(pheno)
@@ -174,18 +168,17 @@ ASBT <- function(
   }
 
   # Association test.
-  x <- cbind(agg_geno, covar)
   if (is_pheno_binary) {
-    fit <- GLM(y, x)
+    pval <- LogisticLRT(y = y, g = agg_geno, x = covar)
   } else {
-    fit <- OLS(y, x)
+    pval <- LinearTest(y = y, g = agg_geno, x = covar, score_test = score_test)
   }
-
-  test_stat <- sum(fit$z[1:df]^2)
-  p_val <- stats::pchisq(test_stat, df = df, lower.tail = FALSE)
-  return(p_val)
+  
+  return(pval)
 }
 
+
+# ------------------------------------------------------------------------------
 
 #' Allelic Series SKAT Test
 #'
@@ -328,6 +321,8 @@ ASKAT <- function(
 #' to PTV variants only in the omnibus test? Default: FALSE.
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
 #' @param return_omni_only Return only the omnibus p-value? Default: FALSE.
+#' @param score_test Use a score test for burden analysis? If FALSE, uses a 
+#'   Wald test.
 #' @param weights (3 x 1) annotation category weights.
 #' @return Numeric p-value.
 #' @examples 
@@ -354,6 +349,7 @@ COAST <- function(
   include_orig_skato_ptv = FALSE,
   is_pheno_binary = FALSE,
   return_omni_only = FALSE,
+  score_test = FALSE,
   weights = DEFAULT_WEIGHTS
 ) {
 
@@ -386,6 +382,7 @@ COAST <- function(
       pheno = pheno,
       apply_int = apply_int,
       is_pheno_binary = is_pheno_binary,
+      score_test = score_test,
       ...
     )
     return(out)
