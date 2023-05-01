@@ -121,7 +121,7 @@ AllelicSeries::COAST(
 )
 ```
 
-* `score_test = TRUE` specifies the use of a score-type allelic series burden test. The default of `score_test = FALSE` specifies a Wald-type allelic series test. 
+* `score_test = TRUE` specifies the use of a score-type allelic series burden test. The default of `score_test = FALSE` specifies a Wald-type allelic series burden test. 
 
 ```{r, eval = FALSE}
 AllelicSeries::COAST(
