@@ -1,7 +1,7 @@
 ---
 title: "Coding-variant Allelic Series Test"
 output: rmarkdown::html_vignette
-date: "2022-12-21"
+date: "2023-05-01"
 vignette: >
   %\VignetteIndexEntry{my-vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -118,6 +118,18 @@ AllelicSeries::COAST(
   pheno = pheno,
   covar = covar,
   return_omni_only = TRUE
+)
+```
+
+* `score_test = TRUE` specifies the use of a score-type allelic series burden test. The default of `score_test = FALSE` specifies a Wald-type allelic series burden test. 
+
+```{r, eval = FALSE}
+AllelicSeries::COAST(
+  anno = anno,
+  geno = geno,
+  pheno = pheno,
+  covar = covar,
+  score_test = TRUE
 )
 ```
 
