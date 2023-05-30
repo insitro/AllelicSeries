@@ -1,6 +1,6 @@
 # Allelic Series
 
-Implementation of gene-level rare variant association tests targeting allelic series: genes where increasingly deleterious mutations have increasingly large phenotypic effects. The COding-variant Allelic Series Test (COAST) operates on the benign missense variants (BMVs), deleterious missense variants (DMVs), and protein truncating variants (PTVs) within a gene. COAST uses a set of adjustable weights that tailor the test towards rejecting the null hypothesis for genes where the average magnitude of effect increases monotonically from BMVs to DMVs to PTVs. See McCaw ZR, Somineni H, Bereket M, Klein C, Karaletsos T, Casale FP, Koller D, Soare TW. (2022) "An allelic series rare variant association test for candidate gene discovery" [doi:10.1101/2022.12.23.521658v2](https://www.biorxiv.org/content/10.1101/2022.12.23.521658v2). 
+Implementation of gene-level rare variant association tests targeting allelic series: genes where increasingly deleterious mutations have increasingly large phenotypic effects. The COding-variant Allelic Series Test (COAST) operates on the benign missense variants (BMVs), deleterious missense variants (DMVs), and protein truncating variants (PTVs) within a gene. COAST uses a set of adjustable weights that tailor the test towards rejecting the null hypothesis for genes where the average magnitude of effect increases monotonically from BMVs to DMVs to PTVs. See McCaw ZR, O’Dushlaine C, Somineni H, Bereket M, Klein C, Karaletsos T, Casale FP, Koller D, Soare TW. (2022) "An allelic series rare variant association test for candidate gene discovery" [doi:10.1101/2022.12.23.521658](https://www.biorxiv.org/content/10.1101/2022.12.23.521658v2). 
 
 # Installation
 
@@ -116,3 +116,7 @@ show(results)
     ##    7.707024e-29    6.745269e-06    4.299938e-13    6.228669e-07    6.756953e-18 
     ##       p_sum_ind  p_allelic_skat p_orig_skat_all p_orig_skat_ptv          p_omni 
     ##    1.894500e-06    8.507977e-08    1.250426e-05    2.237988e-13    9.248429e-28
+
+## Loading genotypes
+
+The [genio](https://CRAN.R-project.org/package=genio) and [rbgen](https://enkre.net/cgi-bin/code/bgen/wiki?name=rbgen) packages may be used to load PLINK and BGEN genotypes in R, respectively. Moreover, [PLINK](https://www.cog-genomics.org/plink/2.0/) enables conversion between the file types.
