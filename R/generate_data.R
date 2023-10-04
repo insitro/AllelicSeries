@@ -1,5 +1,5 @@
 # Purpose: Data generation for allelic series.
-# Updated: 2023-03-15
+# Updated: 2023-10-04
 
 
 #' Generate Genotype Matrix
@@ -19,9 +19,11 @@ GenGenoMat <- function(
     maf <- stats::runif(1, maf_range[1], maf_range[2])
     g <- stats::rbinom(n, 2, maf)
 
-    # Randomly add 1 minor allele to avoid MAC = 0.
-    draw <- sample.int(n, size = 1)
-    g[draw] <- g[draw] + 1
+    if (sum(g) == 0) {
+      # Randomly add 1 minor allele to avoid MAC = 0.
+      draw <- sample.int(n, size = 1)
+      g[draw] <- 1
+    }
 
     return(g)
   })
