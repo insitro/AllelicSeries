@@ -7,6 +7,16 @@ test_that("Check minor allele count is always positive.", {
 })
 
 
+test_that("Check number of alternate alleles never exceeds 2.", {
+  
+  g <- GenGenoMat(n = 100, snps = 1e3, maf_range = c(0.5, 1.0))
+  max_g <- max(g)
+  expect_lte(max_g, 2)
+  
+})
+
+
+
 test_that("Check annotation generation.", {
 
   withr::local_seed(101)
