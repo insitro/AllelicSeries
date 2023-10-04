@@ -1,5 +1,5 @@
 # Purpose: Comparators for allelic series test.
-# Updated: 2022-09-21
+# Updated: 2023-10-04
 
 
 #' Comparator Test
@@ -47,9 +47,9 @@ Comparator <- function(
   }
   null <- SKAT::SKAT_Null_Model(y ~ covar, out_type = out_type)
 
-  # Minor allele frequencies.
-  maf <- apply(geno, 2, mean)
-  v <- maf * (1 - maf)
+  # Alternate allele frequencies.
+  aaf <- apply(geno, 2, mean) / 2
+  v <- aaf * (1 - aaf)
   skat_weights <- sqrt(1 / v)
 
   # SKAT test.

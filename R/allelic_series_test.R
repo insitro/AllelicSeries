@@ -1,5 +1,5 @@
 # Purpose: Allelic series test.
-# Updated: 2023-04-25
+# Updated: 2023-10-04
 
 # Default weights.
 DEFAULT_WEIGHTS <- c(1, 2, 3)
@@ -241,22 +241,22 @@ ASKAT <- function(
     weights = weights
   )
 
-  # Minor allele frequencies.
-  maf <- apply(geno, 2, mean)
+  # Alternate allele frequencies.
+  aaf <- apply(geno, 2, mean) / 2
 
   # Drop empty genotypes.
-  is_empty <- (maf == 0)
+  is_empty <- (aaf == 0 | aaf == 1)
 
   anno <- anno[!is_empty]
   geno <- geno[, !is_empty, drop = FALSE]
-  maf <- maf[!is_empty]
+  aaf <- aaf[!is_empty]
 
   # SKAT weight.
   w <- rep(0, length(anno))
   for (i in 0:2) {
     w[anno == i] <- weights[i + 1]
   }
-  v <- maf * (1 - maf)
+  v <- aaf * (1 - aaf)
   skat_weights <- sqrt(w / v)
 
   # Case of no non-zero weights.
