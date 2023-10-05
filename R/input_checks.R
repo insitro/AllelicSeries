@@ -1,5 +1,5 @@
 # Purpose: Input checks.
-# Updated: 2022-09-22
+# Updated: 2023-10-04
 
 #' Check Inputs
 #'
@@ -49,10 +49,10 @@ CheckInputs <- function(
     stop("No non-zero phenotypes are present.")
   }
 
-    # Check weights.
-    if (all(weights == 0)) {
-      stop("At least 1 annotation category requires non-zero weights.")
-    }
+  # Check weights.
+  if (all(weights == 0)) {
+    stop("At least 1 annotation category requires non-zero weights.")
+  }
   if (any(weights < 0)) {
     stop("Annotation category weights should be non-negative.")
   }

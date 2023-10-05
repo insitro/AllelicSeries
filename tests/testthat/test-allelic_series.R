@@ -230,3 +230,27 @@ test_that("Overall check of omnibus test.", {
   expect_equal(p_omni["p_omni"], 0.0, ignore_attr = TRUE, tolerance = 0.005)
 
 })
+
+
+test_that("Check application to common variants.", {
+  
+  anno <- c(0, 1, 2)
+  geno <- rbind(
+    c(1, 2, 1),
+    c(1, 1, 2),
+    c(1, 2, 2),
+    c(0, 1, 1),
+    c(0, 2, 2)
+  )
+  n <- nrow(geno)
+  pheno <- c(-1, 1, 0, 3, 2)
+  
+  expect_warning({
+    COAST(
+      anno = anno,
+      geno = geno,
+      pheno = pheno
+    )
+  })
+  
+})
