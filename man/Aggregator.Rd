@@ -10,6 +10,7 @@ Aggregator(
   drop_empty = TRUE,
   indicator = FALSE,
   method = "none",
+  min_mac = 0,
   weights = DEFAULT_WEIGHTS
 )
 }
@@ -24,6 +25,8 @@ Aggregator(
 
 \item{method}{Method for aggregating across categories:
 {"none", "max", "sum"}. Default: "none".}
+
+\item{min_mac}{Minimum minor allele count for inclusion. Default: 0.}
 
 \item{weights}{Annotation category weights.}
 }
