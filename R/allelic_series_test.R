@@ -1,5 +1,5 @@
 # Purpose: Allelic series test.
-# Updated: 2023-10-04
+# Updated: 2024-04-03
 
 # Default weights.
 DEFAULT_WEIGHTS <- c(1, 2, 3)
@@ -14,6 +14,7 @@ DEFAULT_WEIGHTS <- c(1, 2, 3)
 #' @param indicator Convert raw counts to indicators? Default: FALSE.
 #' @param method Method for aggregating across categories:
 #'   {"none", "max", "sum"}. Default: "none".
+#' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
 #' @param weights Annotation category weights.
 #' @return (n x 3) Numeric matrix without weighting, (n x 1) numeric matrix
 #' with weighting.
@@ -24,8 +25,18 @@ Aggregator <- function(
     drop_empty = TRUE,
     indicator = FALSE,
     method = "none",
+    min_mac = 0,
     weights = DEFAULT_WEIGHTS
 ) {
+  
+  # Minor allele count filtering.
+  if (min_mac > 0) {
+    mac <- apply(geno, 2, sum)
+    keep <- (mac >= min_mac)
+    
+    anno <- anno[keep]
+    geno <- geno[, keep, drop = FALSE]
+  }
 
   # Sum to categories.
   bmv <- apply(geno[, anno == 0, drop = FALSE], 1, sum)
@@ -95,6 +106,7 @@ Aggregator <- function(
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
 #' @param method Method for aggregating across categories: {"none", "max",
 #'   "sum"}. Default: "none".
+#' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
 #' @param score_test Run a score test? If FALSE, performs a Wald test.
 #' @param weights (3 x 1) annotation category weights.
 #' @return Numeric p-value.
@@ -120,6 +132,7 @@ ASBT <- function(
   indicator = FALSE,
   is_pheno_binary = FALSE,
   method = "none",
+  min_mac = 0,
   score_test = FALSE,
   weights = DEFAULT_WEIGHTS
 ) {
@@ -152,6 +165,7 @@ ASBT <- function(
     drop_empty = TRUE,
     indicator = indicator,
     method = method,
+    min_mac = min_mac,
     weights = weights
   )
 
@@ -191,6 +205,7 @@ ASBT <- function(
 #'   Default: TRUE. Ignored if phenotype is binary.
 #' @param covar (n x p) covariate matrix. Defaults to an (n x 1) intercept.
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
+#' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
 #' @param return_null_model Return the null model in addition to the p-value?
 #'   Useful if running additional SKAT tests. Default: FALSE.
 #' @param weights (3 x 1) annotation category weights.
@@ -216,6 +231,7 @@ ASKAT <- function(
   apply_int = TRUE,
   covar = NULL,
   is_pheno_binary = FALSE,
+  min_mac = 0,
   return_null_model = FALSE,
   weights = DEFAULT_WEIGHTS
 ) {
@@ -241,6 +257,15 @@ ASKAT <- function(
     weights = weights
   )
 
+  # Minor allele count filtering.
+  if (min_mac >= 0) {
+    mac <- apply(geno, 2, sum)
+    keep <- (mac > min_mac)
+    
+    anno <- anno[keep]
+    geno <- geno[, keep, drop = FALSE]
+  }
+  
   # Alternate allele frequencies.
   aaf <- apply(geno, 2, mean) / 2
 
@@ -320,6 +345,8 @@ ASKAT <- function(
 #' @param include_orig_skato_ptv Include the original version of SKAT-O applied
 #' to PTV variants only in the omnibus test? Default: FALSE.
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
+#' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
+#' @param return_counts Include minor allele counts in output? Default: TRUE.
 #' @param return_omni_only Return only the omnibus p-value? Default: FALSE.
 #' @param score_test Use a score test for burden analysis? If FALSE, uses a 
 #'   Wald test.
@@ -348,6 +375,8 @@ COAST <- function(
   include_orig_skato_all = FALSE,
   include_orig_skato_ptv = FALSE,
   is_pheno_binary = FALSE,
+  min_mac = 0,
+  return_counts = TRUE,
   return_omni_only = FALSE,
   score_test = FALSE,
   weights = DEFAULT_WEIGHTS
@@ -381,6 +410,7 @@ COAST <- function(
       geno = geno,
       pheno = pheno,
       apply_int = apply_int,
+      min_mac = min_mac,
       is_pheno_binary = is_pheno_binary,
       score_test = score_test,
       ...
@@ -427,6 +457,7 @@ COAST <- function(
     geno = geno,
     pheno = pheno,
     is_pheno_binary = is_pheno_binary,
+    min_mac = min_mac,
     return_null_model = TRUE,
     weights = weights
   )
@@ -463,5 +494,11 @@ COAST <- function(
   } else {
     out <- c(p_val, p_omni = p_omni)
   }
+  
+  if (return_counts) {
+    counts <- CountAlleles(anno = anno, geno = geno, min_mac = min_mac)
+    out <- c(counts, out)
+  } 
+  
   return(out)
 }

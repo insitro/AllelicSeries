@@ -193,8 +193,8 @@ test_that("Overall check of omnibus test.", {
     include_orig_skato_all = FALSE,
     include_orig_skato_ptv = FALSE
   )
-  expect_equal(length(p_omni), 8)
-  expect_equal(p_omni["p_omni"], 0.0, ignore_attr = TRUE, tolerance = 0.005)
+  expect_equal(length(p_omni), 3 + 8)
+  expect_equal(as.numeric(p_omni["p_omni"]), 0.0, tolerance = 0.005)
 
   # With SKAT-O all.
   p_omni <- COAST(
@@ -204,8 +204,8 @@ test_that("Overall check of omnibus test.", {
     include_orig_skato_all = TRUE,
     include_orig_skato_ptv = FALSE
   )
-  expect_equal(length(p_omni), 9)
-  expect_equal(p_omni["p_omni"], 0.0, ignore_attr = TRUE, tolerance = 0.005)
+  expect_equal(length(p_omni), 3 + 8 + 1)
+  expect_equal(as.numeric(p_omni["p_omni"]), 0.0, tolerance = 0.005)
 
   # With SKAT-O PTV.
   p_omni <- COAST(
@@ -215,8 +215,8 @@ test_that("Overall check of omnibus test.", {
     include_orig_skato_all = FALSE,
     include_orig_skato_ptv = TRUE
   )
-  expect_equal(length(p_omni), 9)
-  expect_equal(p_omni["p_omni"], 0.0, ignore_attr = TRUE, tolerance = 0.005)
+  expect_equal(length(p_omni), 3 + 8 + 1)
+  expect_equal(as.numeric(p_omni["p_omni"]), 0.0, tolerance = 0.005)
 
   # With both SKAT-O all and SKAT-O PTV.
   p_omni <- COAST(
@@ -226,8 +226,8 @@ test_that("Overall check of omnibus test.", {
     include_orig_skato_all = TRUE,
     include_orig_skato_ptv = TRUE
   )
-  expect_equal(length(p_omni), 10)
-  expect_equal(p_omni["p_omni"], 0.0, ignore_attr = TRUE, tolerance = 0.005)
+  expect_equal(length(p_omni), 3 + 8 + 2)
+  expect_equal(as.numeric(p_omni["p_omni"]), 0.0, tolerance = 0.005)
 
 })
 

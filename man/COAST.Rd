@@ -13,6 +13,8 @@ COAST(
   include_orig_skato_all = FALSE,
   include_orig_skato_ptv = FALSE,
   is_pheno_binary = FALSE,
+  min_mac = 0,
+  return_counts = TRUE,
   return_omni_only = FALSE,
   score_test = FALSE,
   weights = DEFAULT_WEIGHTS
@@ -37,6 +39,10 @@ to all variants in the omnibus test? Default: FALSE.}
 to PTV variants only in the omnibus test? Default: FALSE.}
 
 \item{is_pheno_binary}{Is the phenotype binary? Default: FALSE.}
+
+\item{min_mac}{Minimum minor allele count for inclusion. Default: 0.}
+
+\item{return_counts}{Include minor allele counts in output? Default: TRUE.}
 
 \item{return_omni_only}{Return only the omnibus p-value? Default: FALSE.}
 

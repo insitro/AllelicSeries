@@ -11,6 +11,7 @@ ASKAT(
   apply_int = TRUE,
   covar = NULL,
   is_pheno_binary = FALSE,
+  min_mac = 0,
   return_null_model = FALSE,
   weights = DEFAULT_WEIGHTS
 )
@@ -28,6 +29,8 @@ Default: TRUE. Ignored if phenotype is binary.}
 \item{covar}{(n x p) covariate matrix. Defaults to an (n x 1) intercept.}
 
 \item{is_pheno_binary}{Is the phenotype binary? Default: FALSE.}
+
+\item{min_mac}{Minimum minor allele count for inclusion. Default: 0.}
 
 \item{return_null_model}{Return the null model in addition to the p-value?
 Useful if running additional SKAT tests. Default: FALSE.}
