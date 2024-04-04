@@ -109,7 +109,7 @@ AllelicSeries::COAST(
 )
 ```
 
-* `min_mac` is used to filter the variant set to those containing a minimum minor allele count (MAC). The following example filters to only those variants with a MAC of at least 10:
+* `min_mac` is used to filter the variant set to those containing a minimum minor allele count (MAC). The following example filters to only those variants with a MAC of at least 2:
 ```{r, eval = FALSE}
 AllelicSeries::COAST(
   anno = anno,
