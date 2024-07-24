@@ -1,3 +1,4 @@
+
 ## Version 0.6.0
 * Replaced the `CountAlleles` function with a similar (but faster) `Counts` function that returns counts the total number of alleles, variants, and carriers by variant class.
 * Updated the formatting of the results output by the main `COAST` function.
