@@ -11,34 +11,24 @@ test_that("Check variant counter.", {
     c(0, 0, 2)
   )
   
-  # No MAC filter: count alleles.
-  obs <- CountAlleles(anno, geno, count_carriers = FALSE, min_mac = 0)
-  exp <- c(n_bmv = 1, n_dmv = 3, n_ptv = 4)
-  expect_equal(obs, exp)
+  # Counts.
+  counts <- Counts(anno = anno, geno = geno, min_mac = 0)
+  expect_equal(counts$alleles, c(1, 1 + 2, 1 + 1 + 2))
+  expect_equal(counts$variants, c(1, 1, 1))
+  expect_equal(counts$carriers, c(1, 2, 3))
   
-  # No MAC filter: count carriers.
-  obs <- CountAlleles(anno, geno, count_carriers = TRUE, min_mac = 0)
-  exp <- c(n_bmv = 1, n_dmv = 2, n_ptv = 3)
-  expect_equal(obs, exp)
+  # Counts with minimum MAC.
+  counts <- Counts(anno = anno, geno = geno, min_mac = 2)
+  expect_equal(counts$alleles, c(0, 1 + 2, 1 + 1 + 2))
+  expect_equal(counts$variants, c(0, 1, 1))
+  expect_equal(counts$carriers, c(0, 2, 3))
   
-  # MAC filter of 2: count alleles.
-  obs <- CountAlleles(anno, geno, count_carriers = FALSE, min_mac = 2)
-  exp <- c(n_bmv = 0, n_dmv = 3, n_ptv = 4)
-  expect_equal(obs, exp)
-  
-  # MAC filter of 2: count carriers.
-  obs <- CountAlleles(anno, geno, count_carriers = TRUE, min_mac = 2)
-  exp <- c(n_bmv = 0, n_dmv = 2, n_ptv = 3)
-  expect_equal(obs, exp)
-  
-  # MAC filter of 100: count alleles.
-  obs <- CountAlleles(anno, geno, count_carriers = FALSE, min_mac = 100)
-  exp <- c(n_bmv = 0, n_dmv = 0, n_ptv = 0)
-  expect_equal(obs, exp)
-  
-  # MAC filter of 100: count carriers.
-  obs <- CountAlleles(anno, geno, count_carriers = TRUE, min_mac = 100)
-  exp <- c(n_bmv = 0, n_dmv = 0, n_ptv = 0)
-  expect_equal(obs, exp)
+  # Check case of multiple varaints per annotation category.
+  anno <- c(0, 1, 1, 2, 2, 2)
+  geno <- diag(6) # Identity matrix.
+  counts <- Counts(anno = anno, geno = geno, min_mac = 0)
+  expect_equal(counts$alleles, c(1, 2, 3))
+  expect_equal(counts$variants, c(1, 2, 3))
+  expect_equal(counts$carriers, c(1, 2, 3))
 
 })

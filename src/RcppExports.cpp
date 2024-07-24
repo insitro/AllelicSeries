@@ -11,6 +11,19 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// Counts
+SEXP Counts(arma::colvec anno, arma::mat geno, const int min_mac);
+RcppExport SEXP _AllelicSeries_Counts(SEXP annoSEXP, SEXP genoSEXP, SEXP min_macSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::colvec >::type anno(annoSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type geno(genoSEXP);
+    Rcpp::traits::input_parameter< const int >::type min_mac(min_macSEXP);
+    rcpp_result_gen = Rcpp::wrap(Counts(anno, geno, min_mac));
+    return rcpp_result_gen;
+END_RCPP
+}
 // OLS
 SEXP OLS(const arma::colvec y, const arma::mat X);
 RcppExport SEXP _AllelicSeries_OLS(SEXP ySEXP, SEXP XSEXP) {
@@ -51,6 +64,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_AllelicSeries_Counts", (DL_FUNC) &_AllelicSeries_Counts, 3},
     {"_AllelicSeries_OLS", (DL_FUNC) &_AllelicSeries_OLS, 2},
     {"_AllelicSeries_ResidVar", (DL_FUNC) &_AllelicSeries_ResidVar, 2},
     {"_AllelicSeries_Score", (DL_FUNC) &_AllelicSeries_Score, 4},

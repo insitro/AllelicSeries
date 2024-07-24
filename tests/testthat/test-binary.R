@@ -22,7 +22,9 @@ test_that("Overall check for binary phenotype.", {
       include_orig_skato_ptv = TRUE
     )
   ))
-  expect_gt(as.numeric(p_omni["p_omni"]), 0.05)
+  pvals <- p_omni@Pvals
+  p_omni <- as.numeric(pvals$pval[pvals$test == "omni"])
+  expect_gt(p_omni, 0.05)
   
   # Alternative phenotype.
   invisible(capture.output(
@@ -35,6 +37,9 @@ test_that("Overall check for binary phenotype.", {
       include_orig_skato_ptv = TRUE
     )
   ))
-  expect_equal(as.numeric(p_omni["p_omni"]), 0.0, tolerance = 0.005)
+  pvals <- p_omni@Pvals
+  p_omni <- as.numeric(pvals$pval[pvals$test == "omni"])
+  expect_equal(p_omni, 0.0, tolerance = 0.005)
   
 })
+  
