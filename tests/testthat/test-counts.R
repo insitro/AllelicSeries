@@ -11,19 +11,25 @@ test_that("Check variant counter.", {
     c(0, 0, 2)
   )
   
-  # Counts.
+  # Counts with minimum MAC = 0.
   counts <- Counts(anno = anno, geno = geno, min_mac = 0)
   expect_equal(counts$alleles, c(1, 1 + 2, 1 + 1 + 2))
   expect_equal(counts$variants, c(1, 1, 1))
   expect_equal(counts$carriers, c(1, 2, 3))
   
-  # Counts with minimum MAC.
+  # Counts with minimum MAC = 2.
   counts <- Counts(anno = anno, geno = geno, min_mac = 2)
   expect_equal(counts$alleles, c(0, 1 + 2, 1 + 1 + 2))
   expect_equal(counts$variants, c(0, 1, 1))
   expect_equal(counts$carriers, c(0, 2, 3))
   
-  # Check case of multiple varaints per annotation category.
+  # Counts with minimum MAC = 100.
+  counts <- Counts(anno = anno, geno = geno, min_mac = 100)
+  expect_equal(counts$alleles, c(0, 0, 0))
+  expect_equal(counts$variants, c(0, 0, 0))
+  expect_equal(counts$carriers, c(0, 0, 0))
+  
+  # Check case of multiple variants per annotation category.
   anno <- c(0, 1, 1, 2, 2, 2)
   geno <- diag(6) # Identity matrix.
   counts <- Counts(anno = anno, geno = geno, min_mac = 0)
