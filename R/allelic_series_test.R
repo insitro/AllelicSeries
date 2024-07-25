@@ -485,7 +485,6 @@ COAST <- function(
   omni_weights <- c(rep(1, n_burden), rep(n_burden / n_skat, n_skat))
 
   p_omni <- RNOmni::OmniP(p = pvals, w = omni_weights)
-  pvals <- c(pvals, omni = p_omni)
 
   # Only omnibus p-value requested.
   if (return_omni_only) {
@@ -494,6 +493,7 @@ COAST <- function(
   } 
   
   # Format p-values.
+  pvals <- c(pvals, omni = p_omni)
   df_pvals <- data.frame(
     test = names(pvals),
     type = c(rep("burden", n_burden), rep("skat", n_skat), "omni"),
