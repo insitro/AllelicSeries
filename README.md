@@ -1,3 +1,7 @@
+README
+================
+2024-07-24
+
 # Allelic Series
 
 This package implements gene-level rare variant association tests
@@ -93,19 +97,57 @@ genotype matrix, and the phenotype vector.
 show(results)
 ```
 
-    ##          n_bmv          n_dmv          n_ptv        p_count          p_ind 
-    ##   2.870000e+02   1.620000e+02   6.100000e+01   3.112702e-26   1.322084e-09 
-    ##    p_max_count      p_max_ind    p_sum_count      p_sum_ind p_allelic_skat 
-    ##   3.076876e-10   5.374363e-09   1.661854e-20   2.554417e-11   2.658137e-07 
-    ##         p_omni 
-    ##   3.735235e-25
+    ## Counts:
+    ##   anno alleles variants carriers
+    ## 1    0     287      163       96
+    ## 2    1     162      109       82
+    ## 3    2      61       28       45
+    ## 
+    ## 
+    ## P-values:
+    ##           test   type     pval
+    ## 1        count burden 3.11e-26
+    ## 2          ind burden 1.32e-09
+    ## 3    max_count burden 3.08e-10
+    ## 4      max_ind burden 5.37e-09
+    ## 5    sum_count burden 1.66e-20
+    ## 6      sum_ind burden 2.55e-11
+    ## 7 allelic_skat   skat 2.66e-07
+    ## 8         omni   omni 3.74e-25
 
-By default, the output of `COAST` includes counts for the number of
-alleles of each variant class that contributed to the test, and a vector
-of p-values, corresponding to the different components of the allelic
-series test. The final, overall p-value is given by `p_omni`. To return
-the omnibus p-value only, specify `return_omni_only = TRUE` when calling
-`COAST`.
+By default, the output of `COAST` includes a data.frame of counts
+showing the number of alleles, variants, and carriers in each class that
+contributed to the test, and a data.frame of p-values, with the `omni`
+test denoting the final, overall p-value. The counts data.frame is
+accessed via:
+
+``` r
+results@Counts
+```
+
+    ##   anno alleles variants carriers
+    ## 1    0     287      163       96
+    ## 2    1     162      109       82
+    ## 3    2      61       28       45
+
+and the p-values data.frame via:
+
+``` r
+results@Pvals
+```
+
+    ##           test   type         pval
+    ## 1        count burden 3.112702e-26
+    ## 2          ind burden 1.322084e-09
+    ## 3    max_count burden 3.076876e-10
+    ## 4      max_ind burden 5.374363e-09
+    ## 5    sum_count burden 1.661854e-20
+    ## 6      sum_ind burden 2.554417e-11
+    ## 7 allelic_skat   skat 2.658137e-07
+    ## 8         omni   omni 3.735235e-25
+
+To return the omnibus p-value only, specify `return_omni_only = TRUE`
+when calling `COAST`.
 
 ## Robust omnibus test
 
@@ -133,12 +175,25 @@ results <- COAST(
 show(results)
 ```
 
-    ##           n_bmv           n_dmv           n_ptv         p_count           p_ind 
-    ##    2.870000e+02    1.620000e+02    6.100000e+01    3.112702e-26    1.322084e-09 
-    ##     p_max_count       p_max_ind     p_sum_count       p_sum_ind  p_allelic_skat 
-    ##    3.076876e-10    5.374363e-09    1.661854e-20    2.554417e-11    2.658137e-07 
-    ## p_orig_skat_all p_orig_skat_ptv          p_omni 
-    ##    1.548324e-05    6.632119e-08    3.735235e-25
+    ## Counts:
+    ##   anno alleles variants carriers
+    ## 1    0     287      163       96
+    ## 2    1     162      109       82
+    ## 3    2      61       28       45
+    ## 
+    ## 
+    ## P-values:
+    ##             test   type     pval
+    ## 1          count burden 3.11e-26
+    ## 2            ind burden 1.32e-09
+    ## 3      max_count burden 3.08e-10
+    ## 4        max_ind burden 5.37e-09
+    ## 5      sum_count burden 1.66e-20
+    ## 6        sum_ind burden 2.55e-11
+    ## 7   allelic_skat   skat 2.66e-07
+    ## 8  orig_skat_all   skat 1.55e-05
+    ## 9  orig_skat_ptv   skat 6.63e-08
+    ## 10          omni   omni 3.74e-25
 
 ## Loading genotypes
 

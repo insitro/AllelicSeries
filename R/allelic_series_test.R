@@ -1,5 +1,5 @@
 # Purpose: Allelic series test.
-# Updated: 2024-04-03
+# Updated: 2024-07-24
 
 # Default weights.
 DEFAULT_WEIGHTS <- c(1, 2, 3)
@@ -346,7 +346,6 @@ ASKAT <- function(
 #' to PTV variants only in the omnibus test? Default: FALSE.
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
-#' @param return_counts Include minor allele counts in output? Default: TRUE.
 #' @param return_omni_only Return only the omnibus p-value? Default: FALSE.
 #' @param score_test Use a score test for burden analysis? If FALSE, uses a 
 #'   Wald test.
@@ -376,7 +375,6 @@ COAST <- function(
   include_orig_skato_ptv = FALSE,
   is_pheno_binary = FALSE,
   min_mac = 0,
-  return_counts = TRUE,
   return_omni_only = FALSE,
   score_test = FALSE,
   weights = DEFAULT_WEIGHTS
@@ -442,12 +440,12 @@ COAST <- function(
 
   # Collect p-values.
   p_burden <- c(
-    p_count = p_count,
-    p_ind = p_ind,
-    p_max_count = p_max_count,
-    p_max_ind = p_max_ind,
-    p_sum_count = p_sum_count,
-    p_sum_ind = p_sum_ind
+    count = p_count,
+    ind = p_ind,
+    max_count = p_max_count,
+    max_ind = p_max_ind,
+    sum_count = p_sum_count,
+    sum_ind = p_sum_ind
   )
 
   # SKAT tests.
@@ -461,13 +459,13 @@ COAST <- function(
     return_null_model = TRUE,
     weights = weights
   )
-  p_skat <- c(p_allelic_skat = skat_list$p)
+  p_skat <- c(allelic_skat = skat_list$p)
   null <- skat_list$null
 
   # Standard SKAT-O all.
   if (include_orig_skato_all) {
     orig_skato_all <- SKAT::SKAT(geno, null, method = "SKATO")
-    p_skat <- c(p_skat, p_orig_skat_all = orig_skato_all$p.value)
+    p_skat <- c(p_skat, orig_skat_all = orig_skato_all$p.value)
   }
 
   # Standard SKAT-O PTV.
@@ -475,7 +473,7 @@ COAST <- function(
     ptv <- geno[, anno == 2, drop = FALSE]
     if (ncol(ptv) > 0) {
       orig_skato_ptv <- SKAT::SKAT(ptv, null, method = "SKATO")
-      p_skat <- c(p_skat, p_orig_skat_ptv = orig_skato_ptv$p.value)
+      p_skat <- c(p_skat, orig_skat_ptv = orig_skato_ptv$p.value)
     }
   }
 
@@ -483,22 +481,33 @@ COAST <- function(
   n_burden <- length(p_burden)
   n_skat <- length(p_skat)
 
-  p_val = c(p_burden, p_skat)
+  pvals = c(p_burden, p_skat)
   omni_weights <- c(rep(1, n_burden), rep(n_burden / n_skat, n_skat))
 
-  p_omni <- RNOmni::OmniP(p = p_val, w = omni_weights)
+  p_omni <- RNOmni::OmniP(p = pvals, w = omni_weights)
 
-  # Output.
+  # Only omnibus p-value requested.
   if (return_omni_only) {
     out <- c(p_omni = p_omni)
-  } else {
-    out <- c(p_val, p_omni = p_omni)
-  }
-  
-  if (return_counts) {
-    counts <- CountAlleles(anno = anno, geno = geno, min_mac = min_mac)
-    out <- c(counts, out)
+    return(out)
   } 
   
+  # Format p-values.
+  pvals <- c(pvals, omni = p_omni)
+  df_pvals <- data.frame(
+    test = names(pvals),
+    type = c(rep("burden", n_burden), rep("skat", n_skat), "omni"),
+    pval = as.numeric(pvals)
+  )
+  
+  # Variant counts.
+  counts <- Counts(anno = anno, geno = geno, min_mac = min_mac)
+  
+  # Output.
+  out <- methods::new(
+    Class = "COAST",
+    Counts = counts,
+    Pvals = df_pvals
+  )
   return(out)
 }

@@ -52,7 +52,9 @@ test_that("Overall check of score test.", {
     include_orig_skato_ptv = FALSE,
     score_test = TRUE
   )
-  expect_gt(p_omni_null["p_omni"], 0.05)
+  pvals <- p_omni_null@Pvals
+  p_omni <- as.numeric(pvals$pval[pvals$test == "omni"])
+  expect_gt(p_omni, 0.05)
   
   
   # Associated phenotype.
@@ -65,6 +67,8 @@ test_that("Overall check of score test.", {
     include_orig_skato_ptv = FALSE,
     score_test = TRUE
   )
-  expect_lt(p_omni_alt["p_omni"], 0.05)
+  pvals <- p_omni_alt@Pvals
+  p_omni <- as.numeric(pvals$pval[pvals$test == "omni"])
+  expect_lt(p_omni, 0.05)
   
 })
