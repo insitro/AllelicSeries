@@ -14,5 +14,8 @@ CatCor(anno, ld, maf)
 \item{maf}{(snps x 1) vector of minor allele frequencies.}
 }
 \description{
-Category Correlation
+Calculates an estimate of the correlations across the total burdens
+of rare variants within each category {BMV, DMV, PTV}. To enable this
+calculation, an assumption of Hardy-Weinberg Equilibrium is made, which
+provides good performance empirically.
 }

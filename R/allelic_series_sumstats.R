@@ -235,7 +235,7 @@ ASKATSS <- function(
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
 #'   provided, defaults to the zero vector.
 #' @param pval_weights (3 x 1) vector of relative weights for combining the
-#'   component tests when performing the omnibus test.
+#'   component tests to perform the omnibus test.
 #' @param weights (3 x 1) vector of annotation category weights.
 #' @return Numeric p-value.
 #' @examples 

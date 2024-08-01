@@ -1,6 +1,8 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
 
+// For debugging: Rcpp::Rcout << << std::endl; 
+
 // ----------------------------------------------------------------------------
 
 //' Calculate Residual Variance

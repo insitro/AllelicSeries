@@ -32,7 +32,7 @@ provided, defaults to the zero vector.}
 Although ideally provided, an identity matrix is assumed if not.}
 
 \item{pval_weights}{(3 x 1) vector of relative weights for combining the
-component tests when performing the omnibus test.}
+component tests to perform the omnibus test.}
 
 \item{weights}{(3 x 1) vector of annotation category weights.}
 }
