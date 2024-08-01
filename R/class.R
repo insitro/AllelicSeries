@@ -1,5 +1,14 @@
 # Purpose: Output class.
-# Updated: 2024-07-24
+# Updated: 2024-07-31
+
+#' Data.frame or Null Class
+#' 
+#' @name DfOrNULL-class
+#' @rdname DfOrNULL-class
+#' @importClassesFrom methods data.frame
+#' @exportClass DfOrNULL
+setClassUnion("DfOrNULL", members = c("data.frame", "NULL"))
+
 
 #' Allelic Series Output Class
 #' 
@@ -11,7 +20,7 @@
 setClass(
   Class = "COAST",
   representation = representation(
-    Counts = "data.frame",
+    Counts = "DfOrNULL",
     Pvals = "data.frame"
   )
 )
@@ -27,9 +36,11 @@ setClass(
 print.COAST <- function(x, ...) {
   
   # Counts.
-  cat("Counts:\n")
-  show(x@Counts)
-  cat("\n\n")
+  if (!is.null(x@Counts)) {
+    cat("Counts:\n")
+    show(x@Counts)
+    cat("\n\n")
+  }
   
   # P-values.
   cat("P-values:\n")

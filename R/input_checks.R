@@ -1,5 +1,5 @@
 # Purpose: Input checks.
-# Updated: 2023-10-04
+# Updated: 2024-07-31
 
 #' Check Inputs
 #'
@@ -68,4 +68,82 @@ CheckInputs <- function(
       stop("A binary phenotype must have exactly 2 values: {0, 1}.")
     }
   }
+}
+
+
+#' Input Checks for Summary Statistics
+#'
+#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param beta (snps x 1) vector of effect sizes for the coding genetic variants
+#'   within a gene.
+#' @param se (snps x 1) vector of standard errors for the effect sizes.
+#' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
+#'   provided, defaults to the zero vector.
+#' @param ld (snps x snps) matrix of correlations among the genetic variants.
+#'   Although ideally provided, an identity matrix is assumed if not.
+#' @return None
+CheckInputsSS <- function(
+    anno,
+    beta,
+    se,
+    maf,
+    ld
+) {
+  
+  # Raise warnings if MAF is omitted.
+  if (is.null(maf)) {
+    msg <- paste0(
+      "If MAF is not provided, a zero vector is assumed. ",
+      "This may not be accurate in cases where the MAF is appreciably > 0."
+    )
+    warning(msg)
+  }
+  
+  # Raise warnings if LD is omitted.
+  if (is.null(ld)) {
+    msg <- paste0(
+      "If LD is not provided, an identity matrix is assumed. ",
+      "This may not be accurate in cases where the LD is appreciable."
+    )
+    warning(msg)
+  }
+  
+  # Check that the LD matrix is SPD.
+  if (!is.null(ld)) {
+    lambda <- base::eigen(x = ld, symmetric = TRUE, only.values = TRUE)
+    if (min(lambda$values) <= 1e-8) {
+      msg <- paste0(
+        "LD has very small or negative eigenvalues. ",
+        "Consider adding a small positive constant to the diagonal."
+      )
+      warning(msg)
+    }
+  }
+  
+  # Check dimensions.
+  n_anno <- length(anno)
+  n_beta <- length(beta)
+  n_se <- length(se)
+  if (is.null(ld)) {n_ld <- n_anno} else {n_ld <- nrow(ld)}
+  if (is.null(maf)) {n_maf <- n_anno} else {n_maf <- length(maf)}
+  
+  if (!all.equal(n_anno, n_beta, n_se, n_maf)) {
+    msg <- paste0(
+      "anno, beta, maf, and se should all have the same length. ",
+      "ld should have dimensions of length(beta) x length(beta)."
+    )
+    stop(msg)
+  }
+  
+  # Check for missing values.
+  any_na <- any(is.na(anno)) |
+    any(is.na(beta)) |
+    any(is.na(se)) 
+  if (!is.null(ld)) {any_na <- any_na | any(is.na(ld))}
+  if (!is.null(maf)) {any_na <- any_na | any(is.na(maf))}
+  
+  if (any_na) {
+    stop("Input data should not contain missing values.")
+  }
+  
 }

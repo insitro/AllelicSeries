@@ -417,11 +417,11 @@ COAST <- function(
   }
 
   # Burden tests.
-  p_count <- BurdenWrap(
+  p_base <- BurdenWrap(
     indicator = FALSE, method = "none", weights = c(1, 1, 1))
 
   # Case of no non-zero variant classes.
-  if (is.na(p_count)) {return(NA)}
+  if (is.na(p_base)) {return(NA)}
 
   p_ind <- BurdenWrap(
     indicator = TRUE, method = "none", weights = c(1, 1, 1))
@@ -440,7 +440,7 @@ COAST <- function(
 
   # Collect p-values.
   p_burden <- c(
-    count = p_count,
+    baseline = p_base,
     ind = p_ind,
     max_count = p_max_count,
     max_ind = p_max_ind,
