@@ -21,10 +21,11 @@ Counts <- function(anno, geno, min_mac = 0L) {
 #'
 #' @return List containing the following:
 #' \itemize{
-#' \item{Beta}{Regression coefficient.}
-#' \item{V}{Outcome variance.}
-#' \item{SE}{Standard errors.}
-#' \item{Z}{Z-scores.}
+#' \item{beta: Regression coefficients.}
+#' \item{v: Residual variance.}
+#' \item{se: Standard errors.}
+#' \item{z: Z-scores.}
+#' \item{pval: P-values based on the chi2 distribution.}
 #' }
 #' @export
 OLS <- function(y, X) {

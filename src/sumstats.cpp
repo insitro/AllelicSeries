@@ -179,7 +179,7 @@ SEXP BaseCountsSS(
   // P-value.
   int df = u.n_elem;
   Rcpp::Environment base("package:stats");
-  Rcpp::Function pval = base["pchisq"]; 
-  return pval(Rcpp::_["q"]=tstat, Rcpp::_["df"]=df, Rcpp::_["lower.tail"]=false);
+  Rcpp::Function pchisq = base["pchisq"]; 
+  return pchisq(Rcpp::_["q"]=tstat, Rcpp::_["df"]=df, Rcpp::_["lower.tail"]=false);
 }
 

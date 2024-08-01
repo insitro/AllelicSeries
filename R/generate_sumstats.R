@@ -81,7 +81,7 @@ CalcSumstats <- function(
       fit <- OLS(y = pheno, X = cbind(geno[, i], covar))
       beta <- fit$beta[1]
       se <- fit$se[1]
-      p <- stats::pchisq(q = (beta / se)^2, df = 1, lower.tail = FALSE)
+      p <- fit$pval[1]
       out <- data.frame(beta = beta, se = se, p = p)
     })
     
