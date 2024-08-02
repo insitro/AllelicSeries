@@ -77,18 +77,29 @@ CheckInputs <- function(
 #' @param beta (snps x 1) vector of effect sizes for the coding genetic variants
 #'   within a gene.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
-#' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
-#'   provided, defaults to the zero vector.
+#' @param lambda Genomic inflation factor.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
 #'   Although ideally provided, an identity matrix is assumed if not.
+#' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
+#'   provided, defaults to the zero vector.
 #' @return None
 CheckInputsSS <- function(
     anno,
     beta,
     se,
-    maf,
-    ld
+    lambda,
+    ld,
+    maf
 ) {
+  
+  # Check inflation factor is >= 1.
+  if (any(lambda < 1)) {
+    msg <- paste0(
+      "The inflation factor labmda should be >= 1. ",
+      "Values < 1 will be reset to 1."
+    )
+    warning(msg)
+  }
   
   # Raise warnings if MAF is omitted.
   if (is.null(maf)) {

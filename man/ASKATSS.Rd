@@ -9,6 +9,7 @@ ASKATSS(
   beta,
   se,
   check = TRUE,
+  lambda = 1,
   ld = NULL,
   maf = NULL,
   weights = DEFAULT_WEIGHTS
@@ -23,6 +24,9 @@ within a gene.}
 \item{se}{(snps x 1) vector of standard errors for the effect sizes.}
 
 \item{check}{Run input checks? Default: TRUE.}
+
+\item{lambda}{Optional genomic inflation factor. Defaults to 1, which
+results in no rescaling.}
 
 \item{ld}{(snps x snps) matrix of correlations among the genetic variants.
 Although ideally provided, an identity matrix is assumed if not.}

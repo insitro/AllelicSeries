@@ -1,5 +1,5 @@
 # Purpose: Implement sumstats-based allelic series test.
-# Updated: 2024-07-31
+# Updated: 2024-08-02
 
 # Default weights.
 DEFAULT_WEIGHTS <- c(1, 2, 3)
@@ -13,6 +13,8 @@ DEFAULT_WEIGHTS <- c(1, 2, 3)
 #'   within a gene.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param check Run input checks? Default: TRUE.
+#' @param lambda Optional genomic inflation factor. Defaults to 1, which
+#'   results in no rescaling.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
 #'   Although ideally provided, an identity matrix is assumed if not.
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
@@ -41,6 +43,7 @@ ASBTSS <- function(
   beta,
   se,
   check = TRUE,
+  lambda = 1,
   ld = NULL,
   maf = NULL,
   method = "none",
@@ -53,8 +56,9 @@ ASBTSS <- function(
       anno = anno,
       beta = beta,
       se = se,
-      maf = maf,
-      ld = ld
+      lambda = lambda,
+      ld = ld,
+      maf = maf
     )
   }
 
@@ -105,6 +109,9 @@ ASBTSS <- function(
     
   }
   
+  # Apply genomic control.
+  lambda <- max(1, lambda)
+  pval <- GenomicControl(lambda = lambda, pval = pval)
   return(pval)
 }
 
@@ -120,6 +127,8 @@ ASBTSS <- function(
 #'   within a gene.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param check Run input checks? Default: TRUE.
+#' @param lambda Optional genomic inflation factor. Defaults to 1, which
+#'   results in no rescaling.
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
 #'   provided, defaults to the zero vector.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
@@ -146,6 +155,7 @@ ASKATSS <- function(
     beta, 
     se, 
     check = TRUE,
+    lambda = 1,
     ld = NULL,
     maf = NULL,
     weights = DEFAULT_WEIGHTS
@@ -157,8 +167,9 @@ ASKATSS <- function(
       anno = anno,
       beta = beta,
       se = se,
-      maf = maf,
-      ld = ld
+      lambda = lambda,
+      ld = ld,
+      maf = maf
     )
   }
   
@@ -211,6 +222,10 @@ ASKATSS <- function(
   opt_params <- SkatOptimalParam(cov_z = cov_z, rhos = rhos)
   results <- PerRhoResults(lambdas = lambdas, qstats = qstats, rhos = rhos)
   pval <- OptimalPval(opt_params = opt_params, results = results)
+  
+  # Apply genomic control.
+  lambda <- max(1, lambda)
+  pval <- GenomicControl(lambda = lambda, pval = pval)
   return(pval)
 }
 
@@ -230,6 +245,8 @@ ASKATSS <- function(
 #'   within a gene.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param check Run input checks? Default: TRUE.
+#' @param lambda Optional (3 x 1) vector of inflation factors, one for each
+#'   component test. Defaults to a 1s vector, which results in no rescaling.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
 #'   Although ideally provided, an identity matrix is assumed if not.
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
@@ -258,6 +275,7 @@ COASTSS <- function(
     beta, 
     se,
     check = TRUE,
+    lambda = c(1, 1, 1),
     maf = NULL,
     ld = NULL,
     pval_weights = c(1, 1, 1),
@@ -270,8 +288,9 @@ COASTSS <- function(
       anno = anno,
       beta = beta,
       se = se,
-      maf = maf,
-      ld = ld
+      lambda = lambda,
+      ld = ld,
+      maf = maf
     )
   }
   
@@ -310,6 +329,12 @@ COASTSS <- function(
     weights = weights
   )
 
+  # Genomic control.
+  lambda <- pmax(lambda, 1)
+  p_base <- GenomicControl(lambda[1], p_base)
+  p_burden <- GenomicControl(lambda[2], p_burden)
+  p_skat <- GenomicControl(lambda[3], p_skat)
+  
   # Omnibus p-value.
   pvals <- c(p_base, p_burden, p_skat)
   p_omni <- RNOmni::OmniP(pvals, pval_weights)

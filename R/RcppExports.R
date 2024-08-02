@@ -115,7 +115,7 @@ IVWCpp <- function(anno, beta, se, ld, weights) {
 #' Calculates an estimate of the correlations across the total burdens
 #' of rare variants within each category {BMV, DMV, PTV}. To enable this
 #' calculation, an assumption of Hardy-Weinberg Equilibrium is made, which
-#' provides good performance empirically. 
+#' was found to provide good performance empirically. 
 #' 
 #' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.

@@ -1,5 +1,24 @@
 # Purpose: Utility functions.
-# Updated: 2024-04-03
+# Updated: 2024-08-02
+
+#' Genomic Control
+#' 
+#' @param lambda Genomic inflation factor.
+#' @param pval Numeric p-value.
+#' @param df Degrees of freedom. Should not require modification in most cases.
+#' @return Corrected p-value.
+#' @export 
+GenomicControl <- function(lambda, pval, df = 1) {
+  if (lambda == 1) {
+    return(pval)
+  }
+  chi2 <- stats::qchisq(p = pval, df = df, lower.tail = FALSE) 
+  chi2_corrected <- chi2 / lambda
+  pval_corrected <- stats::pchisq(
+    q = chi2_corrected, df = df, lower.tail = FALSE)
+  return(pval_corrected)
+}
+
 
 #' Linear Association Test
 #' 
@@ -52,3 +71,6 @@ LogisticLRT <- function(y, g, x) {
   return(pval)
   
 }
+
+
+

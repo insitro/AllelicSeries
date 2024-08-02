@@ -4,7 +4,7 @@
 \alias{CheckInputsSS}
 \title{Input Checks for Summary Statistics}
 \usage{
-CheckInputsSS(anno, beta, se, maf, ld)
+CheckInputsSS(anno, beta, se, lambda, ld, maf)
 }
 \arguments{
 \item{anno}{(snps x 1) annotation vector with values in c(0, 1, 2).}
@@ -14,11 +14,13 @@ within a gene.}
 
 \item{se}{(snps x 1) vector of standard errors for the effect sizes.}
 
-\item{maf}{(snps x 1) vector of minor allele frequencies. Although ideally
-provided, defaults to the zero vector.}
+\item{lambda}{Genomic inflation factor.}
 
 \item{ld}{(snps x snps) matrix of correlations among the genetic variants.
 Although ideally provided, an identity matrix is assumed if not.}
+
+\item{maf}{(snps x 1) vector of minor allele frequencies. Although ideally
+provided, defaults to the zero vector.}
 }
 \value{
 None

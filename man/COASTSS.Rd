@@ -9,6 +9,7 @@ COASTSS(
   beta,
   se,
   check = TRUE,
+  lambda = c(1, 1, 1),
   maf = NULL,
   ld = NULL,
   pval_weights = c(1, 1, 1),
@@ -24,6 +25,9 @@ within a gene.}
 \item{se}{(snps x 1) vector of standard errors for the effect sizes.}
 
 \item{check}{Run input checks? Default: TRUE.}
+
+\item{lambda}{Optional (3 x 1) vector of inflation factors, one for each
+component test. Defaults to a 1s vector, which results in no rescaling.}
 
 \item{maf}{(snps x 1) vector of minor allele frequencies. Although ideally
 provided, defaults to the zero vector.}
