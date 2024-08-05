@@ -13,7 +13,7 @@ COASTSS(
   lambda = c(1, 1, 1),
   maf = NULL,
   ld = NULL,
-  pval_weights = c(1, 1, 1),
+  pval_weights = c(1, 1, 2),
   weights = DEFAULT_WEIGHTS
 )
 }
@@ -42,7 +42,8 @@ Although ideally provided, an identity matrix is assumed if not.}
 \item{pval_weights}{(3 x 1) vector of relative weights for combining the
 component tests to perform the omnibus test.}
 
-\item{weights}{(3 x 1) vector of annotation category weights.}
+\item{weights}{(3 x 1) vector of annotation category weights. The default of
+c(1, 1, 2) gives the SKAT test equal weight to the two burden tests.}
 }
 \value{
 Numeric p-value.
