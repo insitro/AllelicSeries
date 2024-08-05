@@ -86,6 +86,7 @@ ASBTSS <- function(
   
   # Category correlation matrix.
   r3 <- CatCor(anno = anno, ld = ld, maf = maf)
+  if (!isPD(r3)) {r3 <- r3 + eps * diag(3)}
   
   # Run burden test.
   if (method == "none") {
@@ -269,7 +270,8 @@ ASKATSS <- function(
 #'   provided, defaults to the zero vector.
 #' @param pval_weights (3 x 1) vector of relative weights for combining the
 #'   component tests to perform the omnibus test.
-#' @param weights (3 x 1) vector of annotation category weights.
+#' @param weights (3 x 1) vector of annotation category weights. The default of
+#'   c(1, 1, 2) gives the SKAT test equal weight to the two burden tests. 
 #' @return Numeric p-value.
 #' @examples 
 #' # Generate data.
@@ -295,7 +297,7 @@ COASTSS <- function(
     lambda = c(1, 1, 1),
     maf = NULL,
     ld = NULL,
-    pval_weights = c(1, 1, 1),
+    pval_weights = c(1, 1, 2),
     weights = DEFAULT_WEIGHTS
 ) {
   
