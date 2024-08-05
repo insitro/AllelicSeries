@@ -9,6 +9,7 @@ COASTSS(
   beta,
   se,
   check = TRUE,
+  eps = 1e-04,
   lambda = c(1, 1, 1),
   maf = NULL,
   ld = NULL,
@@ -25,6 +26,9 @@ within a gene.}
 \item{se}{(snps x 1) vector of standard errors for the effect sizes.}
 
 \item{check}{Run input checks? Default: TRUE.}
+
+\item{eps}{Epsilon added to the diagonal of the LD matrix if not positive
+definite. Note, epsilon should increase as the sample size decreases.}
 
 \item{lambda}{Optional (3 x 1) vector of inflation factors, one for each
 component test. Defaults to a 1s vector, which results in no rescaling.}

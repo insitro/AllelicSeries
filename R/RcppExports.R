@@ -93,6 +93,16 @@ CorCpp <- function(x) {
     .Call(`_AllelicSeries_CorCpp`, x)
 }
 
+#' Check if Positive Semi Definite
+#'
+#' @param x Numeric matrix.
+#' @param force_symmetry Force the matrix to be symmetric?
+#' @return Logical indicating whether the matrix is SPD.
+#' @export 
+isPD <- function(x, force_symmetry = FALSE) {
+    .Call(`_AllelicSeries_isPD`, x, force_symmetry)
+}
+
 #' Inverse Variance Meta-Analysis
 #' 
 #' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).

@@ -23,6 +23,32 @@ SEXP CorCpp(
 };
 
 
+//' Check if Positive Semi Definite
+//'
+//' @param x Numeric matrix.
+//' @param force_symmetry Force the matrix to be symmetric?
+//' @return Logical indicating whether the matrix is SPD.
+//' @export 
+// [[Rcpp::export]]
+SEXP isPD(const arma::mat &x, bool force_symmetry=false) {
+  
+  // Symmetrize.
+  arma::mat y = x;
+  if (force_symmetry) {
+    y = 0.5 * (x + x.t());
+  } 
+
+  // Check eigenvalues.
+  bool out = false;
+  if (y.is_symmetric()) {
+      arma::colvec lambda;
+      arma::eig_sym(lambda, y);
+      out = arma::all(lambda > 0);
+  }
+
+  return Rcpp::wrap(out);
+};
+
 //' Inverse Variance Meta-Analysis
 //' 
 //' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).

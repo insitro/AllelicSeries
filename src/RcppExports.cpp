@@ -109,6 +109,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// isPD
+SEXP isPD(const arma::mat& x, bool force_symmetry);
+RcppExport SEXP _AllelicSeries_isPD(SEXP xSEXP, SEXP force_symmetrySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< bool >::type force_symmetry(force_symmetrySEXP);
+    rcpp_result_gen = Rcpp::wrap(isPD(x, force_symmetry));
+    return rcpp_result_gen;
+END_RCPP
+}
 // IVWCpp
 SEXP IVWCpp(const arma::colvec anno, const arma::colvec beta, const arma::colvec se, const arma::mat ld, const arma::colvec weights);
 RcppExport SEXP _AllelicSeries_IVWCpp(SEXP annoSEXP, SEXP betaSEXP, SEXP seSEXP, SEXP ldSEXP, SEXP weightsSEXP) {
@@ -160,6 +172,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_AllelicSeries_GetLambda", (DL_FUNC) &_AllelicSeries_GetLambda, 1},
     {"_AllelicSeries_SkatOptimalParam", (DL_FUNC) &_AllelicSeries_SkatOptimalParam, 2},
     {"_AllelicSeries_CorCpp", (DL_FUNC) &_AllelicSeries_CorCpp, 1},
+    {"_AllelicSeries_isPD", (DL_FUNC) &_AllelicSeries_isPD, 2},
     {"_AllelicSeries_IVWCpp", (DL_FUNC) &_AllelicSeries_IVWCpp, 5},
     {"_AllelicSeries_CatCor", (DL_FUNC) &_AllelicSeries_CatCor, 3},
     {"_AllelicSeries_BaseCountsSS", (DL_FUNC) &_AllelicSeries_BaseCountsSS, 3},

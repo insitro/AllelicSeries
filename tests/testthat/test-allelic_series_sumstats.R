@@ -69,8 +69,6 @@ test_that("Check COAST with missing inputs.", {
 
 # ------------------------------------------------------------------------------
 
-
-
 test_that("Check genomic inflation factor.", {
   
   # Null setting.
@@ -104,3 +102,45 @@ test_that("Check genomic inflation factor.", {
   expect_gt(p_corrected$pval[4], p_uncorrected$pval[4])  
    
 })
+
+
+# ------------------------------------------------------------------------------
+
+test_that("Check case of rank-deficient LD.", {
+  
+  withr::local_seed(101)
+  data <- DGP(n = 1e2, prop_causal = 0)
+  sumstats <- CalcSumstats(data = data)
+  
+  # The LD matrix is singular.
+  expect_false(isPD(sumstats$ld))
+  
+  # Without epsilon, matrix inversion will fail.
+  expect_error(
+    COASTSS(
+      anno = sumstats$anno,
+      beta = sumstats$sumstats$beta,
+      se = sumstats$sumstats$se,
+      check = FALSE,
+      eps = 0,
+      ld = sumstats$ld,
+      maf = sumstats$maf
+    )
+  )
+  
+  # With epsilon, the test runs.
+  results <- suppressWarnings(
+    COASTSS(
+      anno = sumstats$anno,
+      beta = sumstats$sumstats$beta,
+      se = sumstats$sumstats$se,
+      eps = 1e-4,
+      ld = sumstats$ld,
+      maf = sumstats$maf
+    )
+  )
+  expect_true(all(results@Pvals$pval > 0.05))
+  
+  
+})
+

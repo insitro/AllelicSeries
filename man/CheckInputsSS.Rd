@@ -23,7 +23,7 @@ Although ideally provided, an identity matrix is assumed if not.}
 provided, defaults to the zero vector.}
 }
 \value{
-None
+Logical indicating whether the matrix was positive definite.
 }
 \description{
 Input Checks for Summary Statistics

@@ -9,6 +9,7 @@ ASKATSS(
   beta,
   se,
   check = TRUE,
+  eps = 1e-04,
   lambda = 1,
   ld = NULL,
   maf = NULL,
@@ -24,6 +25,9 @@ within a gene.}
 \item{se}{(snps x 1) vector of standard errors for the effect sizes.}
 
 \item{check}{Run input checks? Default: TRUE.}
+
+\item{eps}{Epsilon added to the diagonal of the LD matrix if not positive
+definite. Note, epsilon should increase as the sample size decreases.}
 
 \item{lambda}{Optional genomic inflation factor. Defaults to 1, which
 results in no rescaling.}

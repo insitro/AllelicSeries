@@ -13,6 +13,8 @@ DEFAULT_WEIGHTS <- c(1, 2, 3)
 #'   within a gene.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param check Run input checks? Default: TRUE.
+#' @param eps Epsilon added to the diagonal of the LD matrix if not positive
+#'   definite. Note, epsilon should increase as the sample size decreases. 
 #' @param lambda Optional genomic inflation factor. Defaults to 1, which
 #'   results in no rescaling.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
@@ -43,6 +45,7 @@ ASBTSS <- function(
   beta,
   se,
   check = TRUE,
+  eps = 1e-4,
   lambda = 1,
   ld = NULL,
   maf = NULL,
@@ -52,7 +55,7 @@ ASBTSS <- function(
   
   # Check for LD and MAF.
   if (check) {
-    CheckInputsSS(
+    is_pd <- CheckInputsSS(
       anno = anno,
       beta = beta,
       se = se,
@@ -60,11 +63,17 @@ ASBTSS <- function(
       ld = ld,
       maf = maf
     )
+  } else if (!is.null(ld)) {
+    is_pd <- isPD(ld)
+  } else{
+    is_pd <- TRUE
   }
+  
 
   n_snps <- length(anno)
   if (is.null(ld)) {ld <- diag(n_snps)}
   if (is.null(maf)) {maf <- rep(0, n_snps)}
+  if (!is_pd) {ld <- ld + eps * diag(n_snps)}
   
   # Per-category summary statistics.
   category_sumstats <- IVWSS(
@@ -127,6 +136,8 @@ ASBTSS <- function(
 #'   within a gene.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param check Run input checks? Default: TRUE.
+#' @param eps Epsilon added to the diagonal of the LD matrix if not positive
+#'   definite. Note, epsilon should increase as the sample size decreases. 
 #' @param lambda Optional genomic inflation factor. Defaults to 1, which
 #'   results in no rescaling.
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
@@ -155,6 +166,7 @@ ASKATSS <- function(
     beta, 
     se, 
     check = TRUE,
+    eps = 1e-4,
     lambda = 1,
     ld = NULL,
     maf = NULL,
@@ -163,7 +175,7 @@ ASKATSS <- function(
   
   # Input checks.
   if (check) {
-    CheckInputsSS(
+    sink <- CheckInputsSS(
       anno = anno,
       beta = beta,
       se = se,
@@ -171,7 +183,7 @@ ASKATSS <- function(
       ld = ld,
       maf = maf
     )
-  }
+  } 
   
   n_snps <- length(anno)
   if (is.null(maf)) {maf <- rep(0, n_snps)}
@@ -185,7 +197,7 @@ ASKATSS <- function(
   skat_weights <- as.numeric(skat_weights)
   
   # Calculate weighted effect size and standard errors.
-  n_snp <- length(beta)
+  n_snps <- length(beta)
   beta <- beta / skat_weights
   se <- se / skat_weights
   
@@ -197,6 +209,7 @@ ASKATSS <- function(
   # Covariance of Z scores.
   if (!is.null(ld)) {
     cov_z <- (w %*% t(w)) * ld
+    if (!isPD(cov_z)) {cov_z <- cov_z + eps * diag(n_snps)}
   } else{
     cov_z <- diag(w^2)
   }
@@ -211,7 +224,8 @@ ASKATSS <- function(
   # Loop over values of rho.
   lambdas <- lapply(seq_len(n_rho), function(i) {
     rho <- rhos[i]
-    cor_mat <- diag(rep(1 - rho, n_snp)) + matrix(rho, nrow = n_snp, ncol = n_snp)
+    cor_mat <- diag(rep(1 - rho, n_snps)) + 
+      matrix(rho, nrow = n_snps, ncol = n_snps)
     cor_mat_sqrt <- chol(cor_mat, pivot = TRUE)
     kernel <- cor_mat_sqrt %*% cov_z %*% t(cor_mat_sqrt)
     out <- as.numeric(GetLambda(kernel))
@@ -245,6 +259,8 @@ ASKATSS <- function(
 #'   within a gene.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param check Run input checks? Default: TRUE.
+#' @param eps Epsilon added to the diagonal of the LD matrix if not positive
+#'   definite. Note, epsilon should increase as the sample size decreases. 
 #' @param lambda Optional (3 x 1) vector of inflation factors, one for each
 #'   component test. Defaults to a 1s vector, which results in no rescaling.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
@@ -275,6 +291,7 @@ COASTSS <- function(
     beta, 
     se,
     check = TRUE,
+    eps = 1e-4,
     lambda = c(1, 1, 1),
     maf = NULL,
     ld = NULL,
@@ -284,7 +301,7 @@ COASTSS <- function(
   
   # Input checks.
   if (check) {
-    CheckInputsSS(
+    sink <- CheckInputsSS(
       anno = anno,
       beta = beta,
       se = se,
@@ -300,6 +317,7 @@ COASTSS <- function(
     beta = beta,
     se = se,
     check = FALSE,
+    eps = eps,
     ld = ld,
     maf = maf,
     method = "none",
@@ -312,6 +330,7 @@ COASTSS <- function(
     beta = beta,
     se = se,
     check = FALSE,
+    eps = eps,
     ld = ld,
     maf = maf,
     method = "sum",
@@ -324,6 +343,7 @@ COASTSS <- function(
     beta = beta,
     se = se,
     check = FALSE,
+    eps = eps,
     ld = ld,
     maf = maf,
     weights = weights

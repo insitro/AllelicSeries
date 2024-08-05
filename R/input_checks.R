@@ -82,7 +82,7 @@ CheckInputs <- function(
 #'   Although ideally provided, an identity matrix is assumed if not.
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
 #'   provided, defaults to the zero vector.
-#' @return None
+#' @return Logical indicating whether the matrix was positive definite.
 CheckInputsSS <- function(
     anno,
     beta,
@@ -120,14 +120,16 @@ CheckInputsSS <- function(
   }
   
   # Check that the LD matrix is SPD.
+  out <- TRUE
   if (!is.null(ld)) {
-    lambda <- base::eigen(x = ld, symmetric = TRUE, only.values = TRUE)
-    if (min(lambda$values) <= 1e-8) {
+    is_pd <- isPD(ld)
+    if (!is_pd) {
       msg <- paste0(
         "LD has very small or negative eigenvalues. ",
-        "Consider adding a small positive constant to the diagonal."
+        "Epsilon will be added to the diagonal."
       )
       warning(msg)
+      out <- FALSE
     }
   }
   
@@ -157,4 +159,6 @@ CheckInputsSS <- function(
     stop("Input data should not contain missing values.")
   }
   
+  # Output indicates whether the LD matrix is PSD.
+  return(out)
 }
