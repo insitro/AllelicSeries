@@ -17,20 +17,26 @@
 //' @return Numeric matrix of correlation among the columns.
 // [[Rcpp::export]]
 SEXP CorCpp(
-  const arma::mat x 
+  const arma::mat &x 
 ){
   return Rcpp::wrap(arma::cor(x));
 };
 
 
-//' Check if Positive Semi Definite
+//' Check if Positive Definite
 //'
 //' @param x Numeric matrix.
 //' @param force_symmetry Force the matrix to be symmetric?
-//' @return Logical indicating whether the matrix is SPD.
+//' @param tau Threshold the minimum eigenvalue must exceed for the matrix
+//'   to be considered positive definite. 
+//' @return Logical indicating whether the matrix is PD.
 //' @export 
 // [[Rcpp::export]]
-SEXP isPD(const arma::mat &x, bool force_symmetry=false) {
+SEXP isPD(
+  const arma::mat &x, 
+  bool force_symmetry=false,
+  double tau=1e-8
+) {
   
   // Symmetrize.
   arma::mat y = x;
@@ -43,11 +49,12 @@ SEXP isPD(const arma::mat &x, bool force_symmetry=false) {
   if (y.is_symmetric()) {
       arma::colvec lambda;
       arma::eig_sym(lambda, y);
-      out = arma::all(lambda > 0);
+      out = arma::all(lambda > tau);
   }
 
   return Rcpp::wrap(out);
 };
+
 
 //' Inverse Variance Meta-Analysis
 //' 
@@ -64,19 +71,20 @@ SEXP isPD(const arma::mat &x, bool force_symmetry=false) {
 //' }
 // [[Rcpp::export]]
 SEXP IVWCpp(
-  const arma::colvec anno,
-  const arma::colvec beta,
-  const arma::colvec se,
-  const arma::mat ld,
-  const arma::colvec weights
+  const arma::colvec &anno,
+  const arma::colvec &beta,
+  const arma::colvec &se,
+  const arma::mat &ld,
+  const arma::colvec &weights
 ){
 
   arma::colvec beta_meta = arma::zeros(3);
   arma::colvec se_meta = arma::zeros(3);
-  for(int i=0; i<3; i++){
+  for (int i=0; i<3; i++) {
 
     // Subset LD matrix.
     arma::uvec key = arma::find(anno == i);
+    if (key.empty()) {continue;};
     arma::mat ld_anno = ld.submat(key, key);
 
     // Calculate variance.
@@ -114,9 +122,9 @@ SEXP IVWCpp(
 //' @param maf (snps x 1) vector of minor allele frequencies.
 // [[Rcpp::export]]
 SEXP CatCor(
-  const arma::colvec anno,
-  const arma::mat ld,
-  const arma::colvec maf
+  const arma::colvec &anno,
+  const arma::mat &ld,
+  const arma::colvec &maf
 ){
 
   // Initialize to identity matrix.
@@ -127,9 +135,12 @@ SEXP CatCor(
 
   // Only off-diagonals require filling.
   for (int i=0; i<3; i++) {
+    arma::uvec idx1 = arma::find(anno == i);
+    if (idx1.empty()) {continue;};
+
     for (int j=i+1; j<3; j++) {
-      arma::uvec idx1 = arma::find(anno == i);
       arma::uvec idx2 = arma::find(anno == j);
+      if (idx2.empty()) {continue;};
 
       // Numerator.
       double num = 0;
@@ -186,22 +197,29 @@ SEXP CatCor(
 //' @export
 // [[Rcpp::export]]
 SEXP BaseCountsSS(
-  const arma::colvec beta,
-  const arma::mat ld,
-  const arma::colvec se
+  const arma::colvec &beta,
+  const arma::mat &ld,
+  const arma::colvec &se
 ){
 
+  // Filter to require non-zero standard error.
+  arma::uvec key = arma::find(se > 0);
+  if (key.empty()) {return Rcpp::wrap(0.0);}
+  const arma::colvec beta_nz = beta.elem(key);
+  const arma::mat ld_nz = ld.submat(key, key);
+  const arma::colvec se_nz = se.elem(key);
+
   // Calculate z-scores.
-  const arma::colvec z = beta / se;
+  const arma::colvec z = beta_nz / se_nz;
 
   // Inverse variance weights.
-  const arma::colvec w = 1 / se;
+  const arma::colvec w = 1 / se_nz;
 
   // Score statistics.
   const arma::colvec u = w % z;
 
   // Calculate covariance.
-  const arma::mat v = (w * w.t()) % ld;
+  const arma::mat v = (w * w.t()) % ld_nz;
 
   // Test statistic.
   arma::mat t = u.t() * arma::solve(v, u, arma::solve_opts::likely_sympd);
@@ -212,5 +230,4 @@ SEXP BaseCountsSS(
   Rcpp::Environment base("package:stats");
   Rcpp::Function pchisq = base["pchisq"]; 
   return pchisq(Rcpp::_["q"]=tstat, Rcpp::_["df"]=df, Rcpp::_["lower.tail"]=false);
-}
-
+};

@@ -144,3 +144,61 @@ test_that("Check case of rank-deficient LD.", {
   
 })
 
+
+# ------------------------------------------------------------------------------
+
+test_that("Check cases where not all annotaiton categories are provided.", {
+  
+  withr::local_seed(102)
+  data <- DGP(n = 1e3, prop_causal = 0)
+
+  ExcludeAnno <- function(data, anno) {
+    key <- (data$anno != anno)
+    out <- list(
+      anno = data$anno[key],
+      covar = data$covar,
+      geno = data$geno[, key],
+      pheno = data$pheno,
+      type = data$type
+    )
+    return(out)
+  }
+  
+  RunCOAST <- function(sumstats) {
+    result <- COASTSS(
+      anno = sumstats$anno,
+      beta = sumstats$sumstats$beta,
+      se = sumstats$sumstats$se,
+      ld = sumstats$ld,
+      maf = sumstats$maf
+    )
+    pvals <- result@Pvals
+    return(pvals)
+  }
+  
+  # Exclude category 0.
+  data0 <- ExcludeAnno(data, anno = 0)
+  sumstats0 <- CalcSumstats(data = data0)
+  result0 <- RunCOAST(sumstats0)
+  expect_true(all(result0$pval >= 0.05))
+  
+  # Exclude category 1.
+  data1 <- ExcludeAnno(data, anno = 1)
+  sumstats1 <- CalcSumstats(data = data1)
+  result1 <- RunCOAST(sumstats1)
+  expect_true(all(result1$pval >= 0.05))
+  
+  # Exclude category 2.
+  data2 <- ExcludeAnno(data, anno = 2)
+  sumstats2 <- CalcSumstats(data = data2)
+  result2 <- RunCOAST(sumstats2)
+  expect_true(all(result2$pval >= 0.05))
+  
+  # Exclude two categories.
+  data12 <- ExcludeAnno(data1, anno = 2)
+  expect_true(all(data12$anno == 0))
+  sumstats12 <- CalcSumstats(data = data12)
+  result12 <- RunCOAST(sumstats12)
+  expect_true(all(result12$pval >= 0.05))
+  
+})

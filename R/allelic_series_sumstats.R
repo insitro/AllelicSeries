@@ -99,12 +99,15 @@ ASBTSS <- function(
     
   } else if (method == "sum") {
     
+    key <- (category_sumstats$se_meta > 0)
+    n_nz <- sum(key)
+    
     gene_sumstats <- IVWSS(
-      anno = c(0, 0, 0),
-      beta = category_sumstats$beta_meta,
-      ld = r3,
-      se = category_sumstats$se_meta,
-      weights = c(1, 1, 1)
+      anno = rep(0, n_nz),
+      beta = category_sumstats$beta_meta[key],
+      ld = r3[key, key, drop = FALSE],
+      se = category_sumstats$se_meta[key],
+      weights = rep(1, n_nz)
     )
     
     pval <- BaseCountsSS(

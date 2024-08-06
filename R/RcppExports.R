@@ -93,14 +93,16 @@ CorCpp <- function(x) {
     .Call(`_AllelicSeries_CorCpp`, x)
 }
 
-#' Check if Positive Semi Definite
+#' Check if Positive Definite
 #'
 #' @param x Numeric matrix.
 #' @param force_symmetry Force the matrix to be symmetric?
-#' @return Logical indicating whether the matrix is SPD.
+#' @param tau Threshold the minimum eigenvalue must exceed for the matrix
+#'   to be considered positive definite. 
+#' @return Logical indicating whether the matrix is PD.
 #' @export 
-isPD <- function(x, force_symmetry = FALSE) {
-    .Call(`_AllelicSeries_isPD`, x, force_symmetry)
+isPD <- function(x, force_symmetry = FALSE, tau = 1e-8) {
+    .Call(`_AllelicSeries_isPD`, x, force_symmetry, tau)
 }
 
 #' Inverse Variance Meta-Analysis

@@ -2,18 +2,21 @@
 % Please edit documentation in R/RcppExports.R
 \name{isPD}
 \alias{isPD}
-\title{Check if Positive Semi Definite}
+\title{Check if Positive Definite}
 \usage{
-isPD(x, force_symmetry = FALSE)
+isPD(x, force_symmetry = FALSE, tau = 1e-08)
 }
 \arguments{
 \item{x}{Numeric matrix.}
 
 \item{force_symmetry}{Force the matrix to be symmetric?}
+
+\item{tau}{Threshold the minimum eigenvalue must exceed for the matrix
+to be considered positive definite.}
 }
 \value{
-Logical indicating whether the matrix is SPD.
+Logical indicating whether the matrix is PD.
 }
 \description{
-Check if Positive Semi Definite
+Check if Positive Definite
 }
