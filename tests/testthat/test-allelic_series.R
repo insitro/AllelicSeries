@@ -262,3 +262,59 @@ test_that("Check application to common variants.", {
   })
   
 })
+
+
+test_that("Check ability to change test weights.", {
+  
+  anno <- c(0, 1, 2)
+  geno <- rbind(
+    c(0, 0, 0),
+    c(0, 0, 1),
+    c(1, 0, 0),
+    c(0, 1, 0),
+    c(0, 0, 1)
+  )
+  n <- nrow(geno)
+  pheno <- c(-1, 1, 0, 0, 2)
+  
+  # Check case of placing all weight on 1 test.
+  base <- COAST(
+    anno = anno,
+    geno = geno,
+    pheno = pheno,
+    pval_weights = c(1, 0, 0, 0, 0, 0, 0)
+  )
+  pvals <- base@Pvals
+  expect_equal(
+    pvals$pval[pvals$test == "baseline"], 
+    pvals$pval[pvals$test == "omni"]
+  )
+  
+  # Check case of default weights.
+  default <- COAST(
+    anno = anno,
+    geno = geno,
+    pheno = pheno
+  )
+  pvals <- default@Pvals
+  p_default <- pvals$pval[pvals$test == "omni"]
+  
+  manual <- COAST(
+    anno = anno,
+    geno = geno,
+    pheno = pheno,
+    pval_weights = c(1, 1, 1, 1, 1, 1, 6)
+  )
+  pvals <- manual@Pvals
+  p_manual <- pvals$pval[pvals$test == "omni"]
+  expect_equal(p_default, p_manual)
+  
+  # Check case of providing insufficient weights.
+  expect_warning(COAST(
+    anno = anno,
+    geno = geno,
+    pheno = pheno,
+    pval_weights = c(1, 2, 3)
+  ))
+    
+})

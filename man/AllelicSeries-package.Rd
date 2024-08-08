@@ -14,6 +14,7 @@ Implementation of gene-level rare variant association tests targeting allelic se
 Other contributors:
 \itemize{
   \item Christoph Klein \email{cklein@insitro.com} (\href{https://orcid.org/0000-0002-1748-625X}{ORCID}) [contributor]
+  \item Jianhui Gao \email{jianhui.gao@mail.utoronto.ca} (\href{https://orcid.org/0000-0003-0915-1473}{ORCID}) [contributor]
   \item insitro [copyright holder]
 }
 

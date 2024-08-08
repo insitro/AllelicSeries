@@ -14,6 +14,7 @@ COAST(
   include_orig_skato_ptv = FALSE,
   is_pheno_binary = FALSE,
   min_mac = 0,
+  pval_weights = NULL,
   return_omni_only = FALSE,
   score_test = FALSE,
   weights = DEFAULT_WEIGHTS
@@ -40,6 +41,12 @@ to PTV variants only in the omnibus test? Default: FALSE.}
 \item{is_pheno_binary}{Is the phenotype binary? Default: FALSE.}
 
 \item{min_mac}{Minimum minor allele count for inclusion. Default: 0.}
+
+\item{pval_weights}{Optional vector of relative weights for combining the
+component tests to perform the omnibus test. By default, 50\% of weight is
+given to the 6 burden tests, and 50\% to the 1 SKAT test. If specified, the
+weight vector should have length 7, and the length should be increased if
+either \code{include_orig_skato_all} or \code{include_orig_skato_ptv} is active.}
 
 \item{return_omni_only}{Return only the omnibus p-value? Default: FALSE.}
 

@@ -346,6 +346,11 @@ ASKAT <- function(
 #' to PTV variants only in the omnibus test? Default: FALSE.
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
+#' @param pval_weights Optional vector of relative weights for combining the
+#'   component tests to perform the omnibus test. By default, 50% of weight is
+#'   given to the 6 burden tests, and 50% to the 1 SKAT test. If specified, the
+#'   weight vector should have length 7, and the length should be increased if
+#'   either `include_orig_skato_all` or `include_orig_skato_ptv` is active.
 #' @param return_omni_only Return only the omnibus p-value? Default: FALSE.
 #' @param score_test Use a score test for burden analysis? If FALSE, uses a 
 #'   Wald test.
@@ -375,6 +380,7 @@ COAST <- function(
   include_orig_skato_ptv = FALSE,
   is_pheno_binary = FALSE,
   min_mac = 0,
+  pval_weights = NULL,
   return_omni_only = FALSE,
   score_test = FALSE,
   weights = DEFAULT_WEIGHTS
@@ -417,11 +423,11 @@ COAST <- function(
   }
 
   # Burden tests.
-  p_count <- BurdenWrap(
+  p_base <- BurdenWrap(
     indicator = FALSE, method = "none", weights = c(1, 1, 1))
 
   # Case of no non-zero variant classes.
-  if (is.na(p_count)) {return(NA)}
+  if (is.na(p_base)) {return(NA)}
 
   p_ind <- BurdenWrap(
     indicator = TRUE, method = "none", weights = c(1, 1, 1))
@@ -440,7 +446,7 @@ COAST <- function(
 
   # Collect p-values.
   p_burden <- c(
-    count = p_count,
+    baseline = p_base,
     ind = p_ind,
     max_count = p_max_count,
     max_ind = p_max_ind,
@@ -483,6 +489,19 @@ COAST <- function(
 
   pvals = c(p_burden, p_skat)
   omni_weights <- c(rep(1, n_burden), rep(n_burden / n_skat, n_skat))
+  if (!is.null(pval_weights)) {
+    len_pval_weights <- length(pval_weights)
+    len_omni_weights <- length(omni_weights)
+    if (len_pval_weights == len_omni_weights) {
+      omni_weights <- pval_weights
+    } else {
+      msg <- paste0(
+        glue::glue("pval_weights has length {len_pval_weights}, but length {len_omni_weights} is needed. "),
+        "Default weights will be used instead."
+      )
+      warning(msg)
+    }
+  }
 
   p_omni <- RNOmni::OmniP(p = pvals, w = omni_weights)
 

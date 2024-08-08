@@ -21,10 +21,11 @@ Counts <- function(anno, geno, min_mac = 0L) {
 #'
 #' @return List containing the following:
 #' \itemize{
-#' \item{Beta}{Regression coefficient.}
-#' \item{V}{Outcome variance.}
-#' \item{SE}{Standard errors.}
-#' \item{Z}{Z-scores.}
+#' \item{beta: Regression coefficients.}
+#' \item{v: Residual variance.}
+#' \item{se: Standard errors.}
+#' \item{z: Z-scores.}
+#' \item{pval: P-values based on the chi2 distribution.}
 #' }
 #' @export
 OLS <- function(y, X) {
@@ -51,5 +52,99 @@ ResidVar <- function(y, X) {
 #' @return Scalar score statistic.
 Score <- function(y, G, X, v) {
     .Call(`_AllelicSeries_Score`, y, G, X, v)
+}
+
+#' Calculate SKAT Weights
+#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param maf (snps x 1) vector of minor allele frequencies.
+#' @param weights (3 x 1) vector of annotation category weights.
+#' @return (snps x 1) vector of weights for SKAT test.
+#' @noRd 
+CalcSkatWeights <- function(anno, maf, weights) {
+    .Call(`_AllelicSeries_CalcSkatWeights`, anno, maf, weights)
+}
+
+#' Get SKAT Eigenvalues
+#' @param kernel Symmetric matrix.
+#' @return Vector of eigenvalues.
+#' @noRd
+GetLambda <- function(kernel) {
+    .Call(`_AllelicSeries_GetLambda`, kernel)
+}
+
+#' SKAT Optimal Parameters
+#' @param cov_z Covariance of the Z-scores
+#' @param rhos Vector of rho values to evaluate.
+#' @return List of optimal parameter values.
+#' @noRd 
+SkatOptimalParam <- function(cov_z, rhos) {
+    .Call(`_AllelicSeries_SkatOptimalParam`, cov_z, rhos)
+}
+
+#' Correlation C++
+#' 
+#' @section Notes:
+#' Verified this function is faster that R's built-in correlation function
+#' for large genotype matrices.
+#'
+#' @param x Numeric matrix.
+#' @return Numeric matrix of correlation among the columns.
+CorCpp <- function(x) {
+    .Call(`_AllelicSeries_CorCpp`, x)
+}
+
+#' Check if Positive Definite
+#'
+#' @param x Numeric matrix.
+#' @param force_symmetry Force the matrix to be symmetric?
+#' @param tau Threshold the minimum eigenvalue must exceed for the matrix
+#'   to be considered positive definite. 
+#' @return Logical indicating whether the matrix is PD.
+#' @export 
+isPD <- function(x, force_symmetry = FALSE, tau = 1e-8) {
+    .Call(`_AllelicSeries_isPD`, x, force_symmetry, tau)
+}
+
+#' Inverse Variance Meta-Analysis
+#' 
+#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param beta (snps x 1) vector of effect sizes for 
+#'   the coding genetic variants within a gene.
+#' @param ld (snps x snps) matrix of correlations among the genetic variants.
+#' @param se (snps x 1) vector of standard errors for the effect sizes.
+#' @param weights (3 x 1) vector of annotation category weights.
+#' @return Data.frame with the following columns \itemize{
+#' \item anno: gene annotation
+#' \item beta_meta: meta-analyzed effect size
+#' \item se_meta: standard error of the meta-analyzed effect size
+#' }
+IVWCpp <- function(anno, beta, se, ld, weights) {
+    .Call(`_AllelicSeries_IVWCpp`, anno, beta, se, ld, weights)
+}
+
+#' Category Correlation
+#'
+#' Calculates an estimate of the correlations across the total burdens
+#' of rare variants within each category {BMV, DMV, PTV}. To enable this
+#' calculation, an assumption of Hardy-Weinberg Equilibrium is made, which
+#' was found to provide good performance empirically. 
+#' 
+#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param ld (snps x snps) matrix of correlations among the genetic variants.
+#' @param maf (snps x 1) vector of minor allele frequencies.
+CatCor <- function(anno, ld, maf) {
+    .Call(`_AllelicSeries_CatCor`, anno, ld, maf)
+}
+
+#' Baseline Counts Test from Sumstats
+#'
+#' @param beta (snps x 1) vector of effect sizes for 
+#'   the coding genetic variants within a gene.
+#' @param ld (snps x snps) matrix of correlations among the genetic variants.
+#' @param se (snps x 1) vector of standard errors for the effect sizes.
+#' @return Numeric p-value.
+#' @export
+BaseCountsSS <- function(beta, ld, se) {
+    .Call(`_AllelicSeries_BaseCountsSS`, beta, ld, se)
 }
 

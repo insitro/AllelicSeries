@@ -28,8 +28,8 @@ SEXP Counts(
   arma::colvec variants = arma::zeros(3);
   arma::colvec carriers = arma::zeros(3);
   
-// Loop over annotations.
-  for(int j=0; j<3; j++) {
+  // Loop over annotations.
+  for (int j=0; j<3; j++) {
     
     arma::uvec key = arma::find(anno == j);
     arma::mat geno_subset = geno.cols(key);

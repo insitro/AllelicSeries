@@ -69,10 +69,11 @@ List containing: genotypes, annotations, covariates, phenotypes.
 }
 \description{
 Generate a data set consisting of: \itemize{
-\item{"anno"}{A SNP-length annotation vector.}
-\item{"covar"}{A subject by 6 covariate matrix.}
-\item{"geno"}{A subject by SNP genotype matrix.}
-\item{"pheno"}{A subject-length phenotype vector.}
+\item{anno: (snps x 1) annotation vector.}
+\item{covar: (subjects x 6) covariate matrix.}
+\item{geno: (subjects x snps) genotype matrix.}
+\item{pheno: (subjects x 1) phenotype vector.}
+\item{type: Either "binary" or "quantitative".}
 }
 }
 \examples{

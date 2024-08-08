@@ -1,6 +1,6 @@
 README
 ================
-2024-07-24
+2024-07-31
 
 # Allelic Series
 
@@ -74,9 +74,9 @@ results <- COAST(
 )
 ```
 
-The function `COAST` performs the allelic series test. The required
-inputs are the annotation vector, a covariate matrix, the per-variant
-genotype matrix, and the phenotype vector.
+The function `COAST` performs the coding-variant allelic series test.
+The required inputs are the annotation vector, a covariate matrix, the
+per-variant genotype matrix, and the phenotype vector.
 
 - The function assumes 3 annotation categories, coded as: `0`, `1`, `2`.
   The length of `anno` should match the number of columns of the
@@ -106,7 +106,7 @@ show(results)
     ## 
     ## P-values:
     ##           test   type     pval
-    ## 1        count burden 3.11e-26
+    ## 1     baseline burden 3.11e-26
     ## 2          ind burden 1.32e-09
     ## 3    max_count burden 3.08e-10
     ## 4      max_ind burden 5.37e-09
@@ -137,7 +137,7 @@ results@Pvals
 ```
 
     ##           test   type         pval
-    ## 1        count burden 3.112702e-26
+    ## 1     baseline burden 3.112702e-26
     ## 2          ind burden 1.322084e-09
     ## 3    max_count burden 3.076876e-10
     ## 4      max_ind burden 5.374363e-09
@@ -184,7 +184,7 @@ show(results)
     ## 
     ## P-values:
     ##             test   type     pval
-    ## 1          count burden 3.11e-26
+    ## 1       baseline burden 3.11e-26
     ## 2            ind burden 1.32e-09
     ## 3      max_count burden 3.08e-10
     ## 4        max_ind burden 5.37e-09
@@ -194,6 +194,91 @@ show(results)
     ## 8  orig_skat_all   skat 1.55e-05
     ## 9  orig_skat_ptv   skat 6.63e-08
     ## 10          omni   omni 3.74e-25
+
+## COAST from Summary Statistics
+
+### Summary statistics calculation
+
+The function `CalcSumstats` calculates summary statistics starting
+either from:
+
+- The direct output of `DGP`, or
+- An annotation vector `anno`, covariate matrix `covar`, genotype matrix
+  `geno`, and phenotype vector `pheno`, formatted as provided by `DGP`.
+
+``` r
+data <- DGP(n = 1e3)
+sumstats <- CalcSumstats(data = data)
+```
+
+The output `sumstats` is a list containing:
+
+- `anno`, the (snps x 1) annotation vector.
+- `ld`, a (snps x snps) LD (genotype correlation) matrix.
+- `maf`, a (snps x 1) minor allele frequency vector.
+- `sumstats`, a (snps x 4) data.frame including the effect size `beta`,
+  standard error `se`, and p-value `p`.
+
+``` r
+head(sumstats$sumstats)
+```
+
+    ##   anno       beta        se            p
+    ## 1    0 -0.1133459 0.7749020 8.837072e-01
+    ## 2    0 -0.2249223 1.0606390 8.320578e-01
+    ## 3    0 -0.4892382 1.0083429 6.275413e-01
+    ## 4    2  5.7698852 0.7777121 1.179629e-13
+    ## 5    1  2.3879472 0.6786403 4.336290e-04
+    ## 6    2  6.6218967 0.8581600 1.196717e-14
+
+### Running COAST from summary statistics
+
+`COASTSS` is the main function for running the coding-variant allelic
+series test from summary statistics. The necessary inputs are the
+annotation vector `anno`, the effect size vector `beta`, and the
+standard error vector `se`. The test will run *without* the LD matrix
+`ld` or the minor alleles frequencies `maf` vector. However, to do so,
+it assumes the variants are in linkage equilibrium (i.e. `ld` is the
+identity matrix) and that the minor allele frequencies are zero. These
+assumptions are at best approximations, and providing `ld` and `maf` (or
+estimates) is always preferred.
+
+``` r
+results <- COASTSS(
+  anno = sumstats$anno,
+  beta = sumstats$sumstats$beta,
+  se = sumstats$sumstats$se,
+  maf = sumstats$maf,
+  ld = sumstats$ld
+)
+show(results)
+```
+
+    ## P-values:
+    ##           test   type      pval
+    ## 1     baseline burden 3.20e-209
+    ## 2    sum_count burden 3.24e-144
+    ## 3 allelic_skat   skat 3.18e-297
+    ## 4         omni   omni 9.55e-297
+
+In comparing the outputs of the summary statistics based test to those
+of the individual level data test, several differences are noteworthy:
+
+- Not all components of `COAST` could be included in `COASTSS`. In
+  particular, the `max` tests cannot be obtained starting from standard
+  summary statistics. In addition, by convention, summary statistics are
+  generated from count rather than indicator genotypes. If available,
+  `COASTSS` can be applied to summary statistics generated from
+  indicator genotypes.
+
+- Several approximations are required in order to perform the
+  coding-variant allelic series test with summary statistics. As such,
+  the p-values obtained from `COASTSS` and `COAST` will not be
+  identical, even when starting from the same data. Nonetheless, the
+  operating characteristics of `COASTSS` (and the original `COAST`) have
+  been validated through extensive simulation studies.
+
+# Appendix
 
 ## Loading genotypes
 

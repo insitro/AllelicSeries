@@ -12,10 +12,11 @@
 //'
 //' @return List containing the following:
 //' \itemize{
-//' \item{Beta}{Regression coefficient.}
-//' \item{V}{Outcome variance.}
-//' \item{SE}{Standard errors.}
-//' \item{Z}{Z-scores.}
+//' \item{beta: Regression coefficients.}
+//' \item{v: Residual variance.}
+//' \item{se: Standard errors.}
+//' \item{z: Z-scores.}
+//' \item{pval: P-values based on the chi2 distribution.}
 //' }
 //' @export
 // [[Rcpp::export]]
@@ -47,11 +48,18 @@ SEXP OLS(const arma::colvec y, const arma::mat X){
   // Z-scores.
   const arma::vec z = b / se;
 
+  // P-values.
+  Rcpp::Environment base("package:stats");
+  Rcpp::Function pchisq = base["pchisq"]; 
+  SEXP pval = pchisq(
+    Rcpp::_["q"]=arma::pow(z, 2), Rcpp::_["df"]=1, Rcpp::_["lower.tail"]=false);
+
   return Rcpp::List::create(
     Rcpp::Named("beta") = b,
     Rcpp::Named("v") = v,
     Rcpp::Named("se") = se,
     Rcpp::Named("z") = z,
+    Rcpp::Named("pval") = pval,
     Rcpp::Named("resid") = eps
   );
 }
