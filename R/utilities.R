@@ -1,5 +1,5 @@
 # Purpose: Utility functions.
-# Updated: 2024-08-02
+# Updated: 2024-08-08
 
 #' Genomic Control
 #' 
@@ -9,7 +9,7 @@
 #' @return Corrected p-value.
 #' @export 
 GenomicControl <- function(lambda, pval, df = 1) {
-  if (lambda == 1) {
+  if (lambda == 1 || is.na(pval)) {
     return(pval)
   }
   chi2 <- stats::qchisq(p = pval, df = df, lower.tail = FALSE) 

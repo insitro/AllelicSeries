@@ -343,15 +343,19 @@ COASTSS <- function(
   )
   
   # SKAT model p-value.
-  p_skat <- ASKATSS(
-    anno = anno,
-    beta = beta,
-    se = se,
-    check = FALSE,
-    eps = eps,
-    ld = ld,
-    maf = maf,
-    weights = weights
+  p_skat <- tryCatch({
+    ASKATSS(
+      anno = anno,
+      beta = beta,
+      se = se,
+      check = FALSE,
+      eps = eps,
+      ld = ld,
+      maf = maf,
+      weights = weights
+    )
+  },
+    error = function(cond) {return(NA)}
   )
 
   # Genomic control.
@@ -362,7 +366,8 @@ COASTSS <- function(
   
   # Omnibus p-value.
   pvals <- c(p_base, p_burden, p_skat)
-  p_omni <- RNOmni::OmniP(pvals, pval_weights)
+  key <- sapply(pvals, function(x) {!is.na(x)})
+  p_omni <- RNOmni::OmniP(pvals[key], pval_weights[key])
   
   # Output.
   df_pvals <- data.frame(

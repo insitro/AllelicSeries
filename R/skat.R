@@ -1,3 +1,6 @@
+# Note: Code modified from <https://github.com/leelabsg/SKAT>.
+# Updated: 2024-08-02
+
 #' Calculate P-value via Liu's Method
 #' @param eigenvals Vector of eigenvalues.
 #' @param q SKAT Q statistic.
@@ -61,7 +64,7 @@ DaviesP <- function(
   # Case of Davies' method failure.
   if (is.null(davies_output) || 
       davies_output$ifault != 0 || 
-      davies_output$Qq == 0) {
+      davies_output$Qq <= 0) {
     return(p_default)
   }
 
@@ -105,7 +108,7 @@ PerRhoResults <- function(
     mu_q <- results$mu_q[i]
     sigma_q <- results$sigma_q[i]
     df <- results$df[i]
-    q <- stats::qchisq(1 - pmin, df = df)
+    q <- stats::qchisq(pmin, df = df, lower.tail = FALSE)
     q <- (q - df) / sqrt(2 * df) * sigma_q + mu_q
   })
   
@@ -160,11 +163,10 @@ LiuIntegrand <- function(x, opt_params, results){
   var_q <- opt_params$var_q
   df <- opt_params$df
   
-  q_stat <- (min_q - mu_q) / sqrt(var_q) * sqrt(2 * df) +df
+  q_stat <- (min_q - mu_q) / sqrt(var_q) * sqrt(2 * df) + df
   out <- stats::pchisq(q_stat, df = df) * stats::dchisq(x, df = 1) 
   return(out)
 }
-
 
 
 # ------------------------------------------------------------------------------
@@ -184,7 +186,7 @@ OptimalPval <-function(opt_params, results){
     error = function(cond) {return(NULL)}
   )
   
-  if (!is.null(res)) {
+  if (!is.null(res) && res$value < 1) {
     pval <- 1 - res$value
   } else {
     
@@ -203,3 +205,4 @@ OptimalPval <-function(opt_params, results){
 
   return(pval)
 }
+
