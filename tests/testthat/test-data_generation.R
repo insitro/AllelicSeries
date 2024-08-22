@@ -292,3 +292,39 @@ test_that("Checking ability to generate phenotypes with random genetic effects."
   
 })
 
+
+test_that("Check sumstats generation.", {
+  
+  withr::local_seed(123)
+  anno <- c(0, 1, 2)
+  n <- 100
+  geno <- replicate(3, stats::rbinom(n = n, size = 2, prob = 0.25))
+  pheno <- stats::rnorm(n = n)
+  covar <- rep(1, n)
+  
+  # Calculate sumstats manually.
+  ld <- cor(geno)
+  sumstats <- lapply(seq_len(3), function(i) {
+    fit <- stats::lm(pheno ~ geno[, i])
+    results <- summary(fit)
+    beta <- as.numeric(results$coefficients[, "Estimate"][2])
+    se <- as.numeric(results$coefficients[, "Std. Error"][2])
+    return(data.frame(beta = beta, se = se))
+  })
+  sumstats <- do.call(rbind, sumstats)
+  
+  # Check function outputs.
+  data <- list(
+    anno = anno, 
+    geno = geno, 
+    pheno = pheno, 
+    covar = covar,
+    type = "quantitative"
+  )
+  obs <- CalcSumstats(data = data)
+  
+  expect_equal(ld, obs$ld, tolerance = 1e-4)
+  expect_equal(sumstats$beta, obs$sumstats$beta, tolerance = 1e-4)
+  expect_equal(sumstats$se, obs$sumstats$se, tolerance = 1e-4)
+  
+})

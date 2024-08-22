@@ -62,12 +62,121 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// CalcSkatWeights
+SEXP CalcSkatWeights(const arma::vec& anno, const arma::vec& maf, const arma::vec& weights);
+RcppExport SEXP _AllelicSeries_CalcSkatWeights(SEXP annoSEXP, SEXP mafSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type anno(annoSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type maf(mafSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(CalcSkatWeights(anno, maf, weights));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GetLambda
+SEXP GetLambda(const arma::mat& kernel);
+RcppExport SEXP _AllelicSeries_GetLambda(SEXP kernelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type kernel(kernelSEXP);
+    rcpp_result_gen = Rcpp::wrap(GetLambda(kernel));
+    return rcpp_result_gen;
+END_RCPP
+}
+// SkatOptimalParam
+SEXP SkatOptimalParam(const arma::mat& cov_z, const arma::vec& rhos);
+RcppExport SEXP _AllelicSeries_SkatOptimalParam(SEXP cov_zSEXP, SEXP rhosSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type cov_z(cov_zSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type rhos(rhosSEXP);
+    rcpp_result_gen = Rcpp::wrap(SkatOptimalParam(cov_z, rhos));
+    return rcpp_result_gen;
+END_RCPP
+}
+// CorCpp
+SEXP CorCpp(const arma::mat& x);
+RcppExport SEXP _AllelicSeries_CorCpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(CorCpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// isPD
+SEXP isPD(const arma::mat& x, bool force_symmetry, double tau);
+RcppExport SEXP _AllelicSeries_isPD(SEXP xSEXP, SEXP force_symmetrySEXP, SEXP tauSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< bool >::type force_symmetry(force_symmetrySEXP);
+    Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
+    rcpp_result_gen = Rcpp::wrap(isPD(x, force_symmetry, tau));
+    return rcpp_result_gen;
+END_RCPP
+}
+// IVWCpp
+SEXP IVWCpp(const arma::colvec& anno, const arma::colvec& beta, const arma::colvec& se, const arma::mat& ld, const arma::colvec& weights);
+RcppExport SEXP _AllelicSeries_IVWCpp(SEXP annoSEXP, SEXP betaSEXP, SEXP seSEXP, SEXP ldSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec& >::type anno(annoSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(IVWCpp(anno, beta, se, ld, weights));
+    return rcpp_result_gen;
+END_RCPP
+}
+// CatCor
+SEXP CatCor(const arma::colvec& anno, const arma::mat& ld, const arma::colvec& maf);
+RcppExport SEXP _AllelicSeries_CatCor(SEXP annoSEXP, SEXP ldSEXP, SEXP mafSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec& >::type anno(annoSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type maf(mafSEXP);
+    rcpp_result_gen = Rcpp::wrap(CatCor(anno, ld, maf));
+    return rcpp_result_gen;
+END_RCPP
+}
+// BaseCountsSS
+SEXP BaseCountsSS(const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se);
+RcppExport SEXP _AllelicSeries_BaseCountsSS(SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
+    rcpp_result_gen = Rcpp::wrap(BaseCountsSS(beta, ld, se));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_AllelicSeries_Counts", (DL_FUNC) &_AllelicSeries_Counts, 3},
     {"_AllelicSeries_OLS", (DL_FUNC) &_AllelicSeries_OLS, 2},
     {"_AllelicSeries_ResidVar", (DL_FUNC) &_AllelicSeries_ResidVar, 2},
     {"_AllelicSeries_Score", (DL_FUNC) &_AllelicSeries_Score, 4},
+    {"_AllelicSeries_CalcSkatWeights", (DL_FUNC) &_AllelicSeries_CalcSkatWeights, 3},
+    {"_AllelicSeries_GetLambda", (DL_FUNC) &_AllelicSeries_GetLambda, 1},
+    {"_AllelicSeries_SkatOptimalParam", (DL_FUNC) &_AllelicSeries_SkatOptimalParam, 2},
+    {"_AllelicSeries_CorCpp", (DL_FUNC) &_AllelicSeries_CorCpp, 1},
+    {"_AllelicSeries_isPD", (DL_FUNC) &_AllelicSeries_isPD, 3},
+    {"_AllelicSeries_IVWCpp", (DL_FUNC) &_AllelicSeries_IVWCpp, 5},
+    {"_AllelicSeries_CatCor", (DL_FUNC) &_AllelicSeries_CatCor, 3},
+    {"_AllelicSeries_BaseCountsSS", (DL_FUNC) &_AllelicSeries_BaseCountsSS, 3},
     {NULL, NULL, 0}
 };
 
