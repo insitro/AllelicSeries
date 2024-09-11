@@ -91,6 +91,8 @@ SEXP IVWCpp(
     arma::colvec se_anno = se.elem(key);
     arma::mat d_anno = arma::diagmat(se_anno);
     arma::mat v_anno = d_anno * ld_anno * d_anno;
+
+    // Use of pseudo-inverse here protects against the case where `v_anno` is singular.
     arma::mat v_anno_inv = arma::pinv(v_anno);
     double weight_sum = arma::accu(v_anno_inv);
 
