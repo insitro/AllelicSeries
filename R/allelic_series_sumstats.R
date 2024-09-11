@@ -14,7 +14,7 @@ DEFAULT_WEIGHTS <- c(1, 2, 3)
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param check Run input checks? Default: TRUE.
 #' @param eps Epsilon added to the diagonal of the LD matrix if not positive
-#'   definite. Note, epsilon should increase as the sample size decreases. 
+#'   definite. Note, smaller values increase the chances of a false positive. 
 #' @param lambda Optional genomic inflation factor. Defaults to 1, which
 #'   results in no rescaling.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
@@ -45,7 +45,7 @@ ASBTSS <- function(
   beta,
   se,
   check = TRUE,
-  eps = 1e-4,
+  eps = 1,
   lambda = 1,
   ld = NULL,
   maf = NULL,
@@ -69,7 +69,6 @@ ASBTSS <- function(
     is_pd <- TRUE
   }
   
-
   n_snps <- length(anno)
   if (is.null(ld)) {ld <- diag(n_snps)}
   if (is.null(maf)) {maf <- rep(0, n_snps)}
@@ -141,7 +140,7 @@ ASBTSS <- function(
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param check Run input checks? Default: TRUE.
 #' @param eps Epsilon added to the diagonal of the LD matrix if not positive
-#'   definite. Note, epsilon should increase as the sample size decreases. 
+#'   definite. Note, smaller values increase the chances of a false positive. 
 #' @param lambda Optional genomic inflation factor. Defaults to 1, which
 #'   results in no rescaling.
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
@@ -170,7 +169,7 @@ ASKATSS <- function(
     beta, 
     se, 
     check = TRUE,
-    eps = 1e-4,
+    eps = 1,
     lambda = 1,
     ld = NULL,
     maf = NULL,
@@ -296,7 +295,7 @@ COASTSS <- function(
     beta, 
     se,
     check = TRUE,
-    eps = 1e-4,
+    eps = 1,
     lambda = c(1, 1, 1),
     maf = NULL,
     ld = NULL,

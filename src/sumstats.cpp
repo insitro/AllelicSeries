@@ -91,7 +91,7 @@ SEXP IVWCpp(
     arma::colvec se_anno = se.elem(key);
     arma::mat d_anno = arma::diagmat(se_anno);
     arma::mat v_anno = d_anno * ld_anno * d_anno;
-    arma::mat v_anno_inv = arma::inv_sympd(v_anno);
+    arma::mat v_anno_inv = arma::pinv(v_anno);
     double weight_sum = arma::accu(v_anno_inv);
 
     // Meta-analyze.
