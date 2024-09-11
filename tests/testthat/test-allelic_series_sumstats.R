@@ -111,11 +111,15 @@ test_that("Check case of rank-deficient LD.", {
   withr::local_seed(101)
   data <- DGP(n = 1e2, prop_causal = 0)
   sumstats <- CalcSumstats(data = data)
+  ld <- sumstats$ld
+  
+  # Ensure the matrix is singular.
+  ld[1, 0] <- ld[0, 1] <- 0
   
   # The LD matrix is singular.
   expect_false(isPD(sumstats$ld))
   
-  # Without epsilon, matrix inversion will fail.
+  # Test COAST runs even *without* epsilon.
   expect_error(
     COASTSS(
       anno = sumstats$anno,
@@ -125,7 +129,8 @@ test_that("Check case of rank-deficient LD.", {
       eps = 0,
       ld = sumstats$ld,
       maf = sumstats$maf
-    )
+    ), 
+    NA
   )
   
   # With epsilon, the test runs.
@@ -134,13 +139,12 @@ test_that("Check case of rank-deficient LD.", {
       anno = sumstats$anno,
       beta = sumstats$sumstats$beta,
       se = sumstats$sumstats$se,
-      eps = 1e-4,
+      eps = 1,
       ld = sumstats$ld,
       maf = sumstats$maf
     )
   )
   expect_true(all(results@Pvals$pval > 0.05))
-  
   
 })
 

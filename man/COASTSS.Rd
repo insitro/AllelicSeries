@@ -9,7 +9,7 @@ COASTSS(
   beta,
   se,
   check = TRUE,
-  eps = 1e-04,
+  eps = 1,
   lambda = c(1, 1, 1),
   maf = NULL,
   ld = NULL,
