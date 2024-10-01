@@ -40,7 +40,7 @@ Although ideally provided, an identity matrix is assumed if not.}
 provided, defaults to the zero vector.}
 
 \item{method}{Method for aggregating across categories:
-{"none", "sum"}. Default: "none".}
+("none", "sum"). Default: "none".}
 
 \item{weights}{(3 x 1) vector of annotation category weights.}
 }
