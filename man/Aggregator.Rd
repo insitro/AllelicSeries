@@ -24,7 +24,7 @@ Aggregator(
 \item{indicator}{Convert raw counts to indicators? Default: FALSE.}
 
 \item{method}{Method for aggregating across categories:
-{"none", "max", "sum"}. Default: "none".}
+("none", "max", "sum"). Default: "none".}
 
 \item{min_mac}{Minimum minor allele count for inclusion. Default: 0.}
 

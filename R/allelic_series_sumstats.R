@@ -22,7 +22,7 @@ DEFAULT_WEIGHTS <- c(1, 2, 3)
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
 #'   provided, defaults to the zero vector.
 #' @param method Method for aggregating across categories:
-#'   {"none", "sum"}. Default: "none".
+#'   ("none", "sum"). Default: "none".
 #' @param weights (3 x 1) vector of annotation category weights.
 #' @return Numeric p-value of the allelic series burden test.
 #' @examples
@@ -74,45 +74,24 @@ ASBTSS <- function(
   if (is.null(maf)) {maf <- rep(0, n_snps)}
   if (!is_pd) {ld <- ld + eps * diag(n_snps)}
   
-  # Per-category summary statistics.
-  category_sumstats <- IVWSS(
-    anno = anno,
-    beta = beta,
-    se = se,
-    ld = ld,
-    weights = weights
-  )
-  
-  # Category correlation matrix.
-  r3 <- CatCor(anno = anno, ld = ld, maf = maf)
-  if (!isPD(r3)) {r3 <- r3 + eps * diag(3)}
-  
   # Run burden test.
   if (method == "none") {
     
-    pval <- BaseCountsSS(
-      beta = category_sumstats$beta_meta,
-      ld = r3,
-      se = category_sumstats$se_meta
+    pval <- BaselineSS(
+      anno = anno,
+      beta = beta,
+      ld = ld,
+      se = se
     )
     
   } else if (method == "sum") {
     
-    key <- (category_sumstats$se_meta > 0)
-    n_nz <- sum(key)
-    
-    gene_sumstats <- IVWSS(
-      anno = rep(0, n_nz),
-      beta = category_sumstats$beta_meta[key],
-      ld = r3[key, key, drop = FALSE],
-      se = category_sumstats$se_meta[key],
-      weights = rep(1, n_nz)
-    )
-    
-    pval <- BaseCountsSS(
-      beta = gene_sumstats$beta_meta[1],
-      se = gene_sumstats$se_meta[1],
-      ld = diag(1)
+    pval <- SumCountSS(
+      anno = anno,
+      beta = beta,
+      ld = ld,
+      se = se,
+      weights = weights
     )
     
   } else {

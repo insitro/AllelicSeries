@@ -13,7 +13,7 @@ DEFAULT_WEIGHTS <- c(1, 2, 3)
 #' @param drop_empty Drop empty columns? Default: TRUE.
 #' @param indicator Convert raw counts to indicators? Default: FALSE.
 #' @param method Method for aggregating across categories:
-#'   {"none", "max", "sum"}. Default: "none".
+#'   ("none", "max", "sum"). Default: "none".
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
 #' @param weights Annotation category weights.
 #' @return (n x 3) Numeric matrix without weighting, (n x 1) numeric matrix
@@ -104,8 +104,8 @@ Aggregator <- function(
 #' @param covar (n x p) covariate matrix. Defaults to an (n x 1) intercept.
 #' @param indicator Convert raw counts to indicators?
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
-#' @param method Method for aggregating across categories: {"none", "max",
-#'   "sum"}. Default: "none".
+#' @param method Method for aggregating across categories: ("none", "max",
+#'   "sum"). Default: "none".
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
 #' @param score_test Run a score test? If FALSE, performs a Wald test.
 #' @param weights (3 x 1) annotation category weights.

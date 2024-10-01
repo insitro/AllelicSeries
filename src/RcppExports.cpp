@@ -122,44 +122,43 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// IVWCpp
-SEXP IVWCpp(const arma::colvec& anno, const arma::colvec& beta, const arma::colvec& se, const arma::mat& ld, const arma::colvec& weights);
-RcppExport SEXP _AllelicSeries_IVWCpp(SEXP annoSEXP, SEXP betaSEXP, SEXP seSEXP, SEXP ldSEXP, SEXP weightsSEXP) {
+// AnnoMat
+arma::mat AnnoMat(const arma::colvec& anno);
+RcppExport SEXP _AllelicSeries_AnnoMat(SEXP annoSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec& >::type anno(annoSEXP);
+    rcpp_result_gen = Rcpp::wrap(AnnoMat(anno));
+    return rcpp_result_gen;
+END_RCPP
+}
+// BaselineSS
+SEXP BaselineSS(const arma::colvec& anno, const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se);
+RcppExport SEXP _AllelicSeries_BaselineSS(SEXP annoSEXP, SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::colvec& >::type anno(annoSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
+    rcpp_result_gen = Rcpp::wrap(BaselineSS(anno, beta, ld, se));
+    return rcpp_result_gen;
+END_RCPP
+}
+// SumCountSS
+SEXP SumCountSS(const arma::colvec& anno, const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se, const arma::colvec& weights);
+RcppExport SEXP _AllelicSeries_SumCountSS(SEXP annoSEXP, SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::colvec& >::type anno(annoSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type weights(weightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(IVWCpp(anno, beta, se, ld, weights));
-    return rcpp_result_gen;
-END_RCPP
-}
-// CatCor
-SEXP CatCor(const arma::colvec& anno, const arma::mat& ld, const arma::colvec& maf);
-RcppExport SEXP _AllelicSeries_CatCor(SEXP annoSEXP, SEXP ldSEXP, SEXP mafSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type anno(annoSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type maf(mafSEXP);
-    rcpp_result_gen = Rcpp::wrap(CatCor(anno, ld, maf));
-    return rcpp_result_gen;
-END_RCPP
-}
-// BaseCountsSS
-SEXP BaseCountsSS(const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se);
-RcppExport SEXP _AllelicSeries_BaseCountsSS(SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
-    rcpp_result_gen = Rcpp::wrap(BaseCountsSS(beta, ld, se));
+    rcpp_result_gen = Rcpp::wrap(SumCountSS(anno, beta, ld, se, weights));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -174,9 +173,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_AllelicSeries_SkatOptimalParam", (DL_FUNC) &_AllelicSeries_SkatOptimalParam, 2},
     {"_AllelicSeries_CorCpp", (DL_FUNC) &_AllelicSeries_CorCpp, 1},
     {"_AllelicSeries_isPD", (DL_FUNC) &_AllelicSeries_isPD, 3},
-    {"_AllelicSeries_IVWCpp", (DL_FUNC) &_AllelicSeries_IVWCpp, 5},
-    {"_AllelicSeries_CatCor", (DL_FUNC) &_AllelicSeries_CatCor, 3},
-    {"_AllelicSeries_BaseCountsSS", (DL_FUNC) &_AllelicSeries_BaseCountsSS, 3},
+    {"_AllelicSeries_AnnoMat", (DL_FUNC) &_AllelicSeries_AnnoMat, 1},
+    {"_AllelicSeries_BaselineSS", (DL_FUNC) &_AllelicSeries_BaselineSS, 4},
+    {"_AllelicSeries_SumCountSS", (DL_FUNC) &_AllelicSeries_SumCountSS, 5},
     {NULL, NULL, 0}
 };
 
