@@ -105,46 +105,34 @@ isPD <- function(x, force_symmetry = FALSE, tau = 1e-8) {
     .Call(`_AllelicSeries_isPD`, x, force_symmetry, tau)
 }
 
-#' Inverse Variance Meta-Analysis
-#' 
-#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
-#' @param beta (snps x 1) vector of effect sizes for 
-#'   the coding genetic variants within a gene.
-#' @param ld (snps x snps) matrix of correlations among the genetic variants.
-#' @param se (snps x 1) vector of standard errors for the effect sizes.
-#' @param weights (3 x 1) vector of annotation category weights.
-#' @return Data.frame with the following columns \itemize{
-#' \item anno: gene annotation
-#' \item beta_meta: meta-analyzed effect size
-#' \item se_meta: standard error of the meta-analyzed effect size
-#' }
-IVWCpp <- function(anno, beta, se, ld, weights) {
-    .Call(`_AllelicSeries_IVWCpp`, anno, beta, se, ld, weights)
-}
-
-#' Category Correlation
-#'
-#' Calculates an estimate of the correlations across the total burdens
-#' of rare variants within each category {BMV, DMV, PTV}. To enable this
-#' calculation, an assumption of Hardy-Weinberg Equilibrium is made, which
-#' was found to provide good performance empirically. 
-#' 
-#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
-#' @param ld (snps x snps) matrix of correlations among the genetic variants.
-#' @param maf (snps x 1) vector of minor allele frequencies.
-CatCor <- function(anno, ld, maf) {
-    .Call(`_AllelicSeries_CatCor`, anno, ld, maf)
+AnnoMat <- function(anno) {
+    .Call(`_AllelicSeries_AnnoMat`, anno)
 }
 
 #' Baseline Counts Test from Sumstats
 #'
+#' @param anno (snps x 1) annotation vector.
 #' @param beta (snps x 1) vector of effect sizes for 
 #'   the coding genetic variants within a gene.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @return Numeric p-value.
 #' @export
-BaseCountsSS <- function(beta, ld, se) {
-    .Call(`_AllelicSeries_BaseCountsSS`, beta, ld, se)
+BaselineSS <- function(anno, beta, ld, se) {
+    .Call(`_AllelicSeries_BaselineSS`, anno, beta, ld, se)
+}
+
+#' Allelic Sum Test from Sumstats
+#'
+#' @param anno (snps x 1) annotation vector.
+#' @param beta (snps x 1) vector of effect sizes for 
+#'   the coding genetic variants within a gene.
+#' @param ld (snps x snps) matrix of correlations among the genetic variants.
+#' @param se (snps x 1) vector of standard errors for the effect sizes.
+#' @param weights (3 x 1) vector of annotation category weights.
+#' @return Numeric p-value.
+#' @export
+SumCountSS <- function(anno, beta, ld, se, weights) {
+    .Call(`_AllelicSeries_SumCountSS`, anno, beta, ld, se, weights)
 }
 
