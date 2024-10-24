@@ -1,8 +1,10 @@
 README
 ================
-2024-07-31
+2024-10-24
 
 # Allelic Series
+
+[![](https://cranlogs.r-pkg.org/badges/grand-total/AllelicSeries)](https://CRAN.R-project.org/package=AllelicSeries)
 
 This package implements gene-level rare variant association tests
 targeting allelic series: genes where increasingly deleterious mutations
@@ -256,10 +258,10 @@ show(results)
 
     ## P-values:
     ##           test   type      pval
-    ## 1     baseline burden 3.20e-209
-    ## 2    sum_count burden 3.24e-144
+    ## 1     baseline burden 1.19e-215
+    ## 2    sum_count burden 8.88e-165
     ## 3 allelic_skat   skat 3.18e-297
-    ## 4         omni   omni 9.55e-297
+    ## 4         omni   omni 6.37e-297
 
 In comparing the outputs of the summary statistics based test to those
 of the individual level data test, several differences are noteworthy:
