@@ -1,3 +1,6 @@
+## Version 1.0.2
+* Streamlined and simplified the summary statistic-based allelic series baseline and sum tests, removing the need for meta-analysis or estimating cross category correlations.
+
 ## Version 1.0.0
 * Added ability to run COAST starting from summary statistics:
 	- `ASBTSS` runs the allelic series burden test from summary statistics.
