@@ -1,9 +1,10 @@
 README
 ================
-2024-10-24
+2024-11-05
 
 # Allelic Series
 
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/AllelicSeries)](https://cran.r-project.org/package=AllelicSeries)
 [![](https://cranlogs.r-pkg.org/badges/grand-total/AllelicSeries)](https://CRAN.R-project.org/package=AllelicSeries)
 
 This package implements gene-level rare variant association tests
