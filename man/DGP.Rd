@@ -6,29 +6,30 @@
 \usage{
 DGP(
   anno = NULL,
-  beta = c(0, 1, 2),
+  beta = c(1, 2, 3),
   binary = FALSE,
   geno = NULL,
   include_residual = TRUE,
   indicator = FALSE,
-  maf_range = c(0.005, 0.01),
+  maf_range = c(0.001, 0.005),
   method = "none",
   n = 100,
-  p_dmv = 0.4,
-  p_ptv = 0.1,
+  prop_anno = c(0.5, 0.4, 0.1),
   prop_causal = 1,
   random_signs = FALSE,
   random_var = 0,
   snps = 100,
-  weights = c(1, 2, 3)
+  weights = c(1, 1, 1)
 )
 }
 \arguments{
 \item{anno}{Annotation vector, if providing genotypes. Should match the
 number of columns in geno.}
 
-\item{beta}{If method = "none", a (3 x 1) coefficient vector for bmvs, dmvs,
-and ptvs respectively. If method != "none", a scalar effect size.}
+\item{beta}{If method = "none", a (L x 1) coefficient with effect sizes for
+each annotation category. By default, there are L = 3 annotation categories
+corresponding to BMVs, DMVs, and PTVs. If method != "none", a scalar
+effect size for the allelic series burden score.}
 
 \item{binary}{Generate binary phenotype? Default: FALSE.}
 
@@ -45,13 +46,9 @@ value. Intended for testing.}
 
 \item{n}{Sample size.}
 
-\item{p_dmv}{Frequency of deleterious missense variants. Default of 40\% is
-based on the frequency of DMVs among rare coding variants in the UK
-Biobank.}
-
-\item{p_ptv}{Frequency of protein truncating variants. Default of 10\% is
-based on the frequency of PTVs among rare coding variants in the UK
-Biobank.}
+\item{prop_anno}{Proportions of annotations in each category. Length should
+equal the number of annotation categories. Default of c(0.5, 0.4, 0.1) is
+based on the approximate empirical frequencies of BMVs, DMVs, and PTVs.}
 
 \item{prop_causal}{Proportion of variants which are causal. Default: 1.0.}
 
@@ -62,18 +59,19 @@ architecture, TRUE for SKAT-type.}
 
 \item{snps}{Number of SNP in the gene. Default: 100.}
 
-\item{weights}{Aggregation weights.}
+\item{weights}{Annotation category weights. Length should match \code{prop_anno}.}
 }
 \value{
 List containing: genotypes, annotations, covariates, phenotypes.
 }
 \description{
-Generate a data set consisting of: \itemize{
-\item{anno: (snps x 1) annotation vector.}
-\item{covar: (subjects x 6) covariate matrix.}
-\item{geno: (subjects x snps) genotype matrix.}
-\item{pheno: (subjects x 1) phenotype vector.}
-\item{type: Either "binary" or "quantitative".}
+Generate a data set consisting of:
+\itemize{
+\item \code{anno}: (snps x 1) annotation vector.
+\item \code{covar}: (subjects x 6) covariate matrix.
+\item \code{geno}: (subjects x snps) genotype matrix.
+\item \code{pheno}: (subjects x 1) phenotype vector.
+\item \code{type}: Either "binary" or "quantitative".
 }
 }
 \examples{

@@ -1,22 +1,27 @@
 # Purpose: Allelic series test.
-# Updated: 2024-07-24
-
-# Default weights.
-DEFAULT_WEIGHTS <- c(1, 2, 3)
+# Updated: 2024-11-11
 
 #' Aggregator
 #'
-#' Aggregates genotypes within annotation categories.
+#' Aggregates genotypes within annotation categories. 
+#' 
+#' @section Notes:
+#' * Ensure the length of the `weights` vector matches the total number of 
+#'   annotation categories.
+#' * The `weights` essentially scales the minor allele count in the `l`th
+#'   category by `weights[l]`.
 #'
-#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param anno (snps x 1) annotation vector with integer values in 1 through
+#'   the number of annotation categories L.
 #' @param geno (n x snps) genotype matrix.
 #' @param drop_empty Drop empty columns? Default: TRUE.
 #' @param indicator Convert raw counts to indicators? Default: FALSE.
 #' @param method Method for aggregating across categories:
 #'   ("none", "max", "sum"). Default: "none".
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
-#' @param weights Annotation category weights.
-#' @return (n x 3) Numeric matrix without weighting, (n x 1) numeric matrix
+#' @param weights (L x 1) vector of annotation category weights. Note that the
+#'   number of annotation categories L is inferred from the length of `weights`.
+#' @return (n x L) Numeric matrix without weighting, (n x 1) numeric matrix
 #' with weighting.
 #' @export
 Aggregator <- function(
@@ -26,8 +31,11 @@ Aggregator <- function(
     indicator = FALSE,
     method = "none",
     min_mac = 0,
-    weights = DEFAULT_WEIGHTS
+    weights = c(1, 2, 3)
 ) {
+  
+  # Ensure annotations are one-indexed.
+  anno <- RelevelAnno(anno)
   
   # Minor allele count filtering.
   if (min_mac > 0) {
@@ -39,21 +47,19 @@ Aggregator <- function(
   }
 
   # Sum to categories.
-  bmv <- apply(geno[, anno == 0, drop = FALSE], 1, sum)
-  dmv <- apply(geno[, anno == 1, drop = FALSE], 1, sum)
-  ptv <- apply(geno[, anno == 2, drop = FALSE], 1, sum)
+  n_anno <- length(weights)
+  out <- lapply(seq_len(n_anno), function(l) {
+    agg <- apply(geno[, anno == l, drop = FALSE], 1, sum)
+    if (indicator) {agg <- 1 * (agg > 0)}
+    return(agg)
+  })
+  out <- do.call(cbind, out)
+  colnames(out) <- paste0("a", seq_len(n_anno))
+  
+  stopifnot(ncol(out) == n_anno)
+  stopifnot(nrow(out) == nrow(geno))
 
-  # Convert to indicators.
-  if (indicator) {
-    bmv <- 1 * (bmv > 0)
-    dmv <- 1 * (dmv > 0)
-    ptv <- 1 * (ptv > 0)
-  }
-
-  # If weights are null, output 3 column matrix.
-  out <- cbind(bmv = bmv, dmv = dmv, ptv = ptv)
-
-  # Apply weighting.
+  # Apply annotation category weights
   out <- out %*% diag(weights)
 
   # Drop empty columns.
@@ -83,6 +89,7 @@ Aggregator <- function(
 
     # No aggregation (default).
     out <- out
+    
   }
 
   return(as.matrix(out))
@@ -96,7 +103,8 @@ Aggregator <- function(
 #'
 #' Burden test with allelic series weights.
 #'
-#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param anno (snps x 1) annotation vector with integer values in 1 through
+#'   the number of annotation categories L.
 #' @param geno (n x snps) genotype matrix.
 #' @param pheno (n x 1) phenotype vector.
 #' @param apply_int Apply rank-based inverse normal transform to the phenotype?
@@ -108,7 +116,8 @@ Aggregator <- function(
 #'   "sum"). Default: "none".
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
 #' @param score_test Run a score test? If FALSE, performs a Wald test.
-#' @param weights (3 x 1) annotation category weights.
+#' @param weights (L x 1) vector of annotation category weights. Note that the
+#'   number of annotation categories L is inferred from the length of `weights`.
 #' @return Numeric p-value.
 #' @examples 
 #' # Generate data.
@@ -134,8 +143,11 @@ ASBT <- function(
   method = "none",
   min_mac = 0,
   score_test = FALSE,
-  weights = DEFAULT_WEIGHTS
+  weights = c(1, 2, 3)
 ) {
+  
+  # Ensure annotations are one-indexed.
+  anno <- RelevelAnno(anno)
 
   # Covariates.
   if (is.null(covar)) {
@@ -198,7 +210,8 @@ ASBT <- function(
 #'
 #' Sequence kernel association test (SKAT) with allelic series weights.
 #'
-#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param anno (snps x 1) annotation vector with integer values in 1 through
+#'   the number of annotation categories L.
 #' @param geno (n x snps) genotype matrix.
 #' @param pheno (n x 1) phenotype vector.
 #' @param apply_int Apply rank-based inverse normal transform to the phenotype?
@@ -208,7 +221,8 @@ ASBT <- function(
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
 #' @param return_null_model Return the null model in addition to the p-value?
 #'   Useful if running additional SKAT tests. Default: FALSE.
-#' @param weights (3 x 1) annotation category weights.
+#' @param weights (L x 1) vector of annotation category weights. Note that the
+#'   number of annotation categories L is inferred from the length of `weights`.
 #' @return If `return_null_model`, a list containing the p-value and the
 #'   SKAT null model. Otherwise, a numeric p-value.
 #' @examples
@@ -233,8 +247,11 @@ ASKAT <- function(
   is_pheno_binary = FALSE,
   min_mac = 0,
   return_null_model = FALSE,
-  weights = DEFAULT_WEIGHTS
+  weights = c(1, 2, 3)
 ) {
+  
+  # Ensure annotations are one-indexed.
+  anno <- RelevelAnno(anno)
 
   # Covariates.
   if (is.null(covar)) {
@@ -278,8 +295,9 @@ ASKAT <- function(
 
   # SKAT weight.
   w <- rep(0, length(anno))
-  for (i in 0:2) {
-    w[anno == i] <- weights[i + 1]
+  n_anno <- length(weights)
+  for (i in seq_len(n_anno)) {
+    w[anno == i] <- weights[i]
   }
   v <- aaf * (1 - aaf)
   skat_weights <- sqrt(w / v)
@@ -334,18 +352,21 @@ ASKAT <- function(
 #' Main allelic series test. Performs both Burden and SKAT type tests, then
 #' combines the results to calculate an omnibus p-value.
 #'
-#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param anno (snps x 1) annotation vector with integer values in 1 through
+#'   the number of annotation categories L.
 #' @param geno (n x snps) genotype matrix.
 #' @param pheno (n x 1) phenotype vector.
 #' @param apply_int Apply rank-based inverse normal transform to the phenotype?
 #'   Default: TRUE. Ignored if phenotype is binary.
 #' @param covar (n x p) covariate matrix. Defaults to an (n x 1) intercept.
 #' @param include_orig_skato_all Include the original version of SKAT-O applied
-#' to all variants in the omnibus test? Default: FALSE.
+#'   to all variants in the omnibus test? Default: FALSE.
 #' @param include_orig_skato_ptv Include the original version of SKAT-O applied
-#' to PTV variants only in the omnibus test? Default: FALSE.
+#'   to PTV variants only in the omnibus test? Default: FALSE.
 #' @param is_pheno_binary Is the phenotype binary? Default: FALSE.
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
+#' @param ptv_anno Annotation of the PTV category, only required if 
+#'   include_orig_skato_ptv is set to TRUE.
 #' @param pval_weights Optional vector of relative weights for combining the
 #'   component tests to perform the omnibus test. By default, 50% of weight is
 #'   given to the 6 burden tests, and 50% to the 1 SKAT test. If specified, the
@@ -354,7 +375,8 @@ ASKAT <- function(
 #' @param return_omni_only Return only the omnibus p-value? Default: FALSE.
 #' @param score_test Use a score test for burden analysis? If FALSE, uses a 
 #'   Wald test.
-#' @param weights (3 x 1) annotation category weights.
+#' @param weights (L x 1) vector of annotation category weights. Note that the
+#'   number of annotation categories L is inferred from the length of `weights`.
 #' @return Numeric p-value.
 #' @examples 
 #' # Generate data.
@@ -380,12 +402,16 @@ COAST <- function(
   include_orig_skato_ptv = FALSE,
   is_pheno_binary = FALSE,
   min_mac = 0,
+  ptv_anno = 3,
   pval_weights = NULL,
   return_omni_only = FALSE,
   score_test = FALSE,
-  weights = DEFAULT_WEIGHTS
+  weights = c(1, 2, 3)
 ) {
 
+  # Ensure annotations are one-indexed.
+  anno <- RelevelAnno(anno)
+  
   # Covariates.
   if (is.null(covar)) {
     covar <- rep(1, length(pheno))
@@ -423,14 +449,16 @@ COAST <- function(
   }
 
   # Burden tests.
+  n_anno <- length(weights)
+  unif_weights <- rep(1, n_anno)
   p_base <- BurdenWrap(
-    indicator = FALSE, method = "none", weights = c(1, 1, 1))
+    indicator = FALSE, method = "none", weights = unif_weights)
 
   # Case of no non-zero variant classes.
   if (is.na(p_base)) {return(NA)}
 
   p_ind <- BurdenWrap(
-    indicator = TRUE, method = "none", weights = c(1, 1, 1))
+    indicator = TRUE, method = "none", weights = unif_weights)
 
   p_max_count <- BurdenWrap(
     indicator = FALSE, method = "max", weights = weights)
@@ -476,7 +504,7 @@ COAST <- function(
 
   # Standard SKAT-O PTV.
   if (include_orig_skato_ptv) {
-    ptv <- geno[, anno == 2, drop = FALSE]
+    ptv <- geno[, anno == ptv_anno, drop = FALSE]
     if (ncol(ptv) > 0) {
       orig_skato_ptv <- SKAT::SKAT(ptv, null, method = "SKATO")
       p_skat <- c(p_skat, orig_skat_ptv = orig_skato_ptv$p.value)
@@ -520,7 +548,12 @@ COAST <- function(
   )
   
   # Variant counts.
-  counts <- Counts(anno = anno, geno = geno, min_mac = min_mac)
+  counts <- Counts(
+    anno = anno, 
+    geno = geno, 
+    n_anno = n_anno,
+    min_mac = min_mac
+  )
   
   # Output.
   out <- methods::new(

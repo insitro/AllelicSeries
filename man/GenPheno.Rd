@@ -17,13 +17,16 @@ GenPheno(
   prop_causal = 1,
   random_signs = FALSE,
   random_var = 0,
-  weights = c(0, 1, 2)
+  weights = c(1, 1, 1)
 )
 }
 \arguments{
 \item{anno}{(snps x 1) annotation vector.}
 
-\item{beta}{(3 x 1) coefficient vector for bmvs, dmvs, and ptvs respectively.}
+\item{beta}{If method = "none", a (L x 1) coefficient with effect sizes for
+each annotation category. By default, there are L = 3 annotation categories
+corresponding to BMVs, DMVs, and PTVs. If method != "none", a scalar
+effect size for the allelic series burden score.}
 
 \item{covar}{Covariate matrix.}
 
@@ -47,11 +50,26 @@ architecture, TRUE for SKAT-type.}
 
 \item{random_var}{Frailty variance in the case of random signs. Default: 0.}
 
-\item{weights}{Aggregation weights.}
+\item{weights}{Annotation category weights used for aggregation if
+method != "none".}
 }
 \value{
 (n x 1) numeric vector.
 }
 \description{
-Generate Phenotypes
+Simulate a phenotype based on annotations, covariates, and genotypes.
 }
+\section{Phenotype generation}{
+
+\itemize{
+\item To generate phenotypes from the baseline model, set \code{method} to "none" and
+provide a vector \code{beta} of length equal to the number of annotation
+categories specifying the effect sizes of each.
+\item To generate phenotypes from the allelic series burden models, set \code{method}
+to "max" or "sum" and provide a scalar \code{beta.}
+\item To generate phenotypes from the allelic series SKAT model, set \code{method} to
+"none", set \code{random_signs} to true, and provide a vector \code{beta} of length
+equal to the number of annotation categories.
+}
+}
+

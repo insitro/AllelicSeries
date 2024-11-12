@@ -7,7 +7,8 @@
 SumCountSS(anno, beta, ld, se, weights)
 }
 \arguments{
-\item{anno}{(snps x 1) annotation vector.}
+\item{anno}{(snps x 1) annotation vector with integer values in 1 through
+the number of annotation categories L.}
 
 \item{beta}{(snps x 1) vector of effect sizes for
 the coding genetic variants within a gene.}
@@ -16,7 +17,8 @@ the coding genetic variants within a gene.}
 
 \item{se}{(snps x 1) vector of standard errors for the effect sizes.}
 
-\item{weights}{(3 x 1) vector of annotation category weights.}
+\item{weights}{(L x 1) vector of annotation category weights. Note that the
+number of annotation categories L is inferred from the length of \code{weights}.}
 }
 \value{
 Numeric p-value.

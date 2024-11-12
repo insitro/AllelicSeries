@@ -8,6 +8,13 @@
 \description{
 Implementation of gene-level rare variant association tests targeting allelic series: genes where increasingly deleterious mutations have increasingly large phenotypic effects. The COding-variant Allelic Series Test (COAST) operates on the benign missense variants (BMVs), deleterious missense variants (DMVs), and protein truncating variants (PTVs) within a gene. COAST uses a set of adjustable weights that tailor the test towards rejecting the null hypothesis for genes where the average magnitude of effect increases monotonically from BMVs to DMVs to PTVs. See McCaw ZR, O’Dushlaine C, Somineni H, Bereket M, Klein C, Karaletsos T, Casale FP, Koller D, Soare TW. (2023) "An allelic series rare variant association test for candidate gene discovery" \doi{10.1016/j.ajhg.2023.07.001}.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/insitro/AllelicSeries}
+}
+
+}
 \author{
 \strong{Maintainer}: Zachary McCaw \email{zmccaw@insitro.com} (\href{https://orcid.org/0000-0002-2006-9828}{ORCID})
 

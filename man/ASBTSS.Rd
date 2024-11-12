@@ -12,13 +12,13 @@ ASBTSS(
   eps = 1,
   lambda = 1,
   ld = NULL,
-  maf = NULL,
   method = "none",
-  weights = DEFAULT_WEIGHTS
+  weights = c(1, 2, 3)
 )
 }
 \arguments{
-\item{anno}{(snps x 1) annotation vector with values in c(0, 1, 2).}
+\item{anno}{(snps x 1) annotation vector with integer values in 1 through
+the number of annotation categories L.}
 
 \item{beta}{(snps x 1) vector of effect sizes for the coding genetic variants
 within a gene.}
@@ -36,13 +36,11 @@ results in no rescaling.}
 \item{ld}{(snps x snps) matrix of correlations among the genetic variants.
 Although ideally provided, an identity matrix is assumed if not.}
 
-\item{maf}{(snps x 1) vector of minor allele frequencies. Although ideally
-provided, defaults to the zero vector.}
-
 \item{method}{Method for aggregating across categories:
 ("none", "sum"). Default: "none".}
 
-\item{weights}{(3 x 1) vector of annotation category weights.}
+\item{weights}{(L x 1) vector of annotation category weights. Note that the
+number of annotation categories L is inferred from the length of \code{weights}.}
 }
 \value{
 Numeric p-value of the allelic series burden test.
@@ -50,6 +48,13 @@ Numeric p-value of the allelic series burden test.
 \description{
 Allelic series burden test from summary statistics.
 }
+\section{Notes}{
+
+\itemize{
+\item The allelic series burden does not require the minor allele frequencies.
+}
+}
+
 \examples{
 # Generate data.
 data <- DGP(n = 1e3)
@@ -59,7 +64,6 @@ sumstats <- CalcSumstats(data = data)
 results <- ASBTSS(
   anno = sumstats$anno,
   beta = sumstats$sumstats$beta, 
-  maf = sumstats$maf,
   se = sumstats$sumstats$se,
   ld = sumstats$ld
 )

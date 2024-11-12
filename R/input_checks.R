@@ -1,5 +1,26 @@
 # Purpose: Input checks.
-# Updated: 2024-07-31
+# Updated: 2024-11-11
+
+#' Relevel Annotations
+#' 
+#' @param anno (snps x 1) annotation vector.
+#' @return (snps x 1) annotation vector.
+#' @noRd
+RelevelAnno <- function(anno) {
+  int_anno <- as.integer(anno)
+  if (any(is.na(int_anno)) | !all(anno == int_anno)) {
+    stop("The annotation vector should use integer labels of 1:length(weights).")
+  }
+  if (0 %in% anno) {
+    warning(
+      "Zero is present in the annotation vector. Annotations will be reindexed
+      to start at one."
+    )
+    anno <- anno + 1
+  }
+  return(anno)
+}
+
 
 #' Check Inputs
 #'
@@ -8,7 +29,7 @@
 #' @param geno (n x snps) genotype matrix.
 #' @param is_pheno_binary Is the phenotype binary?
 #' @param pheno (n x 1) phenotype vector.
-#' @param weights (3 x 1) annotation category weights.
+#' @param weights (L x 1) annotation category weights.
 #' @return None.
 CheckInputs <- function(
     anno,
@@ -23,6 +44,15 @@ CheckInputs <- function(
   if (length(anno) != ncol(geno)) {
     stop("Length of the annotation vector should match number of columns in
          the genotype matrix.")
+  }
+  
+  # Check annotation values.
+  n_anno <- length(weights)
+  if (!all(anno %in% seq_len(n_anno))) {
+    stop("The annotations should take values in 1:length(weights).")
+  }
+  if (!all(seq_len(n_anno) %in% anno)) {
+    warning("Annotation categories are present to which no variants are assigned.")
   }
 
   # Check for missing values.
@@ -80,6 +110,8 @@ CheckInputs <- function(
 #' @param lambda Genomic inflation factor.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
 #'   Although ideally provided, an identity matrix is assumed if not.
+#' @param weights (L x 1) annotation category weights.
+#' @param is_skat Logical, is the check for the SKAT test?
 #' @param maf (snps x 1) vector of minor allele frequencies. Although ideally
 #'   provided, defaults to the zero vector.
 #' @return Logical indicating whether the matrix was positive definite.
@@ -89,23 +121,25 @@ CheckInputsSS <- function(
     se,
     lambda,
     ld,
-    maf
+    weights,
+    is_skat = FALSE,
+    maf = NULL
 ) {
+  
+  # Check annotation values.
+  n_anno <- length(weights)
+  if (!all(anno %in% seq_len(n_anno))) {
+    stop("The annotations should take values in 1:length(weights).")
+  }
+  if (!all(seq_len(n_anno) %in% anno)) {
+    warning("Annotation categories are present to which no variants are assigned.")
+  }
   
   # Check inflation factor is >= 1.
   if (any(lambda < 1)) {
     msg <- paste0(
       "The inflation factor labmda should be >= 1. ",
       "Values < 1 will be reset to 1."
-    )
-    warning(msg)
-  }
-  
-  # Raise warnings if MAF is omitted.
-  if (is.null(maf)) {
-    msg <- paste0(
-      "If MAF is not provided, a zero vector is assumed. ",
-      "This may not be accurate in cases where the MAF is appreciably > 0."
     )
     warning(msg)
   }
@@ -153,7 +187,7 @@ CheckInputsSS <- function(
     any(is.na(beta)) |
     any(is.na(se)) 
   if (!is.null(ld)) {any_na <- any_na | any(is.na(ld))}
-  if (!is.null(maf)) {any_na <- any_na | any(is.na(maf))}
+  if (is_skat & !is.null(maf)) {any_na <- any_na | any(is.na(maf))}
   
   if (any_na) {
     stop("Input data should not contain missing values.")

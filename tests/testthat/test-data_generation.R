@@ -1,35 +1,47 @@
-test_that("Check minor allele count is always positive.", {
+test_that("Check genotype generation.", {
 
+  withr::local_seed(101)
+  
+  # Minor allele count is always positive.
   g <- GenGenoMat(n = 100, snps = 1e3)
   mac <- apply(g, 2, sum)
   expect_gte(min(mac), 1)
-
-})
-
-
-test_that("Check number of alternate alleles never exceeds 2.", {
   
+  # Number of alternate alleles never exceeds 2.
   g <- GenGenoMat(n = 100, snps = 1e3, maf_range = c(0.5, 1.0))
   max_g <- max(g)
   expect_lte(max_g, 2)
   
+  # Minor allele frequency is near the expected range.
+  # MAF is not expected to fall exactly within the rage due to stochasticity.
+  n <- 1e3
+  g <- GenGenoMat(n = n, snps = 1e2, maf_range = c(0.001, 0.005))
+  maf <- apply(g, 2, mean) / 2
+  expect_gte(min(maf), 1 / (2 * n))
+  expect_lte(max(maf), 2 * 0.005)
+  
 })
 
-
+# ------------------------------------------------------------------------------
 
 test_that("Check annotation generation.", {
 
   withr::local_seed(101)
-  g <- GenGenoMat(n = 10, snps = 10)
-  anno <- GenAnno(ncol(g))
-  expect_true(all(anno %in% c(0, 1, 2)))
+  anno <- GenAnno(1000)
+  expect_true(all(anno %in% c(1, 2, 3)))
+  
+  anno <- GenAnno(1000, prop_anno = c(1, 1, 1, 1))
+  expect_true(all(anno %in% c(1, 2, 3, 4)))
 
 })
 
 
-test_that("Check phenotype generation.", {
+# ------------------------------------------------------------------------------
 
-  anno <- c(0, 1, 2)
+test_that("Check phenotype generation.", {
+  
+  # Test cases without aggregation.
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(2, 0, 0),
@@ -55,7 +67,6 @@ test_that("Check phenotype generation.", {
   exp <- c(0, 2 * 1, 2 * 2, 2 * 4)
   expect_true(all(obs == exp))
 
-
   # Indicators.
   obs <- GenPheno(
     anno = anno,
@@ -69,7 +80,6 @@ test_that("Check phenotype generation.", {
   )
   exp <- c(0, 1 * 1, 1 * 2, 1 * 4)
   expect_true(all(obs == exp))
-
 
   # Random signs.
   withr::local_seed(101)
@@ -86,7 +96,6 @@ test_that("Check phenotype generation.", {
   exp <- c(0, 2 * -1, 2 * -2, 2 * 4)
   expect_true(all(obs == exp))
 
-
   # Binary phenotype.
   withr::local_seed(101)
   obs <- GenPheno(
@@ -102,10 +111,10 @@ test_that("Check phenotype generation.", {
   )
   exp <- 1 * (c(0, 2 * -1, 2 * -2, 2 * 4) >= 0)
   expect_true(all(obs == exp))
-
-
+  
+  # Test cases with aggregation.
   # Genotypes for aggregation methods.
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(1, 1, 1),
@@ -130,7 +139,6 @@ test_that("Check phenotype generation.", {
   exp <- c(0, 1 * 1 + 1 * 2, 2 * 1, 2 * 2)
   expect_equal(obs, exp)
 
-
   # Max aggregation.
   beta <- 1.0
   obs <- GenPheno(
@@ -146,8 +154,90 @@ test_that("Check phenotype generation.", {
   )
   exp <- c(0, 2, 2, 4)
   expect_equal(obs, exp)
-
-
+  
+  # Check case of more than 3 annotation categories.
+  anno <- c(1, 2, 3, 4)
+  geno <- rbind(
+    c(0, 0, 0, 0),
+    c(2, 0, 0, 0),
+    c(0, 2, 0, 0),
+    c(0, 0, 2, 0),
+    c(0, 0, 0, 2)
+  )
+  covar <- c(rep(1, 5))
+  beta <- c(1, 2, 4, 8)
+  reg_param <- list(coef = as.matrix(0))
+  weights <- c(1, 1, 1, 1)
+  
+  # Counts.
+  obs <- GenPheno(
+    anno = anno,
+    beta = beta,
+    covar = covar,
+    geno = geno,
+    reg_param = reg_param,
+    include_residual = FALSE,
+    indicator = FALSE,
+    weights = weights
+  )
+  exp <- c(0, 2 * 1, 2 * 2, 2 * 4, 2 * 8)
+  expect_true(all(obs == exp))
+  
+  # Indicators.
+  obs <- GenPheno(
+    anno = anno,
+    beta = beta,
+    covar = covar,
+    geno = geno,
+    reg_param = reg_param,
+    include_residual = FALSE,
+    indicator = TRUE,
+    weights = weights
+  )
+  exp <- c(0, 1 * 1, 1 * 2, 1 * 4, 1 * 8)
+  expect_true(all(obs == exp))
+  
+  # Genotypes for aggregation.
+  geno <- rbind(
+    c(0, 0, 0, 0),
+    c(1, 0, 0, 0),
+    c(0, 1, 0, 0),
+    c(1, 0, 1, 0),
+    c(0, 1, 0, 1)
+  )
+  weights <- c(1, 2, 3, 4)
+  
+  # Sum aggregation.
+  beta <- 1.0
+  obs <- GenPheno(
+    anno = anno,
+    beta = beta,
+    covar = covar,
+    geno = geno,
+    reg_param = reg_param,
+    include_residual = FALSE,
+    indicator = FALSE,
+    method = "sum",
+    weights = weights
+  )
+  exp <- c(0, 1, 2, 1 + 3, 2 + 4)
+  expect_equal(obs, exp)
+  
+  # Max aggregation.
+  obs <- GenPheno(
+    anno = anno,
+    beta = beta,
+    covar = covar,
+    geno = geno,
+    reg_param = reg_param,
+    include_residual = FALSE,
+    indicator = FALSE,
+    method = "max",
+    weights = weights
+  )
+  exp <- c(0, 1, 2, 3, 4)
+  expect_equal(obs, exp)
+  
   # Check incompatible settings.
   # Random signs cannot be used with aggregated genotypes.
   expect_error(
@@ -165,10 +255,12 @@ test_that("Check phenotype generation.", {
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Check data generation with manual phenotypes.", {
   
   # Annotations and genotypes both provided.
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(1, 1, 1),
@@ -194,9 +286,11 @@ test_that("Check data generation with manual phenotypes.", {
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Check ability to vary the proportion of causal variants.", {
   
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(1, 1, 1),
@@ -250,9 +344,12 @@ test_that("Check ability to vary the proportion of causal variants.", {
 })
 
 
-test_that("Checking ability to generate phenotypes with random genetic effects.", {
+# ------------------------------------------------------------------------------
+
+test_that(
+  "Checking ability to generate phenotypes with random genetic effects.", {
   
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(1, 1, 1),
@@ -293,10 +390,12 @@ test_that("Checking ability to generate phenotypes with random genetic effects."
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Check sumstats generation.", {
   
   withr::local_seed(123)
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   n <- 100
   geno <- replicate(3, stats::rbinom(n = n, size = 2, prob = 0.25))
   pheno <- stats::rnorm(n = n)
@@ -328,3 +427,72 @@ test_that("Check sumstats generation.", {
   expect_equal(sumstats$se, obs$sumstats$se, tolerance = 1e-4)
   
 })
+
+
+# ------------------------------------------------------------------------------
+
+test_that("Test sumstat generation when covariates are omitted.", {
+  
+  withr::local_seed(123)
+  data <- DGP()
+  
+  # Method 1: No covariates provided.
+  sumstats1 <- CalcSumstats(
+    anno = data$anno, 
+    geno = data$geno, 
+    pheno = data$pheno
+  )
+  
+  # Method 2: Provide intercept for covariates.
+  sumstats2 <- CalcSumstats(
+    anno = data$anno, 
+    covar = rep(1, length(data$pheno)),
+    geno = data$geno, 
+    pheno = data$pheno
+  )
+  
+  expect_equal(sumstats1$sumstats, sumstats2$sumstats)
+  
+})
+
+
+# ------------------------------------------------------------------------------
+
+test_that(
+  "Expect error when the number of annotation categories is inconsistent.", {
+    
+    # Fewer weights than annotation categories.
+    expect_error(
+      data <- DGP(
+        prop_anno = c(1, 1, 1, 1),
+        weights = c(1, 2, 3)
+      )
+    )
+    
+    # Fewer betas than annotation categories.
+    expect_error(
+      data <- DGP(
+        beta = c(1, 2, 3),
+        prop_anno = c(1, 1, 1, 1),
+        weights = c(1, 2, 3, 4)
+      )
+    )
+    
+    # Expect no error because parameters are consistent.
+    expect_error(
+      data <- DGP(
+        beta = c(1, 2, 3, 4),
+        prop_anno = c(1, 1, 1, 1),
+        weights = c(1, 2, 3, 4)
+      ), NA)
+    
+    # Expect no error because aggregation is applied.
+    expect_error(
+      data <- DGP(
+        beta = 1,
+        prop_anno = c(1, 1, 1, 1),
+        method = "sum",
+        weights = c(1, 2, 3, 4)
+      ), NA)
+    
+  })

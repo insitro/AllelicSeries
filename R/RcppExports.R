@@ -3,13 +3,15 @@
 
 #' Count Variants and Carriers
 #'
-#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param anno (snps x 1) annotation vector with integer values in 1 through
+#'   the number of annotation categories L.
 #' @param geno (n x snps) genotype matrix.
+#' @param n_anno Number of annotation categories L.
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0.
 #' @return Data.frame of allele, variant, and carrier counts.
 #' @export
-Counts <- function(anno, geno, min_mac = 0L) {
-    .Call(`_AllelicSeries_Counts`, anno, geno, min_mac)
+Counts <- function(anno, geno, n_anno, min_mac = 0L) {
+    .Call(`_AllelicSeries_Counts`, anno, geno, n_anno, min_mac)
 }
 
 #' Ordinary Least Squares
@@ -55,9 +57,11 @@ Score <- function(y, G, X, v) {
 }
 
 #' Calculate SKAT Weights
-#' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+#' @param anno (snps x 1) annotation vector with integer values in 1 through
+#'   the number of annotation categories L.
 #' @param maf (snps x 1) vector of minor allele frequencies.
-#' @param weights (3 x 1) vector of annotation category weights.
+#' @param weights (L x 1) vector of annotation category weights. Note that the
+#'   number of annotation categories L is inferred from the length of `weights`.
 #' @return (snps x 1) vector of weights for SKAT test.
 #' @noRd 
 CalcSkatWeights <- function(anno, maf, weights) {
@@ -105,31 +109,35 @@ isPD <- function(x, force_symmetry = FALSE, tau = 1e-8) {
     .Call(`_AllelicSeries_isPD`, x, force_symmetry, tau)
 }
 
-AnnoMat <- function(anno) {
-    .Call(`_AllelicSeries_AnnoMat`, anno)
+AnnoMat <- function(anno, n_anno = 3L) {
+    .Call(`_AllelicSeries_AnnoMat`, anno, n_anno)
 }
 
 #' Baseline Counts Test from Sumstats
 #'
-#' @param anno (snps x 1) annotation vector.
+#' @param anno (snps x 1) annotation vector with integer values in 1 through
+#'   the number of annotation categories L.
 #' @param beta (snps x 1) vector of effect sizes for 
 #'   the coding genetic variants within a gene.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
+#' @param n_anno Number of annotation categories L.
 #' @return Numeric p-value.
 #' @export
-BaselineSS <- function(anno, beta, ld, se) {
-    .Call(`_AllelicSeries_BaselineSS`, anno, beta, ld, se)
+BaselineSS <- function(anno, beta, ld, se, n_anno = 3L) {
+    .Call(`_AllelicSeries_BaselineSS`, anno, beta, ld, se, n_anno)
 }
 
 #' Allelic Sum Test from Sumstats
 #'
-#' @param anno (snps x 1) annotation vector.
+#' @param anno (snps x 1) annotation vector with integer values in 1 through
+#'   the number of annotation categories L.
 #' @param beta (snps x 1) vector of effect sizes for 
 #'   the coding genetic variants within a gene.
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
-#' @param weights (3 x 1) vector of annotation category weights.
+#' @param weights (L x 1) vector of annotation category weights. Note that the
+#'   number of annotation categories L is inferred from the length of `weights`.
 #' @return Numeric p-value.
 #' @export
 SumCountSS <- function(anno, beta, ld, se, weights) {

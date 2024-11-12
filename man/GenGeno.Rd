@@ -4,7 +4,7 @@
 \alias{GenGeno}
 \title{Generate Genotypes}
 \usage{
-GenGeno(n, snps, maf_range = c(0.005, 0.01), p_dmv = 0.33, p_ptv = 0.33)
+GenGeno(n, snps, maf_range = c(0.001, 0.005), prop_anno = c(0.5, 0.4, 0.1))
 }
 \arguments{
 \item{n}{Sample size.}
@@ -13,14 +13,14 @@ GenGeno(n, snps, maf_range = c(0.005, 0.01), p_dmv = 0.33, p_ptv = 0.33)
 
 \item{maf_range}{Range of minor allele frequencies: c(MIN, MAX).}
 
-\item{p_dmv}{Frequency of deleterious missense variants.}
-
-\item{p_ptv}{Frequency of protein truncating variants.}
+\item{prop_anno}{Proportions of annotations in each category. Length should
+equal the number of annotation categories. Default of c(0.5, 0.4, 0.1) is
+based on the approximate empirical frequencies of BMVs, DMVs, and PTVs.}
 }
 \value{
 List containing the (n x snps) genotype matrix "geno" and the
 (snps x 1) annotation vector "anno".
 }
 \description{
-Generate Genotypes
+Generates genotypes in linkage equilibrium with accompanying annotations.
 }

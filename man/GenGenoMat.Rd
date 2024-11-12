@@ -4,7 +4,7 @@
 \alias{GenGenoMat}
 \title{Generate Genotype Matrix}
 \usage{
-GenGenoMat(n, snps, maf_range = c(0.005, 0.01))
+GenGenoMat(n, snps, maf_range = c(0.001, 0.005))
 }
 \arguments{
 \item{n}{Sample size.}
@@ -17,5 +17,6 @@ GenGenoMat(n, snps, maf_range = c(0.005, 0.01))
 (n x snps) numeric matrix.
 }
 \description{
-Generate Genotype Matrix
+Generate genotypes for \code{n} subject at \code{snps} variants in linkage
+equilibrium. Genotypes are generated such that the MAC is always >= 1.
 }

@@ -16,6 +16,8 @@ test_that("Check residual variance calculation.", {
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Check score test calculation.", {
   
   y <- c(-1, 1, 0, 1)
@@ -37,6 +39,8 @@ test_that("Check score test calculation.", {
   
 })
 
+
+# ------------------------------------------------------------------------------
 
 test_that("Overall check of score test.", {
   

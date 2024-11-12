@@ -17,7 +17,7 @@ CheckInputs(anno, covar, geno, is_pheno_binary, pheno, weights)
 
 \item{pheno}{(n x 1) phenotype vector.}
 
-\item{weights}{(3 x 1) annotation category weights.}
+\item{weights}{(L x 1) annotation category weights.}
 }
 \value{
 None.

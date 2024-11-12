@@ -59,12 +59,16 @@ SEXP isPD(
 // Annotation matrix
 // 
 // @param anno (snps x 1) annotation vector.
+// @param n_anno Number of annotation categories L.
 // [[Rcpp::export]]
-arma::mat AnnoMat(const arma::colvec &anno) {
+arma::mat AnnoMat(
+  const arma::colvec &anno,
+  const int n_anno = 3
+) {
 
-  arma::mat out = arma::zeros(anno.n_elem, 3);
+  arma::mat out = arma::zeros(anno.n_elem, n_anno);
   for (int j=0; j<anno.n_elem; j++) {
-    out(j, anno(j)) = 1.0;
+    out(j, anno(j) - 1) = 1.0;
   };
 
   return out;
@@ -73,11 +77,13 @@ arma::mat AnnoMat(const arma::colvec &anno) {
 
 //' Baseline Counts Test from Sumstats
 //'
-//' @param anno (snps x 1) annotation vector.
+//' @param anno (snps x 1) annotation vector with integer values in 1 through
+//'   the number of annotation categories L.
 //' @param beta (snps x 1) vector of effect sizes for 
 //'   the coding genetic variants within a gene.
 //' @param ld (snps x snps) matrix of correlations among the genetic variants.
 //' @param se (snps x 1) vector of standard errors for the effect sizes.
+//' @param n_anno Number of annotation categories L.
 //' @return Numeric p-value.
 //' @export
 // [[Rcpp::export]]
@@ -85,7 +91,8 @@ SEXP BaselineSS(
   const arma::colvec &anno,
   const arma::colvec &beta,
   const arma::mat &ld,
-  const arma::colvec &se
+  const arma::colvec &se,
+  const int n_anno = 3
 ){
 
   // Filter to require non-zero standard error.
@@ -100,7 +107,7 @@ SEXP BaselineSS(
   const arma::colvec eta = beta_nz / v;
   
   // Category score statistics.
-  const arma::mat d = AnnoMat(anno);
+  const arma::mat d = AnnoMat(anno, n_anno);
   const arma::mat u = d.t() * eta;
   
   // Calculate covariance matrix.
@@ -122,12 +129,14 @@ SEXP BaselineSS(
 
 //' Allelic Sum Test from Sumstats
 //'
-//' @param anno (snps x 1) annotation vector.
+//' @param anno (snps x 1) annotation vector with integer values in 1 through
+//'   the number of annotation categories L.
 //' @param beta (snps x 1) vector of effect sizes for 
 //'   the coding genetic variants within a gene.
 //' @param ld (snps x snps) matrix of correlations among the genetic variants.
 //' @param se (snps x 1) vector of standard errors for the effect sizes.
-//' @param weights (3 x 1) vector of annotation category weights.
+//' @param weights (L x 1) vector of annotation category weights. Note that the
+//'   number of annotation categories L is inferred from the length of `weights`.
 //' @return Numeric p-value.
 //' @export
 // [[Rcpp::export]]
@@ -141,6 +150,7 @@ SEXP SumCountSS(
 
   // Alias.
   const arma::colvec w = weights;
+  const int n_anno = weights.n_elem;
   
   // Filter to require non-zero standard error.
   arma::uvec key = arma::find(se > 0);
@@ -154,7 +164,7 @@ SEXP SumCountSS(
   const arma::colvec eta = beta_nz / v;
   
   // Category score statistics.
-  const arma::mat d = AnnoMat(anno);
+  const arma::mat d = AnnoMat(anno, n_anno);
   const arma::mat u = w.t() * d.t() * eta;
   
   // Calculate covariance matrix.

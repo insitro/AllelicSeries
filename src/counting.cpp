@@ -7,8 +7,10 @@
 
 //' Count Variants and Carriers
 //'
-//' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+//' @param anno (snps x 1) annotation vector with integer values in 1 through
+//'   the number of annotation categories L.
 //' @param geno (n x snps) genotype matrix.
+//' @param n_anno Number of annotation categories L.
 //' @param min_mac Minimum minor allele count for inclusion. Default: 0.
 //' @return Data.frame of allele, variant, and carrier counts.
 //' @export
@@ -16,6 +18,7 @@
 SEXP Counts(
   arma::colvec anno,
   arma::mat geno,
+  const int n_anno,
   const int min_mac = 0
 ){
 
@@ -24,14 +27,14 @@ SEXP Counts(
   geno = geno.cols(arma::find(macs.t() > min_mac));
   anno = anno.elem(arma::find(macs.t() > min_mac));
 
-  arma::colvec alleles = arma::zeros(3);
-  arma::colvec variants = arma::zeros(3);
-  arma::colvec carriers = arma::zeros(3);
+  arma::colvec alleles = arma::zeros(n_anno);
+  arma::colvec variants = arma::zeros(n_anno);
+  arma::colvec carriers = arma::zeros(n_anno);
   
   // Loop over annotations.
-  for (int j=0; j<3; j++) {
+  for (int j=0; j<n_anno; j++) {
     
-    arma::uvec key = arma::find(anno == j);
+    arma::uvec key = arma::find(anno == (j + 1));
     arma::mat geno_subset = geno.cols(key);
     variants(j) = geno_subset.n_cols;
     alleles(j) = arma::accu(geno_subset);
@@ -43,7 +46,7 @@ SEXP Counts(
   };
 
   return Rcpp::DataFrame::create(
-    Rcpp::Named("anno")=arma::linspace(0, 2, 3),
+    Rcpp::Named("anno")=arma::linspace(1, n_anno, n_anno),
     Rcpp::Named("alleles")=alleles,
     Rcpp::Named("variants")=variants,
     Rcpp::Named("carriers")=carriers

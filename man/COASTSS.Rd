@@ -14,11 +14,12 @@ COASTSS(
   maf = NULL,
   ld = NULL,
   pval_weights = c(1, 1, 2),
-  weights = DEFAULT_WEIGHTS
+  weights = c(1, 2, 3)
 )
 }
 \arguments{
-\item{anno}{(snps x 1) annotation vector with values in c(0, 1, 2).}
+\item{anno}{(snps x 1) annotation vector with integer values in 1 through
+the number of annotation categories L.}
 
 \item{beta}{(snps x 1) vector of effect sizes for the coding genetic variants
 within a gene.}
@@ -40,10 +41,11 @@ provided, defaults to the zero vector.}
 Although ideally provided, an identity matrix is assumed if not.}
 
 \item{pval_weights}{(3 x 1) vector of relative weights for combining the
-component tests to perform the omnibus test.}
-
-\item{weights}{(3 x 1) vector of annotation category weights. The default of
+component tests to perform the omnibus test. The default of
 c(1, 1, 2) gives the SKAT test equal weight to the two burden tests.}
+
+\item{weights}{(L x 1) vector of annotation category weights. Note that the
+number of annotation categories L is inferred from the length of \code{weights}.}
 }
 \value{
 Numeric p-value.

@@ -1,0 +1,144 @@
+---
+title: "COAST from Summary Statistics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{coast_ss}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Updated: 2024-11-12
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AllelicSeries)
+```
+
+## Overview
+
+`COASTSS` runs a coding-variant allelic series test starting from standard summary statistics. `COASTSS` is not identical to the test provided by `COAST`, as some components of the original test could not be calculated from standard summary statistics. Nonetheless, both methods behave similarly and provide consistent results in large samples. 
+
+
+## Summary statistics
+
+The function `CalcSumstats` can be used to calculate the required summary statistics. The essential inputs are the annotation vector `anno`, the subject by variant genotype matrix `geno`, and the phenotype vector `pheno`. If covariates `covar` are not provided, an intercept-only covariate matrix is adopted by default. If covariates are provided, an intercept should be included as necessary. For additional details on the data generating process `DGP`, see the `data_generation` vignette.
+
+```{r, cache=TRUE}
+withr::local_seed(101)
+
+# Generate data.
+n <- 1e4
+data <- AllelicSeries::DGP(
+  n = n,
+  snps = 300,
+  beta = c(1, 4, 9) / sqrt(n),
+)
+
+# Generate summary statistics.
+sumstats <- AllelicSeries::CalcSumstats(
+  anno = data$anno,
+  covar = data$covar,
+  geno = data$geno,
+  pheno = data$pheno
+)
+```
+
+The output `sumstats` is a list containing:
+
+* `anno`, the (snps x 1) annotation vector.
+* `ld`, a (snps x snps) LD (genotype correlation) matrix.
+* `maf`, a (snps x 1) minor allele frequency vector.
+* `sumstats`, a (snps x 4) data.frame including the annotations, effect sizes `beta`, standard errors `se`, and p-values `p`.
+
+## COAST-SS
+
+The required inputs to `COASTSS` are the annotation vector `anno` along with the per-variant effect sizes `beta` and standard errors `se`. Ideally, the in-sample `ld` matrix is also provided. If the LD matrix is not provided, an identity matrix is assumed. This approximation is reasonable when the LD is minimal, as is expected among rare variants, however it may break down if variants of sufficient minor allele count are included in the analysis. If available, we recommend always providing the in-sample LD matrix. The minor allele frequencies `maf` are optionally provided to allow the allelic SKAT test to up-weight rarer variants. 
+
+```{r, cache=TRUE}
+# COAST-SS, with LD and MAF provided.
+full <- AllelicSeries::COASTSS(
+  anno = sumstats$anno,
+  beta = sumstats$sumstats$beta,
+  se = sumstats$sumstats$se,
+  maf = sumstats$maf,
+  ld = sumstats$ld
+)
+show(full)
+
+# COAST-SS, with LD and MAF omitted.
+minimal <- AllelicSeries::COASTSS(
+  anno = sumstats$anno,
+  beta = sumstats$sumstats$beta,
+  se = sumstats$sumstats$se
+)
+show(minimal)
+```
+
+### Alternating weighting schemes
+
+By default, `COASTSS`, like `COAST`, uses a simple linear weighting scheme of `weights = c(1, 2, 3)`. Here, the data were simulated with a geometric weighting scheme of `weights = c(1, 4, 9)`. By changing the weighting scheme of `COASTSS` to match the generative model, we can improve power. 
+
+```{r, cache=TRUE}
+# COAST-SS, alternate weights.
+results <- AllelicSeries::COASTSS(
+  anno = sumstats$anno,
+  beta = sumstats$sumstats$beta,
+  se = sumstats$sumstats$se,
+  maf = sumstats$maf,
+  ld = sumstats$ld,
+  weights = c(1, 4, 9)
+)
+show(results)
+```
+
+### Different numbers of annotation categories
+
+`COAST` and `COASTSS` were originally designed to operate on the benign missense variants, damaging missense variants, and protein truncating variants within a gene. Both have been generalized to allow for an arbitrary number of discrete annotation categories. The following example simulates and analyzes data with 4 annotation categories. The main difference when analyzing a different number of annotation categories is that the `weight` vector should be specified, and should have length equal to the number of *possible* annotation categories. `COASTSS` will run, albeit with a warning, if there are possible annotation categories to which no variants are assigned (e.g. a gene contains no PTVs). 
+
+```{r, cache=TRUE}
+withr::local_seed(102)
+
+# Generate data.
+n <- 1e4
+data <- AllelicSeries::DGP(
+  n = n,
+  snps = 400,
+  beta = c(1, 2, 3, 4) / sqrt(n),
+  prop_anno = c(0.4, 0.3, 0.2, 0.1),
+  weights = c(1, 1, 1, 1)
+)
+
+# Generate summary statistics.
+sumstats <- AllelicSeries::CalcSumstats(
+  anno = data$anno,
+  covar = data$covar,
+  geno = data$geno,
+  pheno = data$pheno
+)
+
+# Run COAST-SS.
+results <- AllelicSeries::COASTSS(
+  anno = sumstats$anno,
+  beta = sumstats$sumstats$beta,
+  se = sumstats$sumstats$se,
+  maf = sumstats$maf,
+  ld = sumstats$ld,
+  weights = c(1, 2, 3, 4)
+)
+show(results)
+```
+
+### Test options
+
+* `eps` is a regularization term added to the diagonal of the LD matrix if the provided LD matrix is not positive definite. The default value is `eps = 1`. Larger values may be needed, but smaller values are not recommended.
+
+* `lambda` is an optional 3 x 1 vector of inflation factors that are applied to the p-values of the `baseline`, `sum_count`, and `allelic_skat` tests *before* the omnibus p-value is calculated. By default, `lambda = c(1, 1, 1)`, which results in no correction. Larger values may be needed, particularly if more-common variants are included. Values less than 1 will be reset to 1.
+
+* `pval_weights` is a 3 x 1 vector specifying the relative weights of the p-values from the `baseline`, `sum_count`, and `allelic_skat` tests when calculating the omnibus p-value. By default, `pval_weights = c(1, 1, 2)`, which gives the allelic SKAT test equal weight to the two burden-type tests (i.e. the baseline and allelic sum tests).
+
