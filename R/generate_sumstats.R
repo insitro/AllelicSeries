@@ -101,7 +101,6 @@ CalcSumstats <- function(
   # Output.
   out <- list(
     ld = ld,
-    maf = maf,
     sumstats = sumstats,
     type = type
   )
