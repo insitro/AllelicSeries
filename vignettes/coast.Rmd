@@ -2,7 +2,7 @@
 title: "Coding-variant Allelic Series Test"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{coast}
+  %\VignetteIndexEntry{COAST}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

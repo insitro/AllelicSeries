@@ -66,9 +66,9 @@ sumstats <- CalcSumstats(data = data)
 # Run allelic series SKAT test from sumstats.
 # Note: the SKAT test requires MAF.
 results <- ASKATSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta, 
-  maf = sumstats$maf,
+  maf = sumstats$sumstats$maf,
   se = sumstats$sumstats$se,
   ld = sumstats$ld
 )

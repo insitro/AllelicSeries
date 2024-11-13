@@ -6,11 +6,11 @@ test_that("Check COAST on sumstats.", {
   sumstats <- CalcSumstats(data = data)
 
   results <- COASTSS(
-    anno = sumstats$anno,
+    anno = sumstats$sumstats$anno,
     beta = sumstats$sumstats$beta,
     se = sumstats$sumstats$se,
     ld = sumstats$ld,
-    maf = sumstats$maf
+    maf = sumstats$sumstats$maf
   )
   
   expect_true(all(results@Pvals$pval >= 0.05))
@@ -21,11 +21,11 @@ test_that("Check COAST on sumstats.", {
   sumstats <- CalcSumstats(data = data)
   
   results <- COASTSS(
-    anno = sumstats$anno,
+    anno = sumstats$sumstats$anno,
     beta = sumstats$sumstats$beta,
     se = sumstats$sumstats$se,
     ld = sumstats$ld,
-    maf = sumstats$maf
+    maf = sumstats$sumstats$maf
   )
   
   expect_true(all(results@Pvals$pval < 0.05))
@@ -43,7 +43,7 @@ test_that("Check COAST with missing inputs.", {
   sumstats <- CalcSumstats(data = data)
   
   results <- suppressWarnings({COASTSS(
-    anno = sumstats$anno,
+    anno = sumstats$sumstats$anno,
     beta = sumstats$sumstats$beta,
     se = sumstats$sumstats$se
   )})
@@ -56,7 +56,7 @@ test_that("Check COAST with missing inputs.", {
   sumstats <- CalcSumstats(data = data)
   
   results <- suppressWarnings({COASTSS(
-    anno = sumstats$anno,
+    anno = sumstats$sumstats$anno,
     beta = sumstats$sumstats$beta,
     se = sumstats$sumstats$se
   )})
@@ -76,21 +76,21 @@ test_that("Check genomic inflation factor.", {
   sumstats <- CalcSumstats(data = data)
   
   uncorrected <- COASTSS(
-    anno = sumstats$anno,
+    anno = sumstats$sumstats$anno,
     beta = sumstats$sumstats$beta,
     se = sumstats$sumstats$se,
     ld = sumstats$ld,
-    maf = sumstats$maf
+    maf = sumstats$sumstats$maf
   )
   p_uncorrected <- uncorrected@Pvals
   
   corrected <- suppressWarnings({COASTSS(
-      anno = sumstats$anno,
+      anno = sumstats$sumstats$anno,
       beta = sumstats$sumstats$beta,
       se = sumstats$sumstats$se,
       lambda = c(1.2, 0.8, 1.0),
       ld = sumstats$ld,
-      maf = sumstats$maf
+      maf = sumstats$sumstats$maf
     )
   })
   p_corrected <- corrected@Pvals
@@ -121,13 +121,13 @@ test_that("Check case of rank-deficient LD.", {
   # Test COAST runs even *without* epsilon.
   expect_error(
     COASTSS(
-      anno = sumstats$anno,
+      anno = sumstats$sumstats$anno,
       beta = sumstats$sumstats$beta,
       se = sumstats$sumstats$se,
       check = FALSE,
       eps = 0,
       ld = sumstats$ld,
-      maf = sumstats$maf
+      maf = sumstats$sumstats$maf
     ), 
     NA
   )
@@ -135,12 +135,12 @@ test_that("Check case of rank-deficient LD.", {
   # With epsilon, the test runs.
   results <- suppressWarnings(
     COASTSS(
-      anno = sumstats$anno,
+      anno = sumstats$sumstats$anno,
       beta = sumstats$sumstats$beta,
       se = sumstats$sumstats$se,
       eps = 1,
       ld = sumstats$ld,
-      maf = sumstats$maf
+      maf = sumstats$sumstats$maf
     )
   )
   expect_true(all(results@Pvals$pval > 0.05))
@@ -170,11 +170,11 @@ test_that("Check cases where not all annotaiton categories are provided.", {
   RunCOAST <- function(sumstats) {
     result <- suppressWarnings(
       COASTSS(
-        anno = sumstats$anno,
+        anno = sumstats$sumstats$anno,
         beta = sumstats$sumstats$beta,
         se = sumstats$sumstats$se,
         ld = sumstats$ld,
-        maf = sumstats$maf
+        maf = sumstats$sumstats$maf
       )
     )
     pvals <- result@Pvals
@@ -217,11 +217,11 @@ test_that("Check COASTSS runs with zero-based annotations.", {
   WrapCOASTSS <- function(data, weights) {
     sumstats <- CalcSumstats(data = data)
     test <- COASTSS(
-      anno = sumstats$anno,
+      anno = sumstats$sumstats$anno,
       beta = sumstats$sumstats$beta,
       se = sumstats$sumstats$se,
       ld = sumstats$ld,
-      maf = sumstats$maf
+      maf = sumstats$sumstats$maf
     )
     pvals <- test@Pvals
     p_omni <- pvals$pval[pvals$test == "omni"]
@@ -253,11 +253,11 @@ test_that("Check COASTSS with different numbers of categories.", {
   WrapCOASTSS <- function(data, weights) {
     sumstats <- CalcSumstats(data = data)
     test <- suppressWarnings({COASTSS(
-      anno = sumstats$anno,
+      anno = sumstats$sumstats$anno,
       beta = sumstats$sumstats$beta,
       se = sumstats$sumstats$se,
       ld = sumstats$ld,
-      maf = sumstats$maf,
+      maf = sumstats$sumstats$maf,
       weights = weights
     )})
     pvals <- test@Pvals

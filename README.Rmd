@@ -1,0 +1,188 @@
+---
+title: "README"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Updated: 2024-11-13
+
+# Allelic Series
+
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/AllelicSeries)](https://cran.r-project.org/package=AllelicSeries)
+[![](https://cranlogs.r-pkg.org/badges/grand-total/AllelicSeries)](https://CRAN.R-project.org/package=AllelicSeries)
+
+This package implements gene-level rare variant association tests targeting allelic series: genes where increasingly deleterious mutations have increasingly large phenotypic effects. The main COding-variant Allelic Series Test (COAST) was designed to operate on the benign missense variants (BMVs), damaging missense variants (DMVs), and protein truncating variants (PTVs) within a gene. COAST uses a set of adjustable weights that tailor the test towards rejecting the null for genes where the mean phenotypic impact increases monotonically from BMVs to DMVs to PTVs. Such genes are of candidate therapeutic interest due to the existence of a dose-response relationship between gene functionality and phenotypic effect. COAST-SS extends COAST to accept summary statistics as input. Both methods have been generalized to allow for arbitrary number of discrete annotation categories, for example the 4 category scale: benign missense, damaging missense, low-confidence loss of function, high-confidence loss of function. For additional details, see:
+
+* McCaw ZR, O’Dushlaine C, Somineni H, Bereket M, Klein C, Karaletsos T, Casale FP, Koller D, Soare TW. (2023) "An allelic-series rare-variant association test for candidate-gene discovery" [doi:10.1016/j.ajhg.2023.07.001](https://www.cell.com/ajhg/fulltext/S0002-9297(23)00241-0). 
+
+* McCaw ZR, Gao J, Dey R, Research Team insitro, Fox E, O’Dushlaine C, Soare TW. (2024) "Extending the Coding-variant Allelic Series Test to Summary Statistics" [doi:10.1101/2024.10.31.621375](https://www.biorxiv.org/content/10.1101/2024.10.31.621375v1).
+
+
+# Installation
+```{r, eval = FALSE}
+# Install from CRAN.
+install.packages("AllelicSeries")
+
+# Install from GitHub.
+devtools::install_github(repo = "insitro/AllelicSeries")
+```
+
+```{r}
+library(AllelicSeries)
+```
+
+To view vignettes:
+```{r, eval = FALSE}
+browseVignettes("AllelicSeries")
+```
+
+## Example data
+
+Here, data for `n = 1000` subjects at `snps = 300` variants with minor allele frequencies between 0.1% and 0.5% (`maf_range`) are simulated. By default, variants are annotated into 1 of 3 categories, representing BMVs, DMVs, and PTVs. `beta` specifies the mean per-variant effect sizes in each annotation category. Setting `beta` inversely proportional to `sqrt(n)` makes the power independent of the sample size. For additional details, see the Data Generation vignette.
+
+```{r}
+set.seed(101)
+n <- 1000
+data <- DGP(
+  n = n,
+  snps = 300,
+  maf_range = c(0.001, 0.005),
+  beta = c(1, 2, 3) / sqrt(n)
+)
+```
+
+The example `data` are a list with the following components:
+
+* `anno`: An `snps` by 1 annotation vector coded as 1 for BMVs, 2 for DMVs, and 3 for PTVs. Note that the values of (1, 2, 3) simply identify different categories of variants; `weights` other than these can be set when performing the association test. 
+
+* `covar`: An `n` by 6 covariate matrix where `n` is the number of subjects and the columns correspond to: an intercept `int`, `age`, `sex`, and 3 genetic PCs (`pc1`, `pc2`, `pc3`).
+
+* `geno`: An `n` by `snps` genotype matrix with additive coding.
+
+* `pheno`: An `n` by 1 phenotype vector.
+
+## COding-variant Allelic Series Test
+
+```{r}
+results <- COAST(
+  anno = data$anno,
+  covar = data$covar,
+  geno = data$geno,
+  pheno = data$pheno,
+  weights = c(1, 2, 3)
+)
+```
+
+The function `COAST` performs the coding-variant allelic series test. The required inputs are the annotation vector, a covariate matrix, the per-variant genotype matrix, and the phenotype vector.
+
+* The function allows any number of annotation categories, coded as consecutive integers starting at 1. The example data have categories of `c(1, 2, 3)`. The length of `anno` should match the number of columns of the genotype matrix `geno`. Note: a previous version of the package used zero-indexed annotation categories. The main functions will still run with zero-indexed annotations, but one-based indexing has been adopted as it is the default in `R`.
+
+* If unspecified, `covar` will default to an intercept vector (i.e. a vector of `1`s). If `covar` is provided, an intercept should be included manually as necessary.
+
+* `weights` encodes the relative importance of the annotation categories. The example weights of `c(1, 2, 3)` target a genetic architecture where effect sizes increase with increasing deleteriousness: BMVs have a relative effect of 1, DMVs have a relative effect of 2, and PTVs have a relative effect of 3. Weights of `c(1, 1, 1)` target instead a genetic architecture where all variant types have equivalent expected magnitudes.
+
+```{r}
+show(results)
+```
+
+By default, the output of `COAST` includes a data.frame of counts showing the number of alleles, variants, and carriers in each class that contributed to the test, and a data.frame of p-values, with the `omni` test denoting the final, overall p-value. The counts data.frame is accessed via:
+```{r}
+results@Counts
+```
+and the p-values data.frame via:
+```{r}
+results@Pvals
+```
+To return the omnibus p-value only, specify `return_omni_only = TRUE` when calling `COAST`. For additional details, see the COAST vignette.
+
+## Different numbers of annotation categories
+
+The following provides a minimal example of generating data and running COAST with a different number of annotation categories, in this case 4, which might represent benign missense variants, damaging missense variants, low-confidence loss of function, and high-confidence loss of function. The main difference when analyzing data with a different number of annotation categories is that the `weights` argument should be provided to `COAST`, and should have length equal to the number of annotation categories.
+
+```{r}
+withr::local_seed(102)
+
+# Generate data.
+n <- 1e2
+data4 <- DGP(
+  n = n,
+  snps = 400,
+  beta = c(1, 2, 3, 4) / sqrt(n),
+  prop_anno = c(0.4, 0.3, 0.2, 0.1),
+  weights = c(1, 1, 1, 1)
+)
+
+# Run COAST-SS.
+results <- COAST(
+  anno = data4$anno,
+  covar = data4$covar,
+  geno = data4$geno,
+  pheno = data4$pheno,
+  weights = c(1, 2, 3, 4)
+)
+show(results)
+```
+
+## COAST from Summary Statistics
+
+### Summary statistics calculation
+
+The function `CalcSumstats` calculates summary statistics starting either from:
+
+* The direct output of `DGP`, or
+* An annotation vector `anno`, genotype matrix `geno`, and phenotype vector 
+  `pheno`, formatted as provided by `DGP`.
+* Providing covariates `covar` is optional. If omitted, an intercept-only design matrix is adopted by default. If supplied, the covariates should include an intercept as necessary.
+  
+```{r}
+sumstats <- CalcSumstats(
+  anno = data$anno,
+  covar = data$covar,
+  geno = data$geno,
+  pheno = data$pheno
+)
+```
+
+The output `sumstats` is a list containing:
+
+* `ld`, a (snps x snps) LD (genotype correlation) matrix.
+* `sumstats`, a (snps x 5) data.frame including the annotations `anno`, minor allele frequencies `maf`, effect sizes `beta`, standard errors `se`, and p-values `p`.
+
+```{r}
+head(sumstats$sumstats)
+```
+
+### Running COAST from summary statistics
+
+`COASTSS` is the main function for running the coding-variant allelic series test from summary statistics. The necessary inputs are the annotation vector `anno`, the effect size vector `beta`, and the standard error vector `se`. The test will run *without* the LD matrix `ld` matrix. However, to do so, it assumes the variants are in linkage equilibrium (i.e. `ld` is the identity matrix). This approximation is reasonable when the LD is minimal, as is expected among rare variants, however it may break down if variants of sufficient minor allele count are included in the analysis. If available, providing the in-sample LD matrix is always recommended. If provided, the `maf` vector is used to up-weight rare variants during the allelic SKAT test.
+
+```{r}
+results <- COASTSS(
+  anno = sumstats$sumstats$anno,
+  beta = sumstats$sumstats$beta,
+  se = sumstats$sumstats$se,
+  maf = sumstats$sumstats$maf,
+  ld = sumstats$ld,
+  weights = c(1, 2, 3)
+)
+show(results)
+```
+
+In comparing the outputs of the summary statistics based test to those of the individual level data test, several differences are noteworthy:
+
+* Not all components of `COAST` could be included in `COASTSS`. In particular, the `max` tests cannot be obtained starting from standard summary statistics. In addition, by convention, summary statistics are generated from count rather than indicator genotypes. If available, `COASTSS` can be applied to summary statistics generated from indicator genotypes.
+
+* Several approximations are required in order to perform the coding-variant allelic series test with summary statistics. As such, the p-values obtained from `COASTSS` and `COAST` will not be identical, even when starting from the same data. Nonetheless, the operating characteristics of `COASTSS` (and the original `COAST`) have been validated through extensive simulation studies.
+
+* `COASTSS` can also be run with a different number of annotation categories. To do so, specify a `weight` vector of the appropriate length. 
+
+For additional details, see the COAST-SS vignette.
+
+# Appendix
+
+## Loading genotypes
+
+The [genio](https://CRAN.R-project.org/package=genio) and [rbgen](https://enkre.net/cgi-bin/code/bgen/wiki?name=rbgen) packages may be used to load PLINK and BGEN genotypes in R, respectively. Moreover, [PLINK](https://www.cog-genomics.org/plink/2.0/) enables conversion between these file types.

@@ -1,7 +1,7 @@
 README
 ================
 
-Updated: 2024-11-12
+Updated: 2024-11-13
 
 # Allelic Series
 
@@ -48,6 +48,12 @@ devtools::install_github(repo = "insitro/AllelicSeries")
 library(AllelicSeries)
 ```
 
+To view vignettes:
+
+``` r
+browseVignettes("AllelicSeries")
+```
+
 ## Example data
 
 Here, data for `n = 1000` subjects at `snps = 300` variants with minor
@@ -56,7 +62,7 @@ default, variants are annotated into 1 of 3 categories, representing
 BMVs, DMVs, and PTVs. `beta` specifies the mean per-variant effect sizes
 in each annotation category. Setting `beta` inversely proportional to
 `sqrt(n)` makes the power independent of the sample size. For additional
-details, see the `data_generation` vignette.
+details, see the Data Generation vignette.
 
 ``` r
 set.seed(101)
@@ -174,7 +180,7 @@ results@Pvals
     ## 8         omni   omni 0.004363169
 
 To return the omnibus p-value only, specify `return_omni_only = TRUE`
-when calling `COAST`. For additional details, see the `coast` vignette.
+when calling `COAST`. For additional details, see the COAST vignette.
 
 ## Different numbers of annotation categories
 
@@ -255,23 +261,22 @@ sumstats <- CalcSumstats(
 
 The output `sumstats` is a list containing:
 
-- `anno`, the (snps x 1) annotation vector.
 - `ld`, a (snps x snps) LD (genotype correlation) matrix.
-- `maf`, a (snps x 1) minor allele frequency vector.
-- `sumstats`, a (snps x 4) data.frame including the annotations, effect
-  sizes `beta`, standard errors `se`, and p-values `p`.
+- `sumstats`, a (snps x 5) data.frame including the annotations `anno`,
+  minor allele frequencies `maf`, effect sizes `beta`, standard errors
+  `se`, and p-values `p`.
 
 ``` r
 head(sumstats$sumstats)
 ```
 
-    ##   anno        beta        se         p
-    ## 1    1 -0.06655739 0.2688400 0.8044652
-    ## 2    2 -0.01192392 0.2685362 0.9645829
-    ## 3    1 -0.44322853 0.5355026 0.4078478
-    ## 4    1  0.41017824 0.7583407 0.5885840
-    ## 5    1 -0.01965152 0.2417292 0.9352069
-    ## 6    1 -0.07339959 0.3096588 0.8126306
+    ##   anno   maf        beta        se         p
+    ## 1    1 4e-03 -0.06655739 0.2688400 0.8044652
+    ## 2    2 4e-03 -0.01192392 0.2685362 0.9645829
+    ## 3    1 1e-03 -0.44322853 0.5355026 0.4078478
+    ## 4    1 5e-04  0.41017824 0.7583407 0.5885840
+    ## 5    1 5e-03 -0.01965152 0.2417292 0.9352069
+    ## 6    1 3e-03 -0.07339959 0.3096588 0.8126306
 
 ### Running COAST from summary statistics
 
@@ -289,10 +294,10 @@ up-weight rare variants during the allelic SKAT test.
 
 ``` r
 results <- COASTSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta,
   se = sumstats$sumstats$se,
-  maf = sumstats$maf,
+  maf = sumstats$sumstats$maf,
   ld = sumstats$ld,
   weights = c(1, 2, 3)
 )
@@ -327,7 +332,7 @@ of the individual level data test, several differences are noteworthy:
   categories. To do so, specify a `weight` vector of the appropriate
   length.
 
-For additional details, see the `coast_ss` vignette.
+For additional details, see the COAST-SS vignette.
 
 # Appendix
 

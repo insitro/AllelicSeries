@@ -4,5 +4,6 @@
 inst/.redun
 vignettes/.redun
 LICENSE.md
-README.md
+README
 ^AllelicSeries\.Rproj$
+

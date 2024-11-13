@@ -32,11 +32,9 @@ arguments if provided.}
 \value{
 List containing the following items:
 \itemize{
-\item \code{anno}: A SNP-length annotation vector.
 \item \code{ld}: A SNP x SNP correlation (LD) matrix.
-\item \code{maf}: Minor allele frequency of each variant.
-\item \code{sumstats}: A SNP x 4 matrix of summary statistics. Include the annotation,
-estimated effect size, standard error, and p-value.
+\item \code{sumstats}: A SNP x 5 matrix of summary statistics, including the
+.  annotation, MAF, estimated effect size, standard error, and p-value.
 \item \code{type}: Either "binary" or "quantitative".`
 }
 }

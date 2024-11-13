@@ -2,12 +2,12 @@
 title: "COAST from Summary Statistics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{coast_ss}
+  %\VignetteIndexEntry{COAST-SS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-Updated: 2024-11-12
+Updated: 2024-11-13
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -63,17 +63,17 @@ The required inputs to `COASTSS` are the annotation vector `anno` along with the
 ```{r, cache=TRUE}
 # COAST-SS, with LD and MAF provided.
 full <- AllelicSeries::COASTSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta,
   se = sumstats$sumstats$se,
-  maf = sumstats$maf,
+  maf = sumstats$sumstats$maf,
   ld = sumstats$ld
 )
 show(full)
 
 # COAST-SS, with LD and MAF omitted.
 minimal <- AllelicSeries::COASTSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta,
   se = sumstats$sumstats$se
 )
@@ -87,10 +87,10 @@ By default, `COASTSS`, like `COAST`, uses a simple linear weighting scheme of `w
 ```{r, cache=TRUE}
 # COAST-SS, alternate weights.
 results <- AllelicSeries::COASTSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta,
   se = sumstats$sumstats$se,
-  maf = sumstats$maf,
+  maf = sumstats$sumstats$maf,
   ld = sumstats$ld,
   weights = c(1, 4, 9)
 )
@@ -124,10 +124,10 @@ sumstats <- AllelicSeries::CalcSumstats(
 
 # Run COAST-SS.
 results <- AllelicSeries::COASTSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta,
   se = sumstats$sumstats$se,
-  maf = sumstats$maf,
+  maf = sumstats$sumstats$maf,
   ld = sumstats$ld,
   weights = c(1, 2, 3, 4)
 )

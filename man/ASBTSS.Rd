@@ -62,7 +62,7 @@ sumstats <- CalcSumstats(data = data)
 
 # Run allelic series burden test from sumstats.
 results <- ASBTSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta, 
   se = sumstats$sumstats$se,
   ld = sumstats$ld

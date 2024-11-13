@@ -11,9 +11,9 @@ COASTSS(
   check = TRUE,
   eps = 1,
   lambda = c(1, 1, 1),
-  maf = NULL,
   ld = NULL,
-  pval_weights = c(1, 1, 2),
+  maf = NULL,
+  pval_weights = c(0.25, 0.25, 0.5),
   weights = c(1, 2, 3)
 )
 }
@@ -34,11 +34,11 @@ definite. Note, epsilon should increase as the sample size decreases.}
 \item{lambda}{Optional (3 x 1) vector of inflation factors, one for each
 component test. Defaults to a 1s vector, which results in no rescaling.}
 
-\item{maf}{(snps x 1) vector of minor allele frequencies. Although ideally
-provided, defaults to the zero vector.}
-
 \item{ld}{(snps x snps) matrix of correlations among the genetic variants.
 Although ideally provided, an identity matrix is assumed if not.}
+
+\item{maf}{(snps x 1) vector of minor allele frequencies. Although ideally
+provided, defaults to the zero vector.}
 
 \item{pval_weights}{(3 x 1) vector of relative weights for combining the
 component tests to perform the omnibus test. The default of
@@ -63,11 +63,11 @@ sumstats <- CalcSumstats(data = data)
 
 # Run the Coding-variant Allelic Series Test from summary statistics.
 results <- COASTSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta, 
-  maf = sumstats$maf,
   se = sumstats$sumstats$se,
-  ld = sumstats$ld
+  ld = sumstats$ld,
+  maf = sumstats$sumstats$maf,
 )
 show(results)
 }

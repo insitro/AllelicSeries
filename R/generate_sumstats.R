@@ -18,11 +18,9 @@
 #' @param is_binary Is the phenotype binary? Default: FALSE.
 #' 
 #' @return List containing the following items:
-#' * `anno`: A SNP-length annotation vector.
 #' * `ld`: A SNP x SNP correlation (LD) matrix.
-#' * `maf`: Minor allele frequency of each variant.
-#' * `sumstats`: A SNP x 4 matrix of summary statistics. Include the annotation,
-#'   estimated effect size, standard error, and p-value.
+#' * `sumstats`: A SNP x 5 matrix of summary statistics, including the 
+#'.  annotation, MAF, estimated effect size, standard error, and p-value.
 #' * `type`: Either "binary" or "quantitative".`
 #' 
 #' @export
@@ -97,11 +95,11 @@ CalcSumstats <- function(
   
   sumstats <- do.call(rbind, sumstats)
   sumstats$anno <- anno
-  sumstats <- sumstats[, c("anno", "beta", "se", "p")]
+  sumstats$maf <- maf
+  sumstats <- sumstats[, c("anno", "maf", "beta", "se", "p")]
   
   # Output.
   out <- list(
-    anno = anno,
     ld = ld,
     maf = maf,
     sumstats = sumstats,

@@ -1,5 +1,5 @@
 # Purpose: Implement sumstats-based allelic series test.
-# Updated: 2024-11-11
+# Updated: 2024-11-13
 
 #' Allelic Series Burden Test from Summary Statistics
 #' 
@@ -32,7 +32,7 @@
 #' 
 #' # Run allelic series burden test from sumstats.
 #' results <- ASBTSS(
-#'   anno = sumstats$anno,
+#'   anno = sumstats$sumstats$anno,
 #'   beta = sumstats$sumstats$beta, 
 #'   se = sumstats$sumstats$se,
 #'   ld = sumstats$ld
@@ -147,9 +147,9 @@ ASBTSS <- function(
 #' # Run allelic series SKAT test from sumstats.
 #' # Note: the SKAT test requires MAF.
 #' results <- ASKATSS(
-#'   anno = sumstats$anno,
+#'   anno = sumstats$sumstats$anno,
 #'   beta = sumstats$sumstats$beta, 
-#'   maf = sumstats$maf,
+#'   maf = sumstats$sumstats$maf,
 #'   se = sumstats$sumstats$se,
 #'   ld = sumstats$ld
 #' )
@@ -280,11 +280,11 @@ ASKATSS <- function(
 #' 
 #' # Run the Coding-variant Allelic Series Test from summary statistics.
 #' results <- COASTSS(
-#'   anno = sumstats$anno,
+#'   anno = sumstats$sumstats$anno,
 #'   beta = sumstats$sumstats$beta, 
-#'   maf = sumstats$maf,
 #'   se = sumstats$sumstats$se,
-#'   ld = sumstats$ld
+#'   ld = sumstats$ld,
+#'   maf = sumstats$sumstats$maf,
 #' )
 #' show(results)
 #' @export
@@ -295,9 +295,9 @@ COASTSS <- function(
     check = TRUE,
     eps = 1,
     lambda = c(1, 1, 1),
-    maf = NULL,
     ld = NULL,
-    pval_weights = c(1, 1, 2),
+    maf = NULL,
+    pval_weights = c(0.25, 0.25, 0.50),
     weights = c(1, 2, 3)
 ) {
   
