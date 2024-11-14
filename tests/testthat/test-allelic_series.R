@@ -2,7 +2,7 @@ test_that("Check indicator aggregation.", {
 
   # Method = "none".
   weights <- c(1, 1, 1)
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(c(0, 0, 0), c(3, 0, 0), c(0, 2, 0), c(0, 1, 1))
   obs <- Aggregator(
     anno, geno, indicator = TRUE, method = "none", weights = weights)
@@ -26,11 +26,13 @@ test_that("Check indicator aggregation.", {
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Check count aggregation.", {
 
   # Method = "none".
   weights <- c(1, 1, 1)
-  anno <- rep(c(0, 1, 2), each = 2)
+  anno <- rep(c(1, 2, 3), each = 2)
   geno <- rbind(
     c(0, 0, 0, 0, 0, 0),
     c(0, 1, 0, 2, 0, 1),
@@ -56,9 +58,11 @@ test_that("Check count aggregation.", {
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Check that omnibus test runs.", {
 
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(2, 0, 0),
@@ -74,9 +78,11 @@ test_that("Check that omnibus test runs.", {
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Case of all zero weights.", {
 
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(0, 0, 1),
@@ -93,9 +99,11 @@ test_that("Case of all zero weights.", {
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Case of all zero genotypes", {
 
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(0, 0, 0),
@@ -111,10 +119,12 @@ test_that("Case of all zero genotypes", {
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Validate input checks.", {
 
-  anno <- c(0, 1, 2)
-  covar <- c(1, 1, 1)
+  anno <- c(1, 2, 3)
+  covar <- data.matrix(c(1, 1, 1))
   geno <- rbind(
     c(1, 0, 0),
     c(0, 1, 0),
@@ -168,13 +178,39 @@ test_that("Validate input checks.", {
       weights = c(-1, 0, 1)
     )
   )
+  
+  # Error expected: annotations not in expected range.
+  expect_error(
+    CheckInputs(
+      anno = c(1, 2, 4),
+      covar = covar,
+      geno = geno,
+      pheno = pheno,
+      is_pheno_binary = FALSE,
+      weights = c(1, 2, 3)
+    )
+  )
+  
+  # Warning: annotation categories are present to which no variants are assigned.
+  expect_warning(
+    CheckInputs(
+      anno = c(1, 2, 3),
+      covar = covar,
+      geno = geno,
+      pheno = pheno,
+      is_pheno_binary = FALSE,
+      weights = c(1, 2, 3, 4)
+    )
+  )
 
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Overall check of omnibus test.", {
 
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(0, 0, 1),
@@ -240,9 +276,44 @@ test_that("Overall check of omnibus test.", {
 })
 
 
+# ------------------------------------------------------------------------------
+
+test_that("Check COAST runs with zero-based annotations.", {
+  
+  withr::local_seed(103)
+  
+  WrapCOAST <- function(data) {
+    test <- COAST(
+      anno = data$anno,
+      covar = data$covar,
+      geno = data$geno,
+      pheno = data$pheno
+    )
+    pvals <- test@Pvals
+    p_omni <- pvals$pval[pvals$test == "omni"]
+    return(p_omni)
+  }
+  
+  # Null. 
+  data <- DGP(prop_causal = 0)
+  data$anno <- data$anno - 1
+  expect_warning(p <- WrapCOAST(data))
+  expect_gt(p, 0.05)
+  
+  # Alternative. 
+  data <- DGP(prop_causal = 1)
+  data$anno <- data$anno - 1
+  expect_warning(p <- WrapCOAST(data))
+  expect_lt(p, 0.05)
+  
+})
+
+
+# ------------------------------------------------------------------------------
+
 test_that("Check application to common variants.", {
   
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(1, 2, 1),
     c(1, 1, 2),
@@ -253,20 +324,18 @@ test_that("Check application to common variants.", {
   n <- nrow(geno)
   pheno <- c(-1, 1, 0, 3, 2)
   
-  expect_warning({
-    COAST(
-      anno = anno,
-      geno = geno,
-      pheno = pheno
-    )
-  })
-  
+  suppressWarnings(
+    expect_warning(COAST(anno = anno, geno = geno, pheno = pheno))
+  )
+
 })
 
 
+# ------------------------------------------------------------------------------
+
 test_that("Check ability to change test weights.", {
   
-  anno <- c(0, 1, 2)
+  anno <- c(1, 2, 3)
   geno <- rbind(
     c(0, 0, 0),
     c(0, 0, 1),
@@ -318,3 +387,64 @@ test_that("Check ability to change test weights.", {
   ))
     
 })
+
+
+# ------------------------------------------------------------------------------
+
+test_that("Check COAST with different numbers of categories.", {
+  
+  WrapCOAST <- function(data, weights) {
+    test <- COAST(
+      anno = data$anno,
+      covar = data$covar,
+      geno = data$geno,
+      pheno = data$pheno,
+      weights = weights
+    )
+    pvals <- test@Pvals
+    p_omni <- pvals$pval[pvals$test == "omni"]
+    return(p_omni)
+  }
+  
+  withr::local_seed(101)
+  
+  # 2 categories.
+  ## Null.
+  data <- DGP(
+    beta = c(0, 0),
+    prop_anno = c(1, 1),
+    weights = c(1, 1)
+  )
+  p <- WrapCOAST(data, weights = c(1, 2))
+  expect_gt(p, 0.05)
+  
+  ## Alternative.
+  data <- DGP(
+    beta = c(1, 2),
+    prop_anno = c(1, 1),
+    weights = c(1, 1)
+  )
+  p <- WrapCOAST(data, weights = c(1, 2))
+  expect_lt(p, 0.05)
+  
+  # 4 categories.
+  ## Null.
+  data <- DGP(
+    beta = c(0, 0, 0, 0),
+    prop_anno = c(1, 1, 1, 1),
+    weights = c(1, 1, 1, 1)
+  )
+  p <- WrapCOAST(data, weights = c(1, 2, 3, 4))
+  expect_gt(p, 0.05)
+  
+  ## Alternative.
+  data <- DGP(
+    beta = c(1, 2, 3, 4),
+    prop_anno = c(1, 1, 1, 1),
+    weights = c(1, 1, 1, 1)
+  )
+  p <- WrapCOAST(data, weights = c(1, 2, 3, 4))
+  expect_lt(p, 0.05)
+  
+})
+

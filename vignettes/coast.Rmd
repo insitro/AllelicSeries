@@ -1,13 +1,13 @@
 ---
 title: "Coding-variant Allelic Series Test"
 output: rmarkdown::html_vignette
-date: "2024-07-24"
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{COAST}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+Updated: 2024-11-12
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 To run an allelic series test, there are 4 key inputs:
 
-* A numeric annotation vector, of the same length as the number of variants, coded as 0 for benign missense variants (BMVs), 1 for deleterious missense variants (DMVs), and 2 for protein truncating variants (PTVs).
+* A numeric annotation vector, of the same length as the number of variants, coded as 1 for benign missense variants (BMVs), 2 for damaging missense variants (DMVs), and 3 for protein truncating variants (PTVs).
 
 * A covariates matrix, with as many rows as subjects and including columns such as age and sex. If omitted, defaults to an intercept only.
 
@@ -79,6 +79,34 @@ and the p-values data.frame via:
 results@Pvals
 ```
 
+### Different numbers of annotation categories
+
+`COAST` was originally intended to operate on the benign missense variants, damaging missense variants, and protein truncating variants within a gene, but it has been generalized to allow for an arbitrary number of discrete annotation categories. The following example simulates and analyzes data with 4 annotation categories. The main difference when analyzing a different number of annotation categories is that the `weight` vector should be specified, and should have length equal to the number of *possible* annotation categories. `COAST` will run, albeit with a warning, if there are possible annotation categories to which no variants are assigned (e.g. a gene contains no PTVs). 
+
+```{r, cache=TRUE}
+withr::local_seed(102)
+
+# Generate data.
+n <- 1e2
+data <- AllelicSeries::DGP(
+  n = n,
+  snps = 400,
+  beta = c(1, 2, 3, 4) / sqrt(n),
+  prop_anno = c(0.4, 0.3, 0.2, 0.1),
+  weights = c(1, 1, 1, 1)
+)
+
+# Run COAST-SS.
+results <- AllelicSeries::COAST(
+  anno = data$anno,
+  covar = data$covar,
+  geno = data$geno,
+  pheno = data$pheno,
+  weights = c(1, 2, 3, 4)
+)
+show(results)
+```
+
 ### Test options
 
 * `apply_int = TRUE` applies the rank-based inverse normal transformation from the [RNOmni](https://CRAN.R-project.org/package=RNOmni) package. This transformation is expected to improve power for phenotypes that have a skewed or kurtotic (e.g. long-tailed) distribution. It is applied by default in the case of continuous phenotype, and is ignored in the case of a binary phenotype.
@@ -93,7 +121,7 @@ AllelicSeries::COAST(
 )
 ```
 
-* `include_orig_skato_all = TRUE` includes standard SKAT-O applied to all variants as a component of the omnibus test, while `include_orig_skato_ptv = TRUE` includes standard SKAT-O applied to PTVs only. Including standard SKAT-O as a component of the omnibus test can improve power to detect associations between the phenotype and genes that may not be allelic series.
+* `include_orig_skato_all = TRUE` includes standard SKAT-O applied to all variants as a component of the omnibus test, while `include_orig_skato_ptv = TRUE` includes standard SKAT-O applied to PTVs only. In cases where other annotation schemes are used, the annotation for the PTV class can be specified via `ptv_anno`. Including standard SKAT-O as a component of the omnibus test can improve power to detect associations between the phenotype and genes that may not be allelic series.
 
 ```{r, eval = FALSE}
 AllelicSeries::COAST(
@@ -103,6 +131,7 @@ AllelicSeries::COAST(
   covar = covar,
   include_orig_skato_all = TRUE,
   include_orig_skato_ptv = TRUE,
+  ptv_anno = 3
 )
 ```
 

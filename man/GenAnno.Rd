@@ -4,20 +4,20 @@
 \alias{GenAnno}
 \title{Generate Genotype Annotations}
 \usage{
-GenAnno(snps, p_dmv = 0.33, p_ptv = 0.33)
+GenAnno(snps, prop_anno = c(0.5, 0.4, 0.1))
 }
 \arguments{
 \item{snps}{Number of SNPs in the gene.}
 
-\item{p_dmv}{Frequency of deleterious missense variants.}
-
-\item{p_ptv}{Frequency of protein truncating variants.}
+\item{prop_anno}{Proportions of annotations in each category. Length should
+equal the number of annotation categories. Default of c(0.5, 0.4, 0.1) is
+based on the approximate empirical frequencies of BMVs, DMVs, and PTVs.}
 }
 \value{
 (snps x 1) integer vector.
 }
 \description{
 Returns a vector of length = the number of columns (SNPs) in the genotype
-matrix. Each SNP is classified as a benign missense variant (0), a
-deleterious missense variant (1), or a protein truncating variant (2).
+matrix. Each SNP is categorized into one of L categories, where L is
+determined by the length of \code{prop_anno}.
 }

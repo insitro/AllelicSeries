@@ -1,3 +1,10 @@
+## Version 1.1.0
+* Added the ability to run `COAST` and `COASTSS`, as well as the component tests, with an arbitrary number of discrete annotation categories.
+	- The updated code prefers integer annotation category labels starting at 1. However, the main functions will still support 0-indexed category labels.
+* Updated the data generating process `DGP` to simulate data with an arbitrary number of annotation categories.
+* Added vignettes on Data Generation and COAST-SS.
+* Updated `CalcSumstats` to bind all variant-level information (annotations, MAFs, betas, standard errors, p-values) into a single dataframe. 
+
 ## Version 1.0.2
 * Streamlined and simplified the summary statistic-based allelic series baseline and sum tests, removing the need for meta-analysis or estimating cross category correlations.
 

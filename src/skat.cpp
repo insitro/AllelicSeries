@@ -6,9 +6,11 @@
 // ----------------------------------------------------------------------------
 
 //' Calculate SKAT Weights
-//' @param anno (snps x 1) annotation vector with values in c(0, 1, 2).
+//' @param anno (snps x 1) annotation vector with integer values in 1 through
+//'   the number of annotation categories L.
 //' @param maf (snps x 1) vector of minor allele frequencies.
-//' @param weights (3 x 1) vector of annotation category weights.
+//' @param weights (L x 1) vector of annotation category weights. Note that the
+//'   number of annotation categories L is inferred from the length of `weights`.
 //' @return (snps x 1) vector of weights for SKAT test.
 //' @noRd 
 // [[Rcpp::export]]
@@ -17,11 +19,12 @@ SEXP CalcSkatWeights(
   const arma::vec& maf, 
   const arma::vec& weights
 ){
-  int n = anno.n_elem;
+  const int n = anno.n_elem;
   arma::colvec skat_weights = arma::zeros(n);
   
-  for (int j=0; j<3; j++) {
-    arma::uvec ids = arma::find(anno == j);
+  const int n_anno = weights.n_elem;
+  for (int j=0; j<n_anno; j++) {
+    arma::uvec ids = arma::find(anno == (j + 1));
     skat_weights.elem(ids).fill(weights[j]);
   }
   

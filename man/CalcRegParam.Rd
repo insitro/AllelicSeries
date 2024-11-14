@@ -19,7 +19,5 @@ the residual standard deviation "sd".
 }
 \description{
 Calculate phenotypic regression coefficients and the residual variation
-based on proportion of variation explained (PVE) by each factor. Note that
-the proportion of variation explained by genotype is required, but genetic
-effects are not generated here.
+based on proportion of variation explained (PVE) by each factor.
 }

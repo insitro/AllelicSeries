@@ -13,11 +13,12 @@ ASKATSS(
   lambda = 1,
   ld = NULL,
   maf = NULL,
-  weights = DEFAULT_WEIGHTS
+  weights = c(1, 2, 3)
 )
 }
 \arguments{
-\item{anno}{(snps x 1) annotation vector with values in c(0, 1, 2).}
+\item{anno}{(snps x 1) annotation vector with integer values in 1 through
+the number of annotation categories L.}
 
 \item{beta}{(snps x 1) vector of effect sizes for the coding genetic variants
 within a gene.}
@@ -38,7 +39,8 @@ Although ideally provided, an identity matrix is assumed if not.}
 \item{maf}{(snps x 1) vector of minor allele frequencies. Although ideally
 provided, defaults to the zero vector.}
 
-\item{weights}{(3 x 1) vector of annotation category weights.}
+\item{weights}{(L x 1) vector of annotation category weights. Note that the
+number of annotation categories L is inferred from the length of \code{weights}.}
 }
 \value{
 Numeric p-value of the allelic series SKAT-O test.
@@ -46,16 +48,27 @@ Numeric p-value of the allelic series SKAT-O test.
 \description{
 Allelic series sequence kernel association test from summary statistics.
 }
+\section{Notes}{
+
+\itemize{
+\item The SKAT test requires per-variant minor allele frequencies (MAFs) for
+the purpose of up-weighting rarer variants. If unknown, \code{maf} can be
+safely omitted. The only consequence is that the SKAT weights will no
+longer be inversely proportional to the genotypic variance.
+}
+}
+
 \examples{
 # Generate data.
 data <- DGP(n = 1e3)
 sumstats <- CalcSumstats(data = data)
 
 # Run allelic series SKAT test from sumstats.
+# Note: the SKAT test requires MAF.
 results <- ASKATSS(
-  anno = sumstats$anno,
+  anno = sumstats$sumstats$anno,
   beta = sumstats$sumstats$beta, 
-  maf = sumstats$maf,
+  maf = sumstats$sumstats$maf,
   se = sumstats$sumstats$se,
   ld = sumstats$ld
 )

@@ -1,8 +1,11 @@
 # Purpose: Data generation for allelic series.
-# Updated: 2023-03-15
+# Updated: 2024-11-11
 
 
 #' Generate Genotype Matrix
+#' 
+#' Generate genotypes for `n` subject at `snps` variants in linkage 
+#' equilibrium. Genotypes are generated such that the MAC is always >= 1.
 #'
 #' @param n Sample size.
 #' @param snps Number of SNP in the gene.
@@ -11,7 +14,7 @@
 GenGenoMat <- function(
   n,
   snps,
-  maf_range = c(0.005, 0.010)
+  maf_range = c(0.001, 0.005)
 ) {
 
   geno <- lapply(seq_len(snps), function(i) {
@@ -36,44 +39,49 @@ GenGenoMat <- function(
 #' Generate Genotype Annotations
 #'
 #' Returns a vector of length = the number of columns (SNPs) in the genotype
-#' matrix. Each SNP is classified as a benign missense variant (0), a
-#' deleterious missense variant (1), or a protein truncating variant (2).
+#' matrix. Each SNP is categorized into one of L categories, where L is 
+#' determined by the length of `prop_anno`. 
 #'
 #' @param snps Number of SNPs in the gene.
-#' @param p_dmv Frequency of deleterious missense variants.
-#' @param p_ptv Frequency of protein truncating variants.
+#' @param prop_anno Proportions of annotations in each category. Length should
+#'   equal the number of annotation categories. Default of c(0.5, 0.4, 0.1) is
+#'   based on the approximate empirical frequencies of BMVs, DMVs, and PTVs. 
 #' @return (snps x 1) integer vector.
 GenAnno <- function(
   snps,
-  p_dmv = 0.33,
-  p_ptv = 0.33
+  prop_anno = c(0.5, 0.4, 0.1)
 ) {
-  p_bmv <- 1 - sum(c(p_dmv, p_ptv))
-  p <- c(p_bmv, p_dmv, p_ptv)
-  anno <- stats::rmultinom(snps, size = 1, prob = p)
-  anno <- apply(anno, 2, which.max) - 1
+  
+  # Ensure proportions sum to 1.
+  prop_anno <- prop_anno / sum(prop_anno)
+  
+  # Generate multinomial annotations.
+  anno <- stats::rmultinom(snps, size = 1, prob = prop_anno)
+  anno <- apply(anno, 2, which.max)
   return(anno)
 }
 
 
 #' Generate Genotypes
+#' 
+#' Generates genotypes in linkage equilibrium with accompanying annotations.
 #'
 #' @param n Sample size.
 #' @param snps Number of SNP in the gene.
 #' @param maf_range Range of minor allele frequencies: c(MIN, MAX).
-#' @param p_dmv Frequency of deleterious missense variants.
-#' @param p_ptv Frequency of protein truncating variants.
+#' @param prop_anno Proportions of annotations in each category. Length should
+#'   equal the number of annotation categories. Default of c(0.5, 0.4, 0.1) is
+#'   based on the approximate empirical frequencies of BMVs, DMVs, and PTVs.
 #' @return List containing the (n x snps) genotype matrix "geno" and the
 #' (snps x 1) annotation vector "anno".
 GenGeno <- function(
   n,
   snps,
-  maf_range = c(0.005, 0.010),
-  p_dmv = 0.33,
-  p_ptv = 0.33
+  maf_range = c(0.001, 0.005),
+  prop_anno = c(0.5, 0.4, 0.1)
 ) {
   geno <- GenGenoMat(n = n, snps = snps, maf_range = maf_range)
-  anno <- GenAnno(snps, p_dmv, p_ptv)
+  anno <- GenAnno(snps = snps, prop_anno = prop_anno)
   out <- list(
     anno = anno,
     geno = geno
@@ -150,9 +158,7 @@ GenCovar <- function(n) {
 #' Calculate Regression Parameters
 #'
 #' Calculate phenotypic regression coefficients and the residual variation
-#' based on proportion of variation explained (PVE) by each factor. Note that
-#' the proportion of variation explained by genotype is required, but genetic
-#' effects are not generated here.
+#' based on proportion of variation explained (PVE) by each factor.
 #'
 #' @param pve_age PVE by age.
 #' @param pve_pcs PVE by PCs (collectively).
@@ -186,9 +192,24 @@ CalcRegParam <- function(
 
 
 #' Generate Phenotypes
+#' 
+#' Simulate a phenotype based on annotations, covariates, and genotypes.
+#' 
+#' @section Phenotype generation:
+#' * To generate phenotypes from the baseline model, set `method` to "none" and
+#'   provide a vector `beta` of length equal to the number of annotation 
+#'   categories specifying the effect sizes of each.
+#' * To generate phenotypes from the allelic series burden models, set `method` 
+#'   to "max" or "sum" and provide a scalar `beta.`
+#' * To generate phenotypes from the allelic series SKAT model, set `method` to
+#'   "none", set `random_signs` to true, and provide a vector `beta` of length
+#'   equal to the number of annotation categories.
 #'
 #' @param anno (snps x 1) annotation vector.
-#' @param beta (3 x 1) coefficient vector for bmvs, dmvs, and ptvs respectively.
+#' @param beta If method = "none", a (L x 1) coefficient with effect sizes for
+#'   each annotation category. By default, there are L = 3 annotation categories
+#'   corresponding to BMVs, DMVs, and PTVs. If method != "none", a scalar
+#'   effect size for the allelic series burden score.
 #' @param covar Covariate matrix.
 #' @param geno (n x snps) genotype matrix.
 #' @param reg_param Regression parameters.
@@ -201,7 +222,8 @@ CalcRegParam <- function(
 #' @param random_signs Randomize signs? FALSE for burden-type genetic
 #'   architecture, TRUE for SKAT-type.
 #' @param random_var Frailty variance in the case of random signs. Default: 0.
-#' @param weights Aggregation weights.
+#' @param weights Annotation category weights used for aggregation if 
+#'   method != "none". 
 #' @return (n x 1) numeric vector.
 GenPheno <- function(
   anno,
@@ -216,7 +238,7 @@ GenPheno <- function(
   prop_causal = 1.0,
   random_signs = FALSE,
   random_var = 0.0, 
-  weights = c(0, 1, 2)
+  weights = c(1, 1, 1)
 ) {
 
   # Check configuration.
@@ -225,6 +247,9 @@ GenPheno <- function(
   }
   if ((method != "none") & random_signs) {
     stop("Random signs are incompatible with aggregated genotypes.")
+  }
+  if ((method == "none") & (length(beta) != length(weights))) {
+    stop("When no aggregation is applied, length(beta) must equal length(weights).")
   }
   
   # Filter genotypes.
@@ -246,10 +271,11 @@ GenPheno <- function(
   } else if(random_signs) {
 
     n_snps <- length(anno)
+    n_anno <- length(weights)
     long_beta <- rep(0, n_snps)
     
     # Generate an effect size vector of length == the annotation vector.
-    for (i in 0:2) {long_beta[anno == i] <- beta[i + 1]}
+    for (i in seq_len(n_anno)) {long_beta[anno == i] <- beta[i]}
 
     # Sample the sign. 
     signs <- sample(x = c(-1, 1), size = n_snps, replace = TRUE)
@@ -320,18 +346,19 @@ GenPheno <- function(
 
 #' Data Generating Process
 #' 
-#' Generate a data set consisting of: \itemize{
-#' \item{anno: (snps x 1) annotation vector.}
-#' \item{covar: (subjects x 6) covariate matrix.}
-#' \item{geno: (subjects x snps) genotype matrix.}
-#' \item{pheno: (subjects x 1) phenotype vector.}
-#' \item{type: Either "binary" or "quantitative".}
-#' }
+#' Generate a data set consisting of: 
+#' * `anno`: (snps x 1) annotation vector.
+#' * `covar`: (subjects x 6) covariate matrix.
+#' * `geno`: (subjects x snps) genotype matrix.
+#' * `pheno`: (subjects x 1) phenotype vector.
+#' * `type`: Either "binary" or "quantitative".
 #'
 #' @param anno Annotation vector, if providing genotypes. Should match the
 #'   number of columns in geno.
-#' @param beta If method = "none", a (3 x 1) coefficient vector for bmvs, dmvs,
-#'   and ptvs respectively. If method != "none", a scalar effect size.
+#' @param beta If method = "none", a (L x 1) coefficient with effect sizes for
+#'   each annotation category. By default, there are L = 3 annotation categories
+#'   corresponding to BMVs, DMVs, and PTVs. If method != "none", a scalar
+#'   effect size for the allelic series burden score.
 #' @param binary Generate binary phenotype? Default: FALSE.
 #' @param geno Genotype matrix, if providing genotypes. 
 #' @param include_residual Include residual? If FALSE, returns the expected
@@ -340,18 +367,15 @@ GenPheno <- function(
 #' @param maf_range Range of minor allele frequencies: c(MIN, MAX).
 #' @param method Genotype aggregation method. Default: "none".
 #' @param n Sample size.
-#' @param p_dmv Frequency of deleterious missense variants. Default of 40% is
-#'   based on the frequency of DMVs among rare coding variants in the UK
-#'   Biobank.
-#' @param p_ptv Frequency of protein truncating variants. Default of 10% is
-#'   based on the frequency of PTVs among rare coding variants in the UK
-#'   Biobank.
+#' @param prop_anno Proportions of annotations in each category. Length should
+#'   equal the number of annotation categories. Default of c(0.5, 0.4, 0.1) is
+#'   based on the approximate empirical frequencies of BMVs, DMVs, and PTVs. 
 #' @param prop_causal Proportion of variants which are causal. Default: 1.0. 
 #' @param random_signs Randomize signs? FALSE for burden-type genetic
 #'   architecture, TRUE for SKAT-type.
 #' @param random_var Frailty variance in the case of random signs. Default: 0.
 #' @param snps Number of SNP in the gene. Default: 100.
-#' @param weights Aggregation weights.
+#' @param weights Annotation category weights. Length should match `prop_anno`.
 #' @return List containing: genotypes, annotations, covariates, phenotypes.
 #' @examples 
 #' # Generate data.
@@ -365,33 +389,36 @@ GenPheno <- function(
 #' @export
 DGP <- function(
   anno = NULL,
-  beta = c(0, 1, 2),
+  beta = c(1, 2, 3),
   binary = FALSE,
   geno = NULL,
   include_residual = TRUE,
   indicator = FALSE,
-  maf_range = c(0.005, 0.010),
+  maf_range = c(0.001, 0.005),
   method = "none",
   n = 100,
-  p_dmv = 0.40,
-  p_ptv = 0.10,
+  prop_anno = c(0.5, 0.4, 0.1),
   prop_causal = 1.0,
   random_signs = FALSE,
   random_var = 0.0, 
   snps = 100,
-  weights = c(1, 2, 3)
+  weights = c(1, 1, 1)
 ) {
 
   # Generate genotypes and annotations.
   if (is.null(anno) & is.null(geno)) {
+    
+    # Check if annotation proportions and weights are consistent.
+    if (length(prop_anno) != length(weights)) {
+      stop("length(prop_anno) should equal length(weights)")
+    }
     
     # Neither annotations nor genotypes provided.
     anno_geno <- GenGeno(
       n = n,
       snps = snps,
       maf_range = maf_range,
-      p_dmv = p_dmv,
-      p_ptv = p_ptv
+      prop_anno = prop_anno
     )
     
   } else if(is.null(anno) & !is.null(geno)) {
@@ -400,7 +427,7 @@ DGP <- function(
     geno <- as.matrix(geno)
     n <- nrow(geno)
     snps <- ncol(geno)
-    anno <- GenAnno(snps, p_dmv = p_dmv, p_ptv = p_ptv)
+    anno <- GenAnno(snps, prop_anno = prop_anno)
     anno_geno <- list(
       anno = anno,
       geno = geno

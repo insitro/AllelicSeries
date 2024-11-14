@@ -12,15 +12,16 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // Counts
-SEXP Counts(arma::colvec anno, arma::mat geno, const int min_mac);
-RcppExport SEXP _AllelicSeries_Counts(SEXP annoSEXP, SEXP genoSEXP, SEXP min_macSEXP) {
+SEXP Counts(arma::colvec anno, arma::mat geno, const int n_anno, const int min_mac);
+RcppExport SEXP _AllelicSeries_Counts(SEXP annoSEXP, SEXP genoSEXP, SEXP n_annoSEXP, SEXP min_macSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::colvec >::type anno(annoSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type geno(genoSEXP);
+    Rcpp::traits::input_parameter< const int >::type n_anno(n_annoSEXP);
     Rcpp::traits::input_parameter< const int >::type min_mac(min_macSEXP);
-    rcpp_result_gen = Rcpp::wrap(Counts(anno, geno, min_mac));
+    rcpp_result_gen = Rcpp::wrap(Counts(anno, geno, n_anno, min_mac));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -123,19 +124,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // AnnoMat
-arma::mat AnnoMat(const arma::colvec& anno);
-RcppExport SEXP _AllelicSeries_AnnoMat(SEXP annoSEXP) {
+arma::mat AnnoMat(const arma::colvec& anno, const int n_anno);
+RcppExport SEXP _AllelicSeries_AnnoMat(SEXP annoSEXP, SEXP n_annoSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::colvec& >::type anno(annoSEXP);
-    rcpp_result_gen = Rcpp::wrap(AnnoMat(anno));
+    Rcpp::traits::input_parameter< const int >::type n_anno(n_annoSEXP);
+    rcpp_result_gen = Rcpp::wrap(AnnoMat(anno, n_anno));
     return rcpp_result_gen;
 END_RCPP
 }
 // BaselineSS
-SEXP BaselineSS(const arma::colvec& anno, const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se);
-RcppExport SEXP _AllelicSeries_BaselineSS(SEXP annoSEXP, SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP) {
+SEXP BaselineSS(const arma::colvec& anno, const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se, const int n_anno);
+RcppExport SEXP _AllelicSeries_BaselineSS(SEXP annoSEXP, SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP, SEXP n_annoSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -143,7 +145,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::colvec& >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
-    rcpp_result_gen = Rcpp::wrap(BaselineSS(anno, beta, ld, se));
+    Rcpp::traits::input_parameter< const int >::type n_anno(n_annoSEXP);
+    rcpp_result_gen = Rcpp::wrap(BaselineSS(anno, beta, ld, se, n_anno));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -164,7 +167,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_AllelicSeries_Counts", (DL_FUNC) &_AllelicSeries_Counts, 3},
+    {"_AllelicSeries_Counts", (DL_FUNC) &_AllelicSeries_Counts, 4},
     {"_AllelicSeries_OLS", (DL_FUNC) &_AllelicSeries_OLS, 2},
     {"_AllelicSeries_ResidVar", (DL_FUNC) &_AllelicSeries_ResidVar, 2},
     {"_AllelicSeries_Score", (DL_FUNC) &_AllelicSeries_Score, 4},
@@ -173,8 +176,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_AllelicSeries_SkatOptimalParam", (DL_FUNC) &_AllelicSeries_SkatOptimalParam, 2},
     {"_AllelicSeries_CorCpp", (DL_FUNC) &_AllelicSeries_CorCpp, 1},
     {"_AllelicSeries_isPD", (DL_FUNC) &_AllelicSeries_isPD, 3},
-    {"_AllelicSeries_AnnoMat", (DL_FUNC) &_AllelicSeries_AnnoMat, 1},
-    {"_AllelicSeries_BaselineSS", (DL_FUNC) &_AllelicSeries_BaselineSS, 4},
+    {"_AllelicSeries_AnnoMat", (DL_FUNC) &_AllelicSeries_AnnoMat, 2},
+    {"_AllelicSeries_BaselineSS", (DL_FUNC) &_AllelicSeries_BaselineSS, 5},
     {"_AllelicSeries_SumCountSS", (DL_FUNC) &_AllelicSeries_SumCountSS, 5},
     {NULL, NULL, 0}
 };

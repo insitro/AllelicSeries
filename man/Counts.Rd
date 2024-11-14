@@ -4,12 +4,15 @@
 \alias{Counts}
 \title{Count Variants and Carriers}
 \usage{
-Counts(anno, geno, min_mac = 0L)
+Counts(anno, geno, n_anno, min_mac = 0L)
 }
 \arguments{
-\item{anno}{(snps x 1) annotation vector with values in c(0, 1, 2).}
+\item{anno}{(snps x 1) annotation vector with integer values in 1 through
+the number of annotation categories L.}
 
 \item{geno}{(n x snps) genotype matrix.}
+
+\item{n_anno}{Number of annotation categories L.}
 
 \item{min_mac}{Minimum minor allele count for inclusion. Default: 0.}
 }

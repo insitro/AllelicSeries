@@ -72,5 +72,3 @@ LogisticLRT <- function(y, g, x) {
   
 }
 
-
-

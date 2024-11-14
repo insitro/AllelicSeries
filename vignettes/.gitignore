@@ -1,1 +1,4 @@
 *.html
+*.R
+coast_cache/*
+coast_ss_cache/*
