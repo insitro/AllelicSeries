@@ -269,7 +269,7 @@ ASKATSS <- function(
 #'   provided, defaults to the zero vector.
 #' @param pval_weights (3 x 1) vector of relative weights for combining the
 #'   component tests to perform the omnibus test. The default of
-#'   c(1, 1, 2) gives the SKAT test equal weight to the two burden tests. 
+#'   c(0.25, 0.25, 0.50) gives the SKAT test equal weight to the two burden tests. 
 #' @param weights (L x 1) vector of annotation category weights. Note that the
 #'   number of annotation categories L is inferred from the length of `weights`.
 #' @return Numeric p-value.

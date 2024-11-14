@@ -140,5 +140,5 @@ show(results)
 
 * `lambda` is an optional 3 x 1 vector of inflation factors that are applied to the p-values of the `baseline`, `sum_count`, and `allelic_skat` tests *before* the omnibus p-value is calculated. By default, `lambda = c(1, 1, 1)`, which results in no correction. Larger values may be needed, particularly if more-common variants are included. Values less than 1 will be reset to 1.
 
-* `pval_weights` is a 3 x 1 vector specifying the relative weights of the p-values from the `baseline`, `sum_count`, and `allelic_skat` tests when calculating the omnibus p-value. By default, `pval_weights = c(1, 1, 2)`, which gives the allelic SKAT test equal weight to the two burden-type tests (i.e. the baseline and allelic sum tests).
+* `pval_weights` is a 3 x 1 vector specifying the relative weights of the p-values from the `baseline`, `sum_count`, and `allelic_skat` tests when calculating the omnibus p-value. By default, `pval_weights = c(0.25, 0.25, 0.50)`, which gives the allelic SKAT test equal weight to the two burden-type tests (i.e. the baseline and allelic sum tests).
 
