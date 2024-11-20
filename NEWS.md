@@ -1,3 +1,6 @@
+## Version 1.1.1
+* Update COAST to return estimated effect sizes and standard errors from the allelic series burden test.
+
 ## Version 1.1.0
 * Added the ability to run `COAST` and `COASTSS`, as well as the component tests, with an arbitrary number of discrete annotation categories.
 	- The updated code prefers integer annotation category labels starting at 1. However, the main functions will still support 0-indexed category labels.

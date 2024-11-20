@@ -7,3 +7,8 @@ src/*.o
 .venv
 __pycache__
 inst/doc
+vignettes/coast_cache/*
+vignettes/coast_ss_cache/*
+
+
+

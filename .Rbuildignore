@@ -6,4 +6,7 @@ vignettes/.redun
 LICENSE.md
 README
 ^AllelicSeries\.Rproj$
+vignettes/coast_cache/*
+vignettes/coast_ss_cache/*
+
 
