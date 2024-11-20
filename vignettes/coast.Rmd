@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Updated: 2024-11-12
+Updated: 2024-11-20
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -70,7 +70,11 @@ results <- AllelicSeries::COAST(
 show(results)
 ```
 
-The counts data.frame is accessed via:
+The effect sizes data.frame is accessed via:
+```{r}
+results@Betas
+```
+the counts data.frame via:
 ```{r}
 results@Counts
 ```

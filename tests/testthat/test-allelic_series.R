@@ -448,3 +448,56 @@ test_that("Check COAST with different numbers of categories.", {
   
 })
 
+
+# ------------------------------------------------------------------------------
+
+# Slow.
+test_that("Test effect size estimation.", {
+  
+  WrapCOAST <- function(data) {
+    test <- COAST(
+      anno = data$anno,
+      covar = data$covar,
+      geno = data$geno,
+      pheno = data$pheno,
+      apply_int = FALSE
+    )
+    betas <- test@Betas
+    return(betas)
+  }
+  
+  withr::local_seed(104) 
+  z <- stats::qnorm(0.975)
+  
+  # Baseline model.
+  exp <- c(1, 2, 3)
+  data <- DGP(beta = exp, method = "none", n = 1e4)
+  betas <- WrapCOAST(data)
+  obs <- betas$beta[1:3]
+  ses <- betas$se[1:3]
+  lower <- obs - z * ses
+  upper <- obs + z * ses
+  expect_true(all(lower <= exp & exp <= upper))
+  
+  # Allelic sum model.
+  exp <- 1
+  data <- DGP(beta = exp, method = "sum", n = 1e4, weights = c(1, 2, 3))
+  betas <- WrapCOAST(data)
+  obs <- betas$beta[betas$test == "sum_count"]
+  ses <- betas$se[betas$test == "sum_count"]
+  lower <- obs - z * ses
+  upper <- obs + z * ses
+  expect_true(all(lower <= exp & exp <= upper))
+  
+  # Allelic max model.
+  exp <- 1
+  data <- DGP(beta = exp, method = "max", n = 1e4, weights = c(1, 2, 3))
+  betas <- WrapCOAST(data)
+  obs <- betas$beta[betas$test == "max_count"]
+  ses <- betas$se[betas$test == "max_count"]
+  lower <- obs - z * ses
+  upper <- obs + z * ses
+  expect_true(all(lower <= exp & exp <= upper))
+  
+})
+

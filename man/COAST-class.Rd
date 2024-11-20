@@ -10,6 +10,8 @@ Allelic Series Output Class
 \section{Slots}{
 
 \describe{
+\item{\code{Betas}}{Effect sizes and standard errors.}
+
 \item{\code{Counts}}{Allele, variant, and carrier counts.}
 
 \item{\code{Pvals}}{Result p-values.}

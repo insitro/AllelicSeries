@@ -1,6 +1,6 @@
 Package: AllelicSeries
 Title: Allelic Series Test
-Version: 0.1.1.0
+Version: 0.1.1.1
 Authors@R:
     c(person(given = "Zachary",
            family = "McCaw",
@@ -12,6 +12,11 @@ Authors@R:
            email = "cklein@insitro.com",
            role = "ctb",
            comment = c(ORCID = "0000-0002-1748-625X")),
+	person(given = "Thomas",
+           family = "Soare",
+           email = "tsoare@insitro.com",
+           role = "ctb",
+           comment = c(ORCID = "0000-0002-4903-8646")),
 	person(given = "Jianhui",
 	   family = "Gao",
 	   email = "jianhui.gao@mail.utoronto.ca",
