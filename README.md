@@ -1,7 +1,7 @@
 README
 ================
 
-Updated: 2024-11-20
+Updated: 2024-11-21
 
 # Allelic Series
 
@@ -352,6 +352,14 @@ results <- COASTSS(
 show(results)
 ```
 
+    ## Effect Sizes:
+    ##   test beta    se
+    ## 1 base 0.03 0.027
+    ## 2 base 0.07 0.028
+    ## 3 base 0.08 0.062
+    ## 4  sum 0.03 0.011
+    ## 
+    ## 
     ## P-values:
     ##           test   type     pval
     ## 1     baseline burden 2.75e-02

@@ -122,10 +122,13 @@ AnnoMat <- function(anno, n_anno = 3L) {
 #' @param ld (snps x snps) matrix of correlations among the genetic variants.
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param n_anno Number of annotation categories L.
-#' @return Numeric p-value.
+#' @param return_beta Return estimated effect sizes and standard errors?
+#'   Default: FALSE.
+#' @return If `return_beta`, a list containing the category effect sizes,
+#'   standard errors, and the p-value. Otherwise, the numeric p-value only.
 #' @export
-BaselineSS <- function(anno, beta, ld, se, n_anno = 3L) {
-    .Call(`_AllelicSeries_BaselineSS`, anno, beta, ld, se, n_anno)
+BaselineSS <- function(anno, beta, ld, se, n_anno = 3L, return_beta = FALSE) {
+    .Call(`_AllelicSeries_BaselineSS`, anno, beta, ld, se, n_anno, return_beta)
 }
 
 #' Allelic Sum Test from Sumstats
@@ -138,9 +141,12 @@ BaselineSS <- function(anno, beta, ld, se, n_anno = 3L) {
 #' @param se (snps x 1) vector of standard errors for the effect sizes.
 #' @param weights (L x 1) vector of annotation category weights. Note that the
 #'   number of annotation categories L is inferred from the length of `weights`.
-#' @return Numeric p-value.
+#' @param return_beta Return estimated effect sizes and standard errors?
+#'   Default: FALSE.
+#' @return If `return_beta`, a list containing the category effect sizes,
+#'   standard errors, and the p-value. Otherwise, the numeric p-value only.
 #' @export
-SumCountSS <- function(anno, beta, ld, se, weights) {
-    .Call(`_AllelicSeries_SumCountSS`, anno, beta, ld, se, weights)
+SumCountSS <- function(anno, beta, ld, se, weights, return_beta = FALSE) {
+    .Call(`_AllelicSeries_SumCountSS`, anno, beta, ld, se, weights, return_beta)
 }
 

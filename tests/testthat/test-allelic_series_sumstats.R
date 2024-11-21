@@ -307,3 +307,59 @@ test_that("Check COASTSS with different numbers of categories.", {
   
 })
 
+# ------------------------------------------------------------------------------
+
+# Slow.
+test_that("Test effect size estimation from sumstats.", {
+  
+  WrapCOASTSS <- function(data) {
+    ss <- CalcSumstats(data = data)
+    test <- COASTSS(
+      anno = ss$sumstats$anno,
+      beta = ss$sumstats$beta,
+      se = ss$sumstats$se,
+      ld = ss$ld,
+      maf = ss$sumstats$maf,
+      weights = c(1, 2, 3, 4)
+    )
+    betas <- test@Betas
+    return(betas)
+  }
+  
+  withr::local_seed(104) 
+  z <- stats::qnorm(0.975)
+  
+  # Baseline model.
+  exp <- c(1, 2, 3, 4)
+  data <- DGP(
+    beta = exp, 
+    method = "none", 
+    n = 1e4,
+    prop_anno = c(0.25, 0.25, 0.25, 0.25),
+    weights = c(1, 1, 1, 1)
+  )
+  betas <- WrapCOASTSS(data)
+  obs <- betas$beta[1:4]
+  ses <- betas$se[1:4]
+  lower <- obs - z * ses
+  upper <- obs + z * ses
+  expect_true(all(lower <= exp & exp <= upper))
+  
+  # Allelic sum model.
+  exp <- 1
+  data <- DGP(
+    beta = exp, 
+    method = "sum", 
+    n = 1e4,
+    prop_anno = c(0.25, 0.25, 0.25, 0.25),
+    weights = c(1, 2, 3, 4)
+  )
+  betas <- WrapCOASTSS(data)
+  obs <- betas$beta[betas$test == "sum"]
+  ses <- betas$se[betas$test == "sum"]
+  lower <- obs - z * ses
+  upper <- obs + z * ses
+  expect_true(all(lower <= exp & exp <= upper))
+  
+})
+

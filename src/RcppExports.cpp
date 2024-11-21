@@ -136,8 +136,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // BaselineSS
-SEXP BaselineSS(const arma::colvec& anno, const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se, const int n_anno);
-RcppExport SEXP _AllelicSeries_BaselineSS(SEXP annoSEXP, SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP, SEXP n_annoSEXP) {
+SEXP BaselineSS(const arma::colvec& anno, const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se, const int n_anno, const bool return_beta);
+RcppExport SEXP _AllelicSeries_BaselineSS(SEXP annoSEXP, SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP, SEXP n_annoSEXP, SEXP return_betaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -146,13 +146,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
     Rcpp::traits::input_parameter< const int >::type n_anno(n_annoSEXP);
-    rcpp_result_gen = Rcpp::wrap(BaselineSS(anno, beta, ld, se, n_anno));
+    Rcpp::traits::input_parameter< const bool >::type return_beta(return_betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(BaselineSS(anno, beta, ld, se, n_anno, return_beta));
     return rcpp_result_gen;
 END_RCPP
 }
 // SumCountSS
-SEXP SumCountSS(const arma::colvec& anno, const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se, const arma::colvec& weights);
-RcppExport SEXP _AllelicSeries_SumCountSS(SEXP annoSEXP, SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP, SEXP weightsSEXP) {
+SEXP SumCountSS(const arma::colvec& anno, const arma::colvec& beta, const arma::mat& ld, const arma::colvec& se, const arma::colvec& weights, const bool return_beta);
+RcppExport SEXP _AllelicSeries_SumCountSS(SEXP annoSEXP, SEXP betaSEXP, SEXP ldSEXP, SEXP seSEXP, SEXP weightsSEXP, SEXP return_betaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -161,7 +162,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type ld(ldSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type se(seSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type weights(weightsSEXP);
-    rcpp_result_gen = Rcpp::wrap(SumCountSS(anno, beta, ld, se, weights));
+    Rcpp::traits::input_parameter< const bool >::type return_beta(return_betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(SumCountSS(anno, beta, ld, se, weights, return_beta));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -177,8 +179,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_AllelicSeries_CorCpp", (DL_FUNC) &_AllelicSeries_CorCpp, 1},
     {"_AllelicSeries_isPD", (DL_FUNC) &_AllelicSeries_isPD, 3},
     {"_AllelicSeries_AnnoMat", (DL_FUNC) &_AllelicSeries_AnnoMat, 2},
-    {"_AllelicSeries_BaselineSS", (DL_FUNC) &_AllelicSeries_BaselineSS, 5},
-    {"_AllelicSeries_SumCountSS", (DL_FUNC) &_AllelicSeries_SumCountSS, 5},
+    {"_AllelicSeries_BaselineSS", (DL_FUNC) &_AllelicSeries_BaselineSS, 6},
+    {"_AllelicSeries_SumCountSS", (DL_FUNC) &_AllelicSeries_SumCountSS, 6},
     {NULL, NULL, 0}
 };
 

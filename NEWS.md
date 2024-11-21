@@ -1,5 +1,5 @@
 ## Version 1.1.1
-* Update COAST to return estimated effect sizes and standard errors from the allelic series burden test.
+* Updated `COAST` and `COASTSS` to return estimated effect sizes and standard errors from the allelic series burden test.
 
 ## Version 1.1.0
 * Added the ability to run `COAST` and `COASTSS`, as well as the component tests, with an arbitrary number of discrete annotation categories.

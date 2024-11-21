@@ -391,8 +391,8 @@ ASKAT <- function(
 #'   Wald test.
 #' @param weights (L x 1) vector of annotation category weights. Note that the
 #'   number of annotation categories L is inferred from the length of `weights`.
-#' @return An object of class `COAST` with slots for variant counts, effect
-#'   sizes, and p-values.
+#' @return An object of class `COAST` with slots for effect sizes, variant 
+#'   counts, and p-values.
 #' @examples 
 #' # Generate data.
 #' data <- DGP(n = 1e3, snps = 1e2)
