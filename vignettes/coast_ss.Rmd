@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Updated: 2024-11-13
+Updated: 2024-11-21
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(

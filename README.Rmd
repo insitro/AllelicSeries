@@ -7,7 +7,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Updated: 2024-11-13
+Updated: 2024-11-21
 
 # Allelic Series
 
@@ -88,7 +88,11 @@ The function `COAST` performs the coding-variant allelic series test. The requir
 show(results)
 ```
 
-By default, the output of `COAST` includes a data.frame of counts showing the number of alleles, variants, and carriers in each class that contributed to the test, and a data.frame of p-values, with the `omni` test denoting the final, overall p-value. The counts data.frame is accessed via:
+By default, the output of `COAST` includes a data.frame of estimated effect sizes from the burden tests, a data frame of counts showing the number of alleles, variants, and carriers in each class that contributed to the test, and a data.frame of p-values, with the `omni` test denoting the final, overall p-value. The effect sizes data.frame is accessed via:
+```{r}
+results@Betas
+```
+the counts data.frame is accessed via:
 ```{r}
 results@Counts
 ```

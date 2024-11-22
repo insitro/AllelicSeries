@@ -84,7 +84,10 @@ arma::mat AnnoMat(
 //' @param ld (snps x snps) matrix of correlations among the genetic variants.
 //' @param se (snps x 1) vector of standard errors for the effect sizes.
 //' @param n_anno Number of annotation categories L.
-//' @return Numeric p-value.
+//' @param return_beta Return estimated effect sizes and standard errors?
+//'   Default: FALSE.
+//' @return If `return_beta`, a list containing the category effect sizes,
+//'   standard errors, and the p-value. Otherwise, the numeric p-value only.
 //' @export
 // [[Rcpp::export]]
 SEXP BaselineSS(
@@ -92,7 +95,8 @@ SEXP BaselineSS(
   const arma::colvec &beta,
   const arma::mat &ld,
   const arma::colvec &se,
-  const int n_anno = 3
+  const int n_anno = 3,
+  const bool return_beta = false
 ){
 
   // Filter to require non-zero standard error.
@@ -123,7 +127,20 @@ SEXP BaselineSS(
   int df = u.n_elem;
   Rcpp::Environment base("package:stats");
   Rcpp::Function pchisq = base["pchisq"]; 
-  return pchisq(Rcpp::_["q"]=tstat, Rcpp::_["df"]=df, Rcpp::_["lower.tail"]=false);
+  SEXP pval = pchisq(Rcpp::_["q"]=tstat, Rcpp::_["df"]=df, Rcpp::_["lower.tail"]=false);
+
+  if (!return_beta) {return pval;};
+
+  // Calculate betas and standard errors.
+  const arma::colvec beta_hat = inv_cov * u;
+  const arma::colvec beta_hat_se = arma::sqrt(arma::diagvec(inv_cov));
+  
+  // Output.
+  return Rcpp::List::create(
+    Rcpp::Named("beta") = beta_hat,
+    Rcpp::Named("se") = beta_hat_se,
+    Rcpp::Named("pval") = pval
+  );
 };
 
 
@@ -137,7 +154,10 @@ SEXP BaselineSS(
 //' @param se (snps x 1) vector of standard errors for the effect sizes.
 //' @param weights (L x 1) vector of annotation category weights. Note that the
 //'   number of annotation categories L is inferred from the length of `weights`.
-//' @return Numeric p-value.
+//' @param return_beta Return estimated effect sizes and standard errors?
+//'   Default: FALSE.
+//' @return If `return_beta`, a list containing the category effect sizes,
+//'   standard errors, and the p-value. Otherwise, the numeric p-value only.
 //' @export
 // [[Rcpp::export]]
 SEXP SumCountSS(
@@ -145,7 +165,8 @@ SEXP SumCountSS(
   const arma::colvec &beta,
   const arma::mat &ld,
   const arma::colvec &se,
-  const arma::colvec &weights
+  const arma::colvec &weights,
+  const bool return_beta = false
 ){
 
   // Alias.
@@ -180,5 +201,19 @@ SEXP SumCountSS(
   int df = u.n_elem;
   Rcpp::Environment base("package:stats");
   Rcpp::Function pchisq = base["pchisq"]; 
-  return pchisq(Rcpp::_["q"]=tstat, Rcpp::_["df"]=df, Rcpp::_["lower.tail"]=false);
+  SEXP pval = pchisq(Rcpp::_["q"]=tstat, Rcpp::_["df"]=df, Rcpp::_["lower.tail"]=false);
+
+  if (!return_beta) {return pval;};
+
+  // Calculate betas and standard errors.
+  const arma::colvec beta_hat = inv_cov * u;
+  const arma::colvec beta_hat_se = arma::sqrt(arma::diagvec(inv_cov));
+  
+  // Output.
+  return Rcpp::List::create(
+    Rcpp::Named("beta") = beta_hat,
+    Rcpp::Named("se") = beta_hat_se,
+    Rcpp::Named("pval") = pval
+  );
+
 };

@@ -1,7 +1,7 @@
 README
 ================
 
-Updated: 2024-11-13
+Updated: 2024-11-21
 
 # Allelic Series
 
@@ -130,6 +130,20 @@ per-variant genotype matrix, and the phenotype vector.
 show(results)
 ```
 
+    ## Effect Sizes:
+    ##         test beta    se
+    ## 1       base 0.03 0.027
+    ## 2       base 0.07 0.028
+    ## 3       base 0.07 0.062
+    ## 4        ind 0.01 0.048
+    ## 5        ind 0.16 0.048
+    ## 6        ind 0.05 0.068
+    ## 7  max_count 0.03 0.015
+    ## 8    max_ind 0.07 0.025
+    ## 9  sum_count 0.03 0.010
+    ## 10   sum_ind 0.04 0.016
+    ## 
+    ## 
     ## Counts:
     ##   anno alleles variants carriers
     ## 1    1     834      148      574
@@ -148,11 +162,29 @@ show(results)
     ## 7 allelic_skat   skat 3.38e-03
     ## 8         omni   omni 4.36e-03
 
-By default, the output of `COAST` includes a data.frame of counts
-showing the number of alleles, variants, and carriers in each class that
-contributed to the test, and a data.frame of p-values, with the `omni`
-test denoting the final, overall p-value. The counts data.frame is
-accessed via:
+By default, the output of `COAST` includes a data.frame of estimated
+effect sizes from the burden tests, a data frame of counts showing the
+number of alleles, variants, and carriers in each class that contributed
+to the test, and a data.frame of p-values, with the `omni` test denoting
+the final, overall p-value. The effect sizes data.frame is accessed via:
+
+``` r
+results@Betas
+```
+
+    ##         test        beta         se
+    ## 1       base 0.029482960 0.02667753
+    ## 2       base 0.070413431 0.02760127
+    ## 3       base 0.073294520 0.06157383
+    ## 4        ind 0.007297359 0.04823273
+    ## 5        ind 0.163297146 0.04755333
+    ## 6        ind 0.054511276 0.06780962
+    ## 7  max_count 0.034206336 0.01508838
+    ## 8    max_ind 0.066202953 0.02532496
+    ## 9  sum_count 0.031465473 0.01045514
+    ## 10   sum_ind 0.044181239 0.01551063
+
+the counts data.frame is accessed via:
 
 ``` r
 results@Counts
@@ -217,6 +249,22 @@ results <- COAST(
 show(results)
 ```
 
+    ## Effect Sizes:
+    ##         test  beta    se
+    ## 1       base  0.01 0.065
+    ## 2       base  0.23 0.062
+    ## 3       base  0.19 0.096
+    ## 4       base  0.61 0.116
+    ## 5        ind -0.10 0.253
+    ## 6        ind  0.53 0.205
+    ## 7        ind  0.31 0.169
+    ## 8        ind  0.96 0.186
+    ## 9  max_count  0.18 0.035
+    ## 10   max_ind  0.47 0.090
+    ## 11 sum_count  0.11 0.018
+    ## 12   sum_ind  0.19 0.035
+    ## 
+    ## 
     ## Counts:
     ##   anno alleles variants carriers
     ## 1    1     194      169       86
@@ -304,6 +352,14 @@ results <- COASTSS(
 show(results)
 ```
 
+    ## Effect Sizes:
+    ##   test beta    se
+    ## 1 base 0.03 0.027
+    ## 2 base 0.07 0.028
+    ## 3 base 0.08 0.062
+    ## 4  sum 0.03 0.011
+    ## 
+    ## 
     ## P-values:
     ##           test   type     pval
     ## 1     baseline burden 2.75e-02

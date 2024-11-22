@@ -14,6 +14,7 @@ ASBT(
   is_pheno_binary = FALSE,
   method = "none",
   min_mac = 0,
+  return_beta = FALSE,
   score_test = FALSE,
   weights = c(1, 2, 3)
 )
@@ -40,13 +41,17 @@ Default: TRUE. Ignored if phenotype is binary.}
 
 \item{min_mac}{Minimum minor allele count for inclusion. Default: 0.}
 
+\item{return_beta}{Return the estimated effect size? Default: FALSE.}
+
 \item{score_test}{Run a score test? If FALSE, performs a Wald test.}
 
 \item{weights}{(L x 1) vector of annotation category weights. Note that the
 number of annotation categories L is inferred from the length of \code{weights}.}
 }
 \value{
-Numeric p-value.
+If \code{return_beta = TRUE}, a list of including the effect size
+data.frame "betas" and the p-value "pval". If \code{return_beta = FALSE},
+a numeric p-value.
 }
 \description{
 Burden test with allelic series weights.

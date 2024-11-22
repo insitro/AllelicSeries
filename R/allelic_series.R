@@ -1,5 +1,5 @@
 # Purpose: Allelic series test.
-# Updated: 2024-11-11
+# Updated: 2024-11-20
 
 #' Aggregator
 #'
@@ -115,10 +115,13 @@ Aggregator <- function(
 #' @param method Method for aggregating across categories: ("none", "max",
 #'   "sum"). Default: "none".
 #' @param min_mac Minimum minor allele count for inclusion. Default: 0. 
+#' @param return_beta Return the estimated effect size? Default: FALSE.
 #' @param score_test Run a score test? If FALSE, performs a Wald test.
 #' @param weights (L x 1) vector of annotation category weights. Note that the
 #'   number of annotation categories L is inferred from the length of `weights`.
-#' @return Numeric p-value.
+#' @return If `return_beta = TRUE`, a list of including the effect size
+#'   data.frame "betas" and the p-value "pval". If `return_beta = FALSE`, 
+#'   a numeric p-value.
 #' @examples 
 #' # Generate data.
 #' data <- DGP(n = 1e3, snps = 1e2)
@@ -142,6 +145,7 @@ ASBT <- function(
   is_pheno_binary = FALSE,
   method = "none",
   min_mac = 0,
+  return_beta = FALSE,
   score_test = FALSE,
   weights = c(1, 2, 3)
 ) {
@@ -195,12 +199,23 @@ ASBT <- function(
 
   # Association test.
   if (is_pheno_binary) {
-    pval <- LogisticLRT(y = y, g = agg_geno, x = covar)
+    out <- LogisticLRT(
+      y = y, 
+      g = agg_geno, 
+      x = covar,
+      return_beta = return_beta
+    )
   } else {
-    pval <- LinearTest(y = y, g = agg_geno, x = covar, score_test = score_test)
+    out <- LinearTest(
+      y = y, 
+      g = agg_geno, 
+      x = covar, 
+      return_beta = return_beta,
+      score_test = score_test
+    )
   }
   
-  return(pval)
+  return(out)
 }
 
 
@@ -346,7 +361,6 @@ ASKAT <- function(
 
 # -----------------------------------------------------------------------------
 
-
 #' COding-variant Allelic Series Test
 #'
 #' Main allelic series test. Performs both Burden and SKAT type tests, then
@@ -377,7 +391,8 @@ ASKAT <- function(
 #'   Wald test.
 #' @param weights (L x 1) vector of annotation category weights. Note that the
 #'   number of annotation categories L is inferred from the length of `weights`.
-#' @return Numeric p-value.
+#' @return An object of class `COAST` with slots for effect sizes, variant 
+#'   counts, and p-values.
 #' @examples 
 #' # Generate data.
 #' data <- DGP(n = 1e3, snps = 1e2)
@@ -442,6 +457,7 @@ COAST <- function(
       apply_int = apply_int,
       min_mac = min_mac,
       is_pheno_binary = is_pheno_binary,
+      return_beta = TRUE,
       score_test = score_test,
       ...
     )
@@ -451,35 +467,37 @@ COAST <- function(
   # Burden tests.
   n_anno <- length(weights)
   unif_weights <- rep(1, n_anno)
-  p_base <- BurdenWrap(
+  
+  burden_results <- list()
+  burden_results$base <- BurdenWrap(
     indicator = FALSE, method = "none", weights = unif_weights)
 
   # Case of no non-zero variant classes.
-  if (is.na(p_base)) {return(NA)}
+  if (is.na(burden_results$base$pval)) {return(NA)}
 
-  p_ind <- BurdenWrap(
+  burden_results$ind <- BurdenWrap(
     indicator = TRUE, method = "none", weights = unif_weights)
 
-  p_max_count <- BurdenWrap(
+  burden_results$max_count <- BurdenWrap(
     indicator = FALSE, method = "max", weights = weights)
 
-  p_max_ind <- BurdenWrap(
+  burden_results$max_ind <- BurdenWrap(
     indicator = TRUE, method = "max", weights = weights)
 
-  p_sum_count <- BurdenWrap(
+  burden_results$sum_count <- BurdenWrap(
     indicator = FALSE, method = "sum", weights = weights)
 
-  p_sum_ind <- BurdenWrap(
+  burden_results$sum_ind <- BurdenWrap(
     indicator = TRUE, method = "sum", weights = weights)
 
   # Collect p-values.
   p_burden <- c(
-    baseline = p_base,
-    ind = p_ind,
-    max_count = p_max_count,
-    max_ind = p_max_ind,
-    sum_count = p_sum_count,
-    sum_ind = p_sum_ind
+    baseline = burden_results$base$pval,
+    ind = burden_results$ind$pval,
+    max_count = burden_results$max_count$pval,
+    max_ind = burden_results$max_ind$pval,
+    sum_count = burden_results$sum_count$pval,
+    sum_ind = burden_results$sum_ind$pval
   )
 
   # SKAT tests.
@@ -555,9 +573,20 @@ COAST <- function(
     min_mac = min_mac
   )
   
+  # Format betas.
+  burden_labs <- names(burden_results)
+  betas <- lapply(burden_labs, function(lab) {
+    out <- burden_results[[lab]]$betas
+    out$test <- lab
+    out <- out[, c("test", "beta", "se")]
+    return(out)
+  })
+  betas <- do.call(rbind, betas)
+  
   # Output.
   out <- methods::new(
     Class = "COAST",
+    Betas = betas,
     Counts = counts,
     Pvals = df_pvals
   )

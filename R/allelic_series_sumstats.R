@@ -22,9 +22,12 @@
 #'   Although ideally provided, an identity matrix is assumed if not.
 #' @param method Method for aggregating across categories:
 #'   ("none", "sum"). Default: "none".
+#' @param return_beta Return the estimated effect size? Default: FALSE.
 #' @param weights (L x 1) vector of annotation category weights. Note that the
 #'   number of annotation categories L is inferred from the length of `weights`.
-#' @return Numeric p-value of the allelic series burden test.
+#' @return If `return_beta = TRUE`, a list of including the effect size
+#'   data.frame "betas" and the p-value "pval". If `return_beta = FALSE`, 
+#'   a numeric p-value.
 #' @examples
 #' # Generate data.
 #' data <- DGP(n = 1e3)
@@ -48,6 +51,7 @@ ASBTSS <- function(
   lambda = 1,
   ld = NULL,
   method = "none",
+  return_beta = FALSE,
   weights = c(1, 2, 3)
 ){
   
@@ -79,22 +83,24 @@ ASBTSS <- function(
   # Run burden test.
   if (method == "none") {
     
-    pval <- BaselineSS(
+    results <- BaselineSS(
       anno = anno,
       beta = beta,
       ld = ld,
       se = se,
-      n_anno = n_anno
+      n_anno = n_anno,
+      return_beta = TRUE
     )
     
   } else if (method == "sum") {
     
-    pval <- SumCountSS(
+    results <- SumCountSS(
       anno = anno,
       beta = beta,
       ld = ld,
       se = se,
-      weights = weights
+      weights = weights,
+      return_beta = TRUE
     )
     
   } else {
@@ -102,11 +108,27 @@ ASBTSS <- function(
     stop("Select method from among 'none' or 'sum'.")
     
   }
-  
+
   # Apply genomic control.
   lambda <- max(1, lambda)
+  pval <- results$pval
   pval <- GenomicControl(lambda = lambda, pval = pval)
-  return(pval)
+  
+  # Output.
+  if (return_beta) {
+    effects <- data.frame(
+      beta = results$beta,
+      se = results$se
+    )
+    out <- list(
+      betas = effects,
+      pval = pval
+    )
+  } else {
+    out <- pval
+  }
+  
+  return(out)
 }
 
 
@@ -321,7 +343,9 @@ COASTSS <- function(
   # Baseline model p-value.
   n_anno <- length(weights)
   unif_weights <- rep(1, n_anno)
-  p_base <- ASBTSS(
+  burden_results <- list()
+  
+  burden_results$base <- ASBTSS(
     anno = anno,
     beta = beta,
     se = se,
@@ -329,11 +353,13 @@ COASTSS <- function(
     eps = eps,
     ld = ld,
     method = "none",
+    return_beta = TRUE,
     weights = unif_weights
   )
+  p_base <- burden_results$base$pval
     
   # Sum model p-value.
-  p_burden <- ASBTSS(
+  burden_results$sum <- ASBTSS(
     anno = anno,
     beta = beta,
     se = se,
@@ -341,8 +367,10 @@ COASTSS <- function(
     eps = eps,
     ld = ld,
     method = "sum",
+    return_beta = TRUE,
     weights = weights
   )
+  p_burden <- burden_results$sum$pval
   
   # SKAT model p-value.
   p_skat <- tryCatch({
@@ -371,16 +399,27 @@ COASTSS <- function(
   key <- sapply(pvals, function(x) {!is.na(x)})
   p_omni <- RNOmni::OmniP(pvals[key], pval_weights[key])
   
-  # Output.
+  # P-values.
   df_pvals <- data.frame(
     test = c("baseline", "sum_count", "allelic_skat", "omni"),
     type = c("burden", "burden", "skat", "omni"),
     pval = c(pvals, p_omni)
   )
   
+  # Format betas.
+  burden_labs <- names(burden_results)
+  betas <- lapply(burden_labs, function(lab) {
+    out <- burden_results[[lab]]$betas
+    out$test <- lab
+    out <- out[, c("test", "beta", "se")]
+    return(out)
+  })
+  betas <- do.call(rbind, betas)
+  
   # Output.
   out <- methods::new(
     Class = "COAST",
+    Betas = betas,
     Counts = NULL,
     Pvals = df_pvals
   )

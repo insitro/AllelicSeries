@@ -62,7 +62,8 @@ Wald test.}
 number of annotation categories L is inferred from the length of \code{weights}.}
 }
 \value{
-Numeric p-value.
+An object of class \code{COAST} with slots for effect sizes, variant
+counts, and p-values.
 }
 \description{
 Main allelic series test. Performs both Burden and SKAT type tests, then

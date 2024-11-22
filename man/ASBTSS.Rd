@@ -13,6 +13,7 @@ ASBTSS(
   lambda = 1,
   ld = NULL,
   method = "none",
+  return_beta = FALSE,
   weights = c(1, 2, 3)
 )
 }
@@ -39,11 +40,15 @@ Although ideally provided, an identity matrix is assumed if not.}
 \item{method}{Method for aggregating across categories:
 ("none", "sum"). Default: "none".}
 
+\item{return_beta}{Return the estimated effect size? Default: FALSE.}
+
 \item{weights}{(L x 1) vector of annotation category weights. Note that the
 number of annotation categories L is inferred from the length of \code{weights}.}
 }
 \value{
-Numeric p-value of the allelic series burden test.
+If \code{return_beta = TRUE}, a list of including the effect size
+data.frame "betas" and the p-value "pval". If \code{return_beta = FALSE},
+a numeric p-value.
 }
 \description{
 Allelic series burden test from summary statistics.

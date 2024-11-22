@@ -1,5 +1,5 @@
 # Purpose: Output class.
-# Updated: 2024-07-31
+# Updated: 2024-11-20
 
 #' Data.frame or Null Class
 #' 
@@ -12,6 +12,7 @@ setClassUnion("DfOrNULL", members = c("data.frame", "NULL"))
 
 #' Allelic Series Output Class
 #' 
+#' @slot Betas Effect sizes and standard errors.
 #' @slot Counts Allele, variant, and carrier counts.
 #' @slot Pvals Result p-values.
 #' @name COAST-class
@@ -20,6 +21,7 @@ setClassUnion("DfOrNULL", members = c("data.frame", "NULL"))
 setClass(
   Class = "COAST",
   representation = representation(
+    Betas = "DfOrNULL",
     Counts = "DfOrNULL",
     Pvals = "data.frame"
   )
@@ -34,6 +36,16 @@ setClass(
 #' @param ... Unused.
 #' @export
 print.COAST <- function(x, ...) {
+
+  # Betas
+  if (!is.null(x@Betas)) {
+    cat("Effect Sizes:\n")
+    betas <- x@Betas
+    betas$beta <- formatC(betas$beta, format = "f", digits = 2)
+    betas$se <- formatC(betas$se, format = "f", digits = 3)
+    show(betas)
+    cat("\n\n")
+  }
   
   # Counts.
   if (!is.null(x@Counts)) {
@@ -63,5 +75,4 @@ setMethod(
     print.COAST(x = object)
   }
 )
-
 
