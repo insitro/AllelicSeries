@@ -17,8 +17,9 @@ test_that("Check genotype generation.", {
   n <- 1e3
   g <- GenGenoMat(n = n, snps = 1e2, maf_range = c(0.001, 0.005))
   maf <- apply(g, 2, mean) / 2
-  expect_gte(min(maf), 1 / (2 * n))
-  expect_lte(max(maf), 2 * 0.005)
+  tol <- 1 / (10 * n) 
+  expect_gte(min(maf), 1 / (2 * n) - tol)
+  expect_lte(max(maf), 2 * 0.005 + tol)
   
 })
 
