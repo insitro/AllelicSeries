@@ -71,3 +71,27 @@ test_that("Test variant collapsing with MACs of 0.", {
   
 })
 
+
+test_that("Test variant collapsing with dosage genotypes.", {
+  
+  # Variants 1 and 2 are collapsed, variant 3 is "collapsed" with itself.
+  # Variants 4, 5, 6 are unchanged.
+  geno <- array(0, dim = c(100, 6))
+  anno <- rep(c(1, 2, 3), each = 2)
+  colnames(geno) <- paste0("rs", seq_len(6))
+  for(i in 1:6) {
+    geno[1:(2 * i), i] <- 0.5
+  }
+  out <- CollapseGeno(anno = anno, geno = geno, min_mac = 3.5)
+
+  exp <- cbind(
+    geno[, 1] + geno[, 2], 
+    geno[, 4], geno[, 3], geno[, 5], geno[, 6]
+  )
+  colnames(exp) <- c("agg1", "rs4", "agg2", "rs5", "rs6")
+  expect_equal(out$geno, exp)
+  exp <- c("rs1;rs2", "rs3", "")
+  expect_equal(out$vars$vars, exp)
+  
+})
+

@@ -513,13 +513,23 @@ test_that("Test COAST runs with dosage genotypes.", {
   draw <- sort(sample(length(geno), size = 250, replace = FALSE))
   geno[draw] <- NA
   
+  # Expect error if COAST is run with missing genotypes.
+  expect_error(
+    COAST(
+      anno = data$anno,
+      geno = geno,
+      pheno = data$pheno,
+      covar = data$covar
+    )
+  )
+  
   # Impute.
   geno <- apply(geno, 2, function(x) {
     x[is.na(x)] <- mean(x, na.rm = TRUE)
     return(x)
   })
   
-  # COAST.
+  # Expect no error if missing genotypes are mean-imputed.
   expect_error(
     COAST(
       anno = data$anno,

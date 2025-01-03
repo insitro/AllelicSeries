@@ -25,5 +25,7 @@ were collapsed within each annotation category.
 \description{
 Collapse variants with minor allele counts below the \code{min_mac} threshold
 into an aggregated variant, separately within each variant category. Note
-that the ordering of the variants will change.
+that the ordering of the variants will change, and that collapsing does not
+guarantee that the resulting aggregate aggregate variant will itself have a
+MAC greater than or equal to \code{min_mac}.
 }
