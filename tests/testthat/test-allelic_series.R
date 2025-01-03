@@ -451,7 +451,6 @@ test_that("Check COAST with different numbers of categories.", {
 
 # ------------------------------------------------------------------------------
 
-# Slow.
 test_that("Test effect size estimation.", {
   
   WrapCOAST <- function(data) {
@@ -501,3 +500,33 @@ test_that("Test effect size estimation.", {
   
 })
 
+
+# ------------------------------------------------------------------------------
+
+test_that("Test COAST runs with dosage genotypes.", {
+  
+  withr::local_seed(105) 
+  data <- DGP()
+  geno <- data$geno
+  
+  # Introduce missingness.
+  draw <- sort(sample(length(geno), size = 250, replace = FALSE))
+  geno[draw] <- NA
+  
+  # Impute.
+  geno <- apply(geno, 2, function(x) {
+    x[is.na(x)] <- mean(x, na.rm = TRUE)
+    return(x)
+  })
+  
+  # COAST.
+  expect_error(
+    COAST(
+      anno = data$anno,
+      geno = geno,
+      pheno = data$pheno,
+      covar = data$covar
+    ), NA
+  )
+  
+})
