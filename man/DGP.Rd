@@ -83,4 +83,11 @@ table(data$anno)
 head(data$covar)
 head(data$geno[, 1:5])
 hist(data$pheno)
+
+# Generate data with L != 3 categories.
+data <- DGP(
+  beta = c(1, 2, 3, 4),
+  prop_anno = c(0.25, 0.25, 0.25, 0.25),
+  weights = c(1, 1, 1, 1)
+)
 }

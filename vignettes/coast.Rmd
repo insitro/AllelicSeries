@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Updated: 2024-11-20
+Updated: 2025-01-02
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -83,12 +83,54 @@ and the p-values data.frame via:
 results@Pvals
 ```
 
+### Ultra-rare variants
+
+Effect size estimation for ultra-rare variants is challenging due to the scarcity of carriers on which to base the estimate. Following works such as [SAIGE-GENE+](https://pmc.ncbi.nlm.nih.gov/articles/PMC9534766/), we recommend collapsing variants with a minor allele count (MAC) $\leq 10$ into an aggregate variant, separately within each annotation category. The `CollapseGeno` utility is provided for this purpose. The `min_mac` specifies the threshold for retention as an individual variant (e.g. `min_mac = 11` will collapse variants with a MAC $\leq 10$). The output is a list containing the annotation vector `anno` and genotype matrix `geno` after collapsing. In addition, a mapping `vars` is provided showing which variants were collapsed to create each aggregate variant. Note that: 
+
+* `CollapseGeno` will change the order of the variants in the genotype matrix.
+
+* No aggregate variant will be created within annotation categories where no variants have a MAC below the threshold. 
+
+* Collapsing ultra-rare variants does not guarantee that the resulting aggregate variant will itself have a MAC $\geq$ the threshold. To ensure that only variants with a minimum MAC enter the association test, a `min_mac` threshold should also be supplied to `COAST`. 
+
+```{r}
+set.seed(102)
+
+# Generate data.
+n <- 1e3
+data <- AllelicSeries::DGP(
+  n = n,
+  snps = 10,
+  prop_anno = c(1, 1, 1) / 3
+)
+
+# Collapse ultra-rare variants.
+collapsed <- AllelicSeries::CollapseGeno(
+  anno = data$anno, 
+  geno = data$geno,
+  min_mac = 11
+)
+
+# Variants collapsed to form each aggregate variant.
+head(collapsed$vars)
+```
+```{r, eval=FALSE}
+# Run COAST on the collapsed data.
+results <- AllelicSeries::COAST(
+  anno = collapsed$anno,
+  covar = data$covar,
+  geno = collapsed$geno,
+  pheno = data$pheno,
+  min_mac = 10
+)
+```
+
 ### Different numbers of annotation categories
 
 `COAST` was originally intended to operate on the benign missense variants, damaging missense variants, and protein truncating variants within a gene, but it has been generalized to allow for an arbitrary number of discrete annotation categories. The following example simulates and analyzes data with 4 annotation categories. The main difference when analyzing a different number of annotation categories is that the `weight` vector should be specified, and should have length equal to the number of *possible* annotation categories. `COAST` will run, albeit with a warning, if there are possible annotation categories to which no variants are assigned (e.g. a gene contains no PTVs). 
 
 ```{r, cache=TRUE}
-withr::local_seed(102)
+set.seed(102)
 
 # Generate data.
 n <- 1e2
