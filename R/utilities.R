@@ -6,7 +6,7 @@
 #' Collapse variants with minor allele counts below the `min_mac` threshold
 #' into an aggregated variant, separately within each variant category. Note 
 #' that the ordering of the variants will change, and that collapsing does not
-#' guarantee that the resulting aggregate aggregate variant will itself have a 
+#' guarantee that the resulting aggregate variant will itself have a 
 #' MAC greater than or equal to `min_mac`.
 #' 
 #' @param anno (snps x 1) annotation vector with integer values in 1 through
