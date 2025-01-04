@@ -82,6 +82,12 @@ GenGeno <- function(
 ) {
   geno <- GenGenoMat(n = n, snps = snps, maf_range = maf_range)
   anno <- GenAnno(snps = snps, prop_anno = prop_anno)
+  
+  # Add variant names.
+  var_names <- paste0("rs", seq_len(snps))
+  colnames(geno) <- var_names
+  names(anno) <- var_names
+  
   out <- list(
     anno = anno,
     geno = geno
@@ -386,6 +392,13 @@ GenPheno <- function(
 #' head(data$covar)
 #' head(data$geno[, 1:5])
 #' hist(data$pheno)
+#' 
+#' # Generate data with L != 3 categories.
+#' data <- DGP(
+#'   beta = c(1, 2, 3, 4),
+#'   prop_anno = c(0.25, 0.25, 0.25, 0.25),
+#'   weights = c(1, 1, 1, 1)
+#' )
 #' @export
 DGP <- function(
   anno = NULL,
