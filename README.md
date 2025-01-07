@@ -29,10 +29,10 @@ function, high-confidence loss of function. For additional details, see:
   association test for candidate-gene discovery”
   [doi:10.1016/j.ajhg.2023.07.001](https://www.cell.com/ajhg/fulltext/S0002-9297(23)00241-0).
 
-- McCaw ZR, Gao J, Dey R, Research Team insitro, Fox E, O’Dushlaine C,
-  Soare TW. (2024) “Extending the Coding-variant Allelic Series Test to
-  Summary Statistics”
-  [doi:10.1101/2024.10.31.621375](https://www.biorxiv.org/content/10.1101/2024.10.31.621375v1).
+- McCaw ZR, Gao J, Dey R, Tucker S, Zhang Y, Research Team insitro,
+  Gronsbell J, Li X, Fox E, O’Dushlaine C, Soare TW. (2024) “A Scalable
+  Framework for Identifying Allelic Series from Summary Statistics”
+  [doi:10.1101/2024.10.31.621375](https://www.biorxiv.org/content/10.1101/2024.10.31.621375v2).
 
 # Installation
 
