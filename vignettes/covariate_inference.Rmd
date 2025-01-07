@@ -1,0 +1,92 @@
+---
+title: "Covariate Inference"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Covariate Inference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Updated: 2025-01-06
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AllelicSeries)
+```
+
+## Overview
+
+The primary goal of allelic series analysis is to determine whether a dose-response relationship exists between the functionality of the gene and a phenotype of interest. A secondary goal might be to quantify the association between covariates and the phenotype in the context of an allelic series model. This vignette will illustrate how to perform inference on the latter relationship under two paradigms: the score test setting and Wald test setting. The **score test setting** estimates the association between the phenotype and covariates under the null hypothesis of no genotypic effect. An advantage of score testing is that all genes and all association models employed by COAST share a common null model. Thus, the relationship between the phenotype and covariates is characterized by a single set of association parameters. Even if the null hypothesis does not hold for all genes, score testing may be a reasonable approximation when the effect of genotype on the phenotype is relatively small. By contrast, the **Wald test setting** estimates the association between the phenotype and covariates while allowing for a non-zero genotypic effect. Although more flexible, a drawback of Wald testing is that each gene and each association model employed by COAST will have a separate set of association parameters.
+
+
+## Example data
+
+The simulated data provided by the `DGP` function includes a covariate data matrix `covar` with columns representing an intercept `int`, `age`, `sex`, and 3 genetic principal components `pc1`-`pc3`.  
+
+```{r}
+set.seed(101)
+data <- AllelicSeries::DGP(n = 1e3)
+head(data$covar)
+```
+
+
+## Score tests
+
+Score tests estimate the association between the phenotype and covariates in the absence of a genotypic effect. The effect sizes can be estimated by simple linear regression of the phenotype on covariates in the case of a continuous phenotype, or logistic regression in the case of a binary phenotype. Since all genes and all component allelic series tests have a common null model, a single set of coefficients is sufficient to characterize the association between the phenotype and covariates. 
+
+```{r}
+# Format score test data.frame.
+df <- data.frame(data$covar)
+df$y <- data$pheno
+
+# Case of a continuous phenotype.
+# An intercept is omitted from the call to `lm` because one is already 
+# contained in the covariate matrix.
+fit <- lm(y ~ 0 + ., data = df)
+summary(fit)
+```
+
+The **allelic series SKAT test** is inherently a score test. The **allelic series burden tests** may be run as score tests by setting the `score_test` option to `TRUE`, as in the following:
+```{r, eval = FALSE}
+results <- AllelicSeries::COAST(
+  anno = data$anno,
+  geno = data$geno,
+  pheno = data$pheno,
+  covar = data$covar,
+  score_test = TRUE
+)
+```
+
+## Wald tests
+
+Wald tests estimate the association between the phenotype and covariates allowing for the presence of a genotypic effect. We will focus on estimation of effect sizes for the allelic series burden models. The key difference from score testing is the need to calculate the gene-burden score. This can be achieved using the `Aggregator` function. The necessary inputs are the annotation vector `anno` and genotype matrix `geno`. The aggregation `method` argument should be set to `"none"` for the baseline model (default), `"sum"` for the allelic sum model, and `"max"` for the allelic max model. The `indicator` argument should be set to `FALSE` for additive genotype encoding (default), and to `TRUE` for dominance genotype encoding. 
+```{r}
+# Example of fitting the baseline allelic series model.
+g <- Aggregator(anno = data$anno, geno = data$geno, method = "none")
+colnames(g) <- c("g1", "g2", "g3")
+df_base <- cbind(data.frame(g), df)
+fit <- lm(y ~ 0 + ., data = df_base)
+summary(fit)
+
+# Example of fitting the allelic series sum model.
+g <- Aggregator(anno = data$anno, geno = data$geno, method = "sum")
+colnames(g) <- c("g_sum")
+df_sum <- cbind(data.frame(g), df)
+fit <- lm(y ~ 0 + ., data = df_sum)
+summary(fit)
+
+# Example of fitting the allelic series max model.
+g <- Aggregator(anno = data$anno, geno = data$geno, method = "max")
+colnames(g) <- c("g_max")
+df_max <- cbind(data.frame(g), df)
+fit <- lm(y ~ 0 + ., data = df_max)
+summary(fit)
+```
+
+Effect sizes for the allelic series SKAT model may be estimated by fitting a (generalized) linear mixed-effects model with an appropriately specified random-effect for genotype. However, fitting such models is uncommon, as the SKAT test is inherently a score test, and developing a strategy for Wald-type estimation of the fixed-effects in a SKAT model is beyond the scope of this vignette.  
