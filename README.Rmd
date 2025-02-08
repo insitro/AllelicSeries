@@ -27,7 +27,7 @@ This package implements gene-level rare variant association tests targeting alle
 install.packages("AllelicSeries")
 
 # Install from GitHub.
-devtools::install_github(repo = "insitro/AllelicSeries")
+remotes::install_github("insitro/AllelicSeries", build_vignettes = TRUE)
 ```
 
 ```{r}
