@@ -540,3 +540,40 @@ test_that("Test COAST runs with dosage genotypes.", {
   )
   
 })
+
+
+# ------------------------------------------------------------------------------
+
+test_that("Test intercept is added by default.", {
+
+  withr::local_seed(106)
+  data <- DGP(n = 100)
+  
+  # Results when an intercept is included manually.
+  with_int <- COAST(
+    anno = data$anno,
+    geno = data$geno,
+    covar = data$covar,
+    pheno = data$pheno
+  )
+  
+  # Results without intercept.
+  covar <- data$covar
+  covar <- covar[, 2:6]
+  expect_warning({
+    without_int <- COAST(
+      anno = data$anno,
+      geno = data$geno,
+      covar = covar,
+      pheno = data$pheno
+    )
+  })
+  
+  expect_equal(
+    with_int@Pvals$pval, 
+    without_int@Pvals$pval
+  )
+    
+})
+
+

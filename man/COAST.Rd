@@ -8,6 +8,7 @@ COAST(
   anno,
   geno,
   pheno,
+  add_intercept = TRUE,
   apply_int = TRUE,
   covar = NULL,
   include_orig_skato_all = FALSE,
@@ -28,6 +29,9 @@ the number of annotation categories L.}
 \item{geno}{(n x snps) genotype matrix.}
 
 \item{pheno}{(n x 1) phenotype vector.}
+
+\item{add_intercept}{Add an intercept if not present in the supplied
+covariate matrix covar? Default: TRUE.}
 
 \item{apply_int}{Apply rank-based inverse normal transform to the phenotype?
 Default: TRUE. Ignored if phenotype is binary.}

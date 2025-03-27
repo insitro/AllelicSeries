@@ -14,6 +14,7 @@ test_that("Test positive-definite evaluation.", {
   
 })
 
+
 test_that("Test variant collapsing threshold.", {
   
   # Case 0: Threshold of zero.
@@ -92,6 +93,20 @@ test_that("Test variant collapsing with dosage genotypes.", {
   expect_equal(out$geno, exp)
   exp <- c("rs1;rs2", "rs3", "")
   expect_equal(out$vars$vars, exp)
+  
+})
+
+
+test_that("Test whether intercept exists.", {
+  
+  # Design matrix with intercept.
+  n <- 10
+  with_int <- cbind(1, seq(1:n))
+  expect_true(ContainsInt(with_int))
+  
+  # Design matrix without intercept.
+  without_int <- cbind(seq(1:n), seq(1:n))
+  expect_false(ContainsInt(without_int))
   
 })
 

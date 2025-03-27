@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Updated: 2025-01-02
+Updated: 2025-03-26
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -19,7 +19,7 @@ To run an allelic series test, there are 4 key inputs:
 
 * A numeric annotation vector, of the same length as the number of variants, coded as 1 for benign missense variants (BMVs), 2 for damaging missense variants (DMVs), and 3 for protein truncating variants (PTVs).
 
-* A covariates matrix, with as many rows as subjects and including columns such as age and sex. If omitted, defaults to an intercept only.
+* A covariates matrix, with as many rows as subjects and including columns such as age and sex. If omitted, defaults to an intercept only. If provided, an intercept will automatically be added if not detected. 
 
 * A genotype matrix, with subjects as rows and variants as columns. The number of columns should correspond to the length of the annotation vector.
 

@@ -430,6 +430,34 @@ test_that("Check sumstats generation.", {
 })
 
 
+test_that("Test addition of intercept during sumstat calculation.", {
+  
+  withr::local_seed(123)
+  data <- DGP()
+  
+  # Results when an intercept is included manually.
+  with_int <- CalcSumstats(data = data)
+  
+  # Results without intercept.
+  covar <- data$covar
+  covar <- covar[, 2:6]
+  expect_warning({
+    without_int <- CalcSumstats(
+      anno = data$anno,
+      geno = data$geno,
+      covar = covar,
+      pheno = data$pheno
+    )
+  })
+  
+  expect_equal(
+    with_int$sumstats, 
+    without_int$sumstats
+  )
+  
+})
+
+
 # ------------------------------------------------------------------------------
 
 test_that("Test sumstat generation when covariates are omitted.", {

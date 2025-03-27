@@ -1,7 +1,7 @@
 README
 ================
 
-Updated: 2024-11-21
+Updated: 2025-03-26
 
 # Allelic Series
 
@@ -41,7 +41,7 @@ function, high-confidence loss of function. For additional details, see:
 install.packages("AllelicSeries")
 
 # Install from GitHub.
-devtools::install_github(repo = "insitro/AllelicSeries")
+remotes::install_github("insitro/AllelicSeries", build_vignettes = TRUE)
 ```
 
 ``` r
@@ -83,8 +83,8 @@ The example `data` are a list with the following components:
   can be set when performing the association test.
 
 - `covar`: An `n` by 6 covariate matrix where `n` is the number of
-  subjects and the columns correspond to: an intercept `int`, `age`,
-  `sex`, and 3 genetic PCs (`pc1`, `pc2`, `pc3`).
+  subjects and the columns correspond to: an `intercept`, `age`, `sex`,
+  and 3 genetic PCs (`pc1`, `pc2`, `pc3`).
 
 - `geno`: An `n` by `snps` genotype matrix with additive coding.
 
@@ -115,8 +115,8 @@ per-variant genotype matrix, and the phenotype vector.
   has been adopted as it is the default in `R`.
 
 - If unspecified, `covar` will default to an intercept vector (i.e. a
-  vector of `1`s). If `covar` is provided, an intercept should be
-  included manually as necessary.
+  vector of `1`s). If `covar` is specified, an intercept will
+  automatically be added if not detected.
 
 - `weights` encodes the relative importance of the annotation
   categories. The example weights of `c(1, 2, 3)` target a genetic
@@ -295,8 +295,8 @@ either from:
 - An annotation vector `anno`, genotype matrix `geno`, and phenotype
   vector `pheno`, formatted as provided by `DGP`.
 - Providing covariates `covar` is optional. If omitted, an
-  intercept-only design matrix is adopted by default. If supplied, the
-  covariates should include an intercept as necessary.
+  intercept-only design matrix is adopted by default. If `covar` is
+  specified, an intercept will automatically be added if not detected.
 
 ``` r
 sumstats <- CalcSumstats(
