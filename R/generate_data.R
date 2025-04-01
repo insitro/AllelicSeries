@@ -156,7 +156,7 @@ GenCovar <- function(n) {
   out <- cbind(age, pcs)
   out <- scale(out)
   out <- cbind(1, out[, 1], sex, out[, 2:ncol(out)])
-  colnames(out) <- c("int", "age", "sex", paste0("pc", seq_len(N_PC)))
+  colnames(out) <- c("intercept", "age", "sex", paste0("pc", seq_len(N_PC)))
   return(out)
 }
 
@@ -186,7 +186,7 @@ CalcRegParam <- function(
   b_sex <- stats::rnorm(1, sd = sqrt(pve_sex))
   b_pcs <- stats::rnorm(3, sd = sqrt(pve_pcs / 3))
   beta <- c(b_int, b_age, b_sex, b_pcs)
-  names(beta) <- c("int", "age", "sex", "pc1", "pc2", "pc3")
+  names(beta) <- c("intercept", "age", "sex", "pc1", "pc2", "pc3")
 
   # Output.
   out <- list(

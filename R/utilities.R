@@ -1,5 +1,5 @@
 # Purpose: Utility functions.
-# Updated: 2025-01-02
+# Updated: 2025-03-26
 
 #' Collapse Variants
 #' 
@@ -85,6 +85,24 @@ CollapseGeno <- function(
     vars = vars_agg
   )
   return(out)
+}
+
+
+#' Contains Intercept?
+#' 
+#' Check if a design matrix contains an intercept.
+#' 
+#' @param x Design matrix.
+#' @return Logical.
+#' @export 
+ContainsInt <- function(x) {
+  out <- FALSE
+  x <- as.matrix(x)
+  n_col <- ncol(x)
+  for (i in 1:n_col) {
+    if (all(x[, i] == 1)) {out <- TRUE}
+  }
+  return(out)  
 }
 
 

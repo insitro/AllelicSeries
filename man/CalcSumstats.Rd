@@ -10,6 +10,7 @@ CalcSumstats(
   data = NULL,
   geno = NULL,
   pheno = NULL,
+  add_intercept = TRUE,
   is_binary = FALSE
 )
 }
@@ -26,6 +27,9 @@ arguments if provided.}
 \item{geno}{(subjects x snps) genotype matrix.}
 
 \item{pheno}{(subjects x 1) phenotype vector.}
+
+\item{add_intercept}{Add an intercept if not present in the supplied
+covariate matrix covar? Default: TRUE.}
 
 \item{is_binary}{Is the phenotype binary? Default: FALSE.}
 }

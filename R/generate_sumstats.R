@@ -1,5 +1,5 @@
 # Purpose: Given simulated data from `DGP`, calculate summary statistics.
-# Updated: 2024-11-11
+# Updated: 2025-03-26
 
 #' Calculate Summary Statistics
 #' 
@@ -15,6 +15,8 @@
 #'   arguments if provided.
 #' @param geno (subjects x snps) genotype matrix.
 #' @param pheno (subjects x 1) phenotype vector.
+#' @param add_intercept Add an intercept if not present in the supplied 
+#'   covariate matrix covar? Default: TRUE.
 #' @param is_binary Is the phenotype binary? Default: FALSE.
 #' 
 #' @return List containing the following items:
@@ -33,6 +35,7 @@ CalcSumstats <- function(
   data = NULL,
   geno = NULL,
   pheno = NULL,
+  add_intercept = TRUE,
   is_binary = FALSE
 ) {
   
@@ -55,6 +58,16 @@ CalcSumstats <- function(
   
   if (is.null(covar)) {
     covar <- matrix(data = 1, nrow = length(pheno))
+  }
+  
+  # Check if covariate matrix contains an intercept.
+  if (!ContainsInt(covar)) {
+    warning("No intercept was detected in the covariate matrix. One will
+             be added unless `add_intercept = FALSE`.")
+    if (add_intercept) {
+      covar <- cbind(1, covar)
+      colnames(covar)[1] <- "intercept"
+    }
   }
   
   # Calculate MAF.

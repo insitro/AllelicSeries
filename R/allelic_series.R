@@ -370,6 +370,8 @@ ASKAT <- function(
 #'   the number of annotation categories L.
 #' @param geno (n x snps) genotype matrix.
 #' @param pheno (n x 1) phenotype vector.
+#' @param add_intercept Add an intercept if not present in the supplied 
+#'   covariate matrix covar? Default: TRUE.
 #' @param apply_int Apply rank-based inverse normal transform to the phenotype?
 #'   Default: TRUE. Ignored if phenotype is binary.
 #' @param covar (n x p) covariate matrix. Defaults to an (n x 1) intercept.
@@ -411,6 +413,7 @@ COAST <- function(
   anno,
   geno,
   pheno,
+  add_intercept = TRUE,
   apply_int = TRUE,
   covar = NULL,
   include_orig_skato_all = FALSE,
@@ -437,6 +440,16 @@ COAST <- function(
   covar <- as.matrix(covar)
   geno <- as.matrix(geno)
   pheno <- as.vector(pheno)
+  
+  # Check if covariate matrix contains an intercept.
+  if (!ContainsInt(covar)) {
+    warning("No intercept was detected in the covariate matrix. One will
+             be added unless `add_intercept = FALSE`.")
+    if (add_intercept) {
+      covar <- cbind(1, covar)
+      colnames(covar)[1] <- "intercept"
+    }
+  }
 
   # Input check.
   CheckInputs(

@@ -98,6 +98,7 @@ CheckInputs <- function(
       stop("A binary phenotype must have exactly 2 values: {0, 1}.")
     }
   }
+  return(invisible(NULL))
 }
 
 

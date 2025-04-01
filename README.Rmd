@@ -7,7 +7,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Updated: 2024-11-21
+Updated: 2025-03-26
 
 # Allelic Series
 
@@ -58,7 +58,7 @@ The example `data` are a list with the following components:
 
 * `anno`: An `snps` by 1 annotation vector coded as 1 for BMVs, 2 for DMVs, and 3 for PTVs. Note that the values of (1, 2, 3) simply identify different categories of variants; `weights` other than these can be set when performing the association test. 
 
-* `covar`: An `n` by 6 covariate matrix where `n` is the number of subjects and the columns correspond to: an intercept `int`, `age`, `sex`, and 3 genetic PCs (`pc1`, `pc2`, `pc3`).
+* `covar`: An `n` by 6 covariate matrix where `n` is the number of subjects and the columns correspond to: an `intercept`, `age`, `sex`, and 3 genetic PCs (`pc1`, `pc2`, `pc3`).
 
 * `geno`: An `n` by `snps` genotype matrix with additive coding.
 
@@ -80,7 +80,7 @@ The function `COAST` performs the coding-variant allelic series test. The requir
 
 * The function allows any number of annotation categories, coded as consecutive integers starting at 1. The example data have categories of `c(1, 2, 3)`. The length of `anno` should match the number of columns of the genotype matrix `geno`. Note: a previous version of the package used zero-indexed annotation categories. The main functions will still run with zero-indexed annotations, but one-based indexing has been adopted as it is the default in `R`.
 
-* If unspecified, `covar` will default to an intercept vector (i.e. a vector of `1`s). If `covar` is provided, an intercept should be included manually as necessary.
+* If unspecified, `covar` will default to an intercept vector (i.e. a vector of `1`s). If `covar` is specified, an intercept will automatically be added if not detected. 
 
 * `weights` encodes the relative importance of the annotation categories. The example weights of `c(1, 2, 3)` target a genetic architecture where effect sizes increase with increasing deleteriousness: BMVs have a relative effect of 1, DMVs have a relative effect of 2, and PTVs have a relative effect of 3. Weights of `c(1, 1, 1)` target instead a genetic architecture where all variant types have equivalent expected magnitudes.
 
@@ -139,7 +139,7 @@ The function `CalcSumstats` calculates summary statistics starting either from:
 * The direct output of `DGP`, or
 * An annotation vector `anno`, genotype matrix `geno`, and phenotype vector 
   `pheno`, formatted as provided by `DGP`.
-* Providing covariates `covar` is optional. If omitted, an intercept-only design matrix is adopted by default. If supplied, the covariates should include an intercept as necessary.
+* Providing covariates `covar` is optional. If omitted, an intercept-only design matrix is adopted by default. If `covar` is specified, an intercept will automatically be added if not detected. 
   
 ```{r}
 sumstats <- CalcSumstats(
