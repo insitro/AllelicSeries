@@ -1,3 +1,6 @@
+## Version 1.1.5
+* Updated `COAST` to automatically add an intercept to the `covar` matrix if one is not detected. Likewise for `CalcSumstats`.
+
 ## Version 1.1.1
 * Updated `COAST` and `COASTSS` to return estimated effect sizes and standard errors from the allelic series burden test.
 
