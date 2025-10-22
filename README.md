@@ -30,9 +30,9 @@ function, high-confidence loss of function. For additional details, see:
   [doi:10.1016/j.ajhg.2023.07.001](https://www.cell.com/ajhg/fulltext/S0002-9297(23)00241-0).
 
 - McCaw ZR, Gao J, Dey R, Tucker S, Zhang Y, Research Team insitro,
-  Gronsbell J, Li X, Fox E, O’Dushlaine C, Soare TW. (2024) “A Scalable
+  Gronsbell J, Li X, Fox E, O’Dushlaine C, Soare TW. (2025) “A Scalable
   Framework for Identifying Allelic Series from Summary Statistics”
-  [doi:10.1101/2024.10.31.621375](https://www.biorxiv.org/content/10.1101/2024.10.31.621375v2).
+  [doi:10.1016/j.ajhg.2025.09.012](https://www.cell.com/ajhg/fulltext/S0002-9297(25)00368-4).
 
 # Installation
 
@@ -238,7 +238,7 @@ data4 <- DGP(
   weights = c(1, 1, 1, 1)
 )
 
-# Run COAST-SS.
+# Run COAST
 results <- COAST(
   anno = data4$anno,
   covar = data4$covar,
